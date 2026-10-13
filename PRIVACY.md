@@ -24,7 +24,7 @@ what it does with them.
   - a log of counts and timings for troubleshooting (for example "corrected 1 word in chrome.exe
     in 12 ms"). The log never contains anything you typed.
 
-Uninstalling the Store / installed version removes all of it. The portable (zip) version keeps it in
+Uninstalling the Store / installed version removes all of it. The portable version keeps it in
 `%LocalAppData%\AutoLang`; delete that folder to remove it.
 
 ## What leaves your computer

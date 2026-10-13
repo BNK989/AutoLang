@@ -24,7 +24,7 @@ on the foreground window's HKL, feeds the controller and only *enqueues* correct
 `WM_INPUTLANGCHANGEREQUEST` → **focus thread** (STA) vets every focus change, default-deny: the run is blocked the
 moment focus moves and unblocked only after the worker has checked paused / excluded / disabled / elevated /
 fullscreen / UIA `IsPassword`, with sequence numbers so stale checks are dropped. Layouts and word lists are
-discovered at start (`LayoutProbe` over the installed HKLs, `data/words/<iso>_50k.txt` next to the exe); a language
+discovered at start (`LayoutProbe` over the installed HKLs, `data/words/<iso>_50k.txt`, embedded in the exe since 0.4.2); a language
 without a list is ignored. Hotkeys: `Pause` = undo + learn, `Shift+Pause` = force-convert the run. Tray menu:
 pause, disable for the current app, skip fullscreen, open the log file. Persisted: `%LocalAppData%\AutoLang\
 settings.json` (toggles, excluded/disabled apps, exception words) and `host.log` (counts and timings, never text).
@@ -34,7 +34,7 @@ the first keystrokes after a focus change are not tracked until the focus check 
 by process name only, so VS Code's integrated terminal is not excluded; the fullscreen heuristic can block
 borderless maximised apps (toggle in the menu).
 Tester packages (M4): `packaging/build-msix.ps1` (MSIX, for the Store or signed with a test cert for sideloading)
-and `packaging/build-zip.ps1` (portable single-file exe + `README.txt`, unsigned). Both self-contained, ~61-66 MB
+and `packaging/build-portable.ps1` (portable single-file `AutoLang.exe`, word lists inside, unsigned; a zip before 0.4.2). Both self-contained, ~61-66 MB
 because the .NET desktop runtime is inside. Store steps, certification notes and the clean-machine checklist:
 `packaging/STORE.md`.
 Multi-language state (2026-10-12): the host now works with whatever keyboards are installed, grouped by alphabet

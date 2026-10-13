@@ -18,7 +18,7 @@ clock (click the ^ if it is hidden). Type "akuo " in Notepad with the English ke
 If the installer says the publisher is not trusted, step 1 went into the wrong store: repeat it and
 pick Local Machine and Trusted People.
 
-If you used the older zip version of AutoLang, exit it first (right-click its tray icon -> Exit)
+If you used the portable AutoLang.exe (or the older zip), exit it first (right-click its tray icon -> Exit)
 and delete its folder, so only one copy runs.
 
 Uninstall: Settings -> Apps -> AutoLang -> Uninstall.

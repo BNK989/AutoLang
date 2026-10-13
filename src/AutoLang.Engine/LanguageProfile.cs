@@ -76,8 +76,13 @@ public sealed class LanguageProfile
     /// </summary>
     public static LanguageProfile FromFrequencyFile(ushort langId, string name, string path, ILanguageRules? rules = null,
         Func<string, string>? normalize = null, int order = 5, int maxEntries = int.MaxValue, Func<double, double>? lmWeight = null)
+        => FromFrequencyLines(langId, name, File.ReadLines(path), rules, normalize, order, maxEntries, lmWeight);
+
+    /// <summary><see cref="FromFrequencyFile"/> for a list that is not a file on disk (the host's are embedded in the exe).</summary>
+    public static LanguageProfile FromFrequencyLines(ushort langId, string name, IEnumerable<string> lines, ILanguageRules? rules = null,
+        Func<string, string>? normalize = null, int order = 5, int maxEntries = int.MaxValue, Func<double, double>? lmWeight = null)
     {
-        var dict = WordDictionary.LoadFrequencyFile(path, normalize, maxEntries);
+        var dict = WordDictionary.FromFrequencyLines(lines, normalize, maxEntries);
         lmWeight ??= DefaultLmWeight;
         var lm = new CharNGramModel(order);
         foreach (var (w, c) in dict.Entries)

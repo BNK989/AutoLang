@@ -19,8 +19,7 @@ Windows 10 (1809+) or 11, 64-bit, with keyboards for at least two different alph
 
 Download from the [latest release](https://github.com/BNK989/AutoLang/releases/latest):
 
-- **`AutoLang-win-x64.zip`**, portable: unzip anywhere, keep `AutoLang.exe` and the `data` folder
-  together, run `AutoLang.exe`. The exe is unsigned, so SmartScreen warns: **More info → Run anyway**.
+- **`AutoLang.exe`**, portable: a single file, put it anywhere and run it. The exe is unsigned, so SmartScreen warns: **More info → Run anyway**.
 - **`AutoLang-x64.msix`**, installer: signed with a test certificate your PC has to trust once.
   Double-click `dev-signing.cer` → **Install Certificate…** → **Local Machine** → **Place all certificates
   in the following store** → **Trusted People** → Finish. Then double-click the `.msix` → **Install**.
@@ -71,7 +70,7 @@ Needs the .NET 8 SDK.
 ```
 dotnet build AutoLang.sln
 dotnet test
-.\packaging\build-zip.ps1     # portable build in dist\
+.\packaging\build-portable.ps1  # portable dist\AutoLang.exe
 .\packaging\build-msix.ps1    # MSIX in dist\ (see packaging\STORE.md)
 ```
 
@@ -79,6 +78,6 @@ The eval corpus is not in the repo; see [data/README.md](data/README.md) to fetc
 
 ## License
 
-Code: [MIT](LICENSE). Word lists in `data/words` (and those downloaded at runtime):
+Code: [MIT](LICENSE). Word lists in `data/words` (built into the exe) and those downloaded at runtime:
 [FrequencyWords](https://github.com/hermitdave/FrequencyWords) by Hermit Dave, built from OpenSubtitles 2018,
 [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).

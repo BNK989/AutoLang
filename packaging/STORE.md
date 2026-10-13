@@ -5,7 +5,7 @@ Two outputs, both built from this folder:
 | Script | Output | For |
 |---|---|---|
 | `build-msix.ps1` | `dist/AutoLang-<version>-x64.msix` | Microsoft Store (unsigned upload) or sideload tests (signed with a test cert) |
-| `build-zip.ps1` | `dist/AutoLang-win-x64.zip` | Portable build; unsigned, SmartScreen warns |
+| `build-portable.ps1` | `dist/AutoLang.exe` | Portable single-file build; unsigned, SmartScreen warns |
 
 Both need the .NET 8 SDK. `build-msix.ps1` also needs `makeappx` / `makepri` (and `signtool` when signing). It
 uses an installed Windows SDK if there is one, otherwise it fetches Microsoft's `Microsoft.Windows.SDK.BuildTools`
@@ -82,7 +82,7 @@ On the test PC (once, as administrator), trust the certificate, then install:
 
 ```
 Import-Certificate dist\dev-signing.cer -CertStoreLocation Cert:\LocalMachine\TrustedPeople
-Add-AppxPackage dist\AutoLang-0.4.1.0-x64.msix
+Add-AppxPackage dist\AutoLang-0.4.2.0-x64.msix
 ```
 
 Testers can do the same by double-clicking: `.cer` → Install Certificate → Local Machine → Trusted People, then

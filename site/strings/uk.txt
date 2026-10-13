@@ -113,8 +113,8 @@ Windows 10 (1809 або новіша) чи Windows 11, 64-розрядна, з �
 @portable_h3
 Портативна версія (найпростіше)
 @portable_1
-Завантажте <a href="https://github.com/BNK989/AutoLang/releases/latest/download/AutoLang-win-x64.zip"><code>AutoLang-win-x64.zip</code></a> і розпакуйте будь-куди.
-        Тримайте <code>AutoLang.exe</code> і папку <code>data</code> разом.
+Завантажте <a href="https://github.com/BNK989/AutoLang/releases/latest/download/AutoLang.exe"><code>AutoLang.exe</code></a> і покладіть будь-куди, наприклад в окрему папку.
+        Це один файл: нічого не треба розпаковувати чи встановлювати.
 @portable_2
 Запустіть <code>AutoLang.exe</code>. Попередня версія ще не має цифрового підпису, тож Windows SmartScreen покаже попередження:
         натисніть <strong>More info → Run anyway</strong>.
@@ -215,7 +215,7 @@ AutoLang — це утиліта для Windows, яка помічає, що в�
 журнал із лічильниками й часом виконання для усунення неполадок (наприклад, «виправлено 1 слово в chrome.exe за 12 мс»).
             Журнал ніколи не містить нічого з того, що ви набирали.
 @p_uninstall
-Під час видалення версії зі Store або інстальованої версії все це видаляється. Портативна (zip) версія зберігає ці дані в
+Під час видалення версії зі Store або інстальованої версії все це видаляється. Портативна версія зберігає ці дані в
       <code>%LocalAppData%\AutoLang</code>; щоб їх прибрати, видаліть цю папку.
 
 @p_leaves_h

@@ -114,8 +114,8 @@ Windows 10 (גרסה 1809 ומעלה) או Windows 11, בגרסת 64 סיביו�
 @portable_h3
 גרסה ניידת (הכי פשוט)
 @portable_1
-להוריד את <a href="https://github.com/BNK989/AutoLang/releases/latest/download/AutoLang-win-x64.zip"><code>AutoLang-win-x64.zip</code></a> ולחלץ אותו לאן שרוצים.
-        הקובץ <code>AutoLang.exe</code> והתיקייה <code>data</code> צריכים להישאר יחד.
+להוריד את <a href="https://github.com/BNK989/AutoLang/releases/latest/download/AutoLang.exe"><code>AutoLang.exe</code></a> ולשים אותו איפה שרוצים, למשל בתיקייה משלו.
+        זה קובץ אחד: אין מה לחלץ או להתקין.
 @portable_2
 להפעיל את <code>AutoLang.exe</code>. גרסת התצוגה המקדימה עדיין לא חתומה בחתימת קוד, ולכן Windows SmartScreen מציג אזהרה:
         ללחוץ על <span dir="ltr"><strong>More info → Run anyway</strong></span>.
@@ -216,7 +216,7 @@ AutoLang היא תוכנת עזר ל-Windows שמזהה הקלדה בפריסת 
 לוג של ספירות ותזמונים לאבחון תקלות (למשל "תוקנה מילה אחת ב-chrome.exe תוך 12 מילישניות").
             הלוג אף פעם לא מכיל שום דבר ממה שהקלדת.
 @p_uninstall
-הסרה של גרסת ה-Store או של הגרסה המותקנת מוחקת את כל המידע הזה. הגרסה הניידת (zip) שומרת אותו בתיקייה
+הסרה של גרסת ה-Store או של הגרסה המותקנת מוחקת את כל המידע הזה. הגרסה הניידת שומרת אותו בתיקייה
       <span dir="ltr"><code>%LocalAppData%\AutoLang</code></span>; כדי להסיר אותו, יש למחוק את התיקייה הזו.
 
 @p_leaves_h

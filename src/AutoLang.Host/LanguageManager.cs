@@ -65,7 +65,7 @@ internal sealed class LanguageManager : IDisposable
     {
         foreach (var code in _tables.Select(t => WordLists.SourceCode(t.LangId)).OfType<string>().Distinct())
         {
-            if (WordLists.Find(code) is { } found) TryLoad(code, found.Path, found.Bundled);
+            if (WordLists.Find(code) is { } found) TryLoad(code, found);
         }
         foreach (var t in _tables)
             if (WordLists.SourceCode(t.LangId) is null) Log.Info($"{CultureOf(t.LangId)}: no word list for this language (IME or unsupported)");
@@ -199,7 +199,7 @@ internal sealed class LanguageManager : IDisposable
                 Log.Info($"word list {code}: downloading");
                 var path = await WordLists.DownloadAsync(_http, code, script, _cts.Token).ConfigureAwait(false);
                 Log.Info($"word list {code}: downloaded");
-                TryLoad(code, path, bundled: false);
+                TryLoad(code, WordLists.FromFile(path));
             }
             catch (WordListUnavailableException)
             {
@@ -221,12 +221,13 @@ internal sealed class LanguageManager : IDisposable
         });
     }
 
-    private void TryLoad(string code, string path, bool bundled)
+    private void TryLoad(string code, WordListSource source)
     {
         var table = _tables.First(t => WordLists.SourceCode(t.LangId) == code);
+        var bundled = source.Bundled;
         try
         {
-            var p = LanguageProfile.FromFrequencyFile(table.LangId, table.Name, path,
+            var p = LanguageProfile.FromFrequencyLines(table.LangId, table.Name, source.ReadLines(),
                 LanguageProfile.DefaultRulesFor(table.LangId), LanguageProfile.DefaultNormalizeFor(table.LangId));
             lock (_sync)
             {

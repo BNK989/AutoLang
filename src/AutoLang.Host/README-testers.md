@@ -5,7 +5,7 @@ type `יקךךם` and it becomes `hello`, and the keyboard switches to the right
 next words. It works in every normal text field (Chrome, Outlook, Word, WhatsApp, VS Code, …).
 
 This is an early build for friends. It comes two ways: an installer package (`.msix`, preferred)
-and a plain zip (no install).
+and a single portable `AutoLang.exe` (no install).
 
 ## Requirements
 
@@ -35,10 +35,10 @@ A test build is signed with a test certificate that your PC has to trust once:
 AutoLang appears in the Start menu, starts with Windows by default, and uninstalls cleanly from
 Settings → Apps.
 
-### From the zip (no install)
+### Portable `AutoLang.exe` (no install)
 
-1. Unzip the folder anywhere (for example `C:\Users\<you>\AutoLang`). Keep `AutoLang.exe` and the
-   `data` folder together.
+1. Put `AutoLang.exe` anywhere (for example `C:\Users\<you>\AutoLang`). It is a single file with the
+   word lists inside; nothing to unzip.
 2. Double-click `AutoLang.exe`.
    Windows SmartScreen will warn because the exe is unsigned: click **More info → Run anyway**.
    If Defender quarantines it, restore it and add an exclusion for the folder (it hooks the
@@ -99,7 +99,7 @@ Please send me:
    - a missed correction,
    - text that came out garbled or doubled (and whether another typing method fixed it),
    - a layout switch that happened when it should not have.
-2. The log: right-click the icon → **Show log** (installed) or **Open log file** (zip) → copy it.
+2. The log: right-click the icon → **Show log** (installed) or **Open log file** (portable) → copy it.
    It has no typed text in it, only timings and counts.
 3. Anything that felt slow or made a key feel "sticky".
 

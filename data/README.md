@@ -1,7 +1,7 @@
 # data/
 
 Inputs for the engine tests and the eval harness. Nothing here is loaded by the runtime app except
-`words/` (bundled with the host from M2 on).
+`words/` (bundled with the host from M2 on; embedded in the exe since 0.4.2).
 
 | Path | What | Source | Checked in? |
 |---|---|---|---|
@@ -21,7 +21,7 @@ the two-letter ISO code, except `no` for Norwegian Bokmål/Nynorsk and `pt_br` f
 Japanese, Chinese and Korean, which are typed through an IME). It looks in two places, the first match winning:
 
 1. `%LocalAppData%\AutoLang\words\` — lists it downloaded;
-2. `data\words\` next to `AutoLang.exe` — lists bundled with the build.
+2. the lists bundled with the build: `data/words/*.txt`, embedded in `AutoLang.exe` as resources `words/<file>`.
 
 A missing list is downloaded in the background (on by default; *Languages…* in the tray menu turns it off or
 fetches one by hand) from

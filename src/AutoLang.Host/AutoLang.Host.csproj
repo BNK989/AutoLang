@@ -4,7 +4,7 @@
        boundaries, correction injected from a worker thread (per-app typing method), undo / force hotkeys, default
        app exclusions, password-field and admin-window skip, hook watchdog and restart-on-crash, no persistence of
        typed text. WinForms gives the tray icon; WPF is pulled in for the UI Automation client.
-       Ships as an MSIX (packaging/build-msix.ps1) or a zip (packaging/build-zip.ps1). -->
+       Ships as an MSIX (packaging/build-msix.ps1) or a single portable exe (packaging/build-portable.ps1). -->
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
@@ -25,7 +25,7 @@
     <!-- Rendered by tools/AutoLang.Assets from IconArt.cs. -->
     <ApplicationIcon>AutoLang.ico</ApplicationIcon>
     <!-- The MSIX version is this plus ".0" (packaging/build-msix.ps1); the Store requires the 4th part to stay 0. -->
-    <Version>0.4.1</Version>
+    <Version>0.4.2</Version>
     <Product>AutoLang</Product>
     <Company>AutoLang</Company>
     <Description>Fixes words typed in the wrong keyboard layout and switches the layout for you.</Description>
@@ -44,9 +44,8 @@
   <!-- The word lists are the engine's dictionaries; they ship next to the exe. One file per language, named by
        the ISO 639-1 code of the installed layout's language (en_50k.txt, he_50k.txt, ...). -->
   <ItemGroup>
-    <!-- ExcludeFromSingleFile: the single-file bundler otherwise swallows some of these into the exe (it bundled
-         en_50k.txt and left he_50k.txt beside it); the host reads them from disk via AppContext.BaseDirectory. -->
-    <None Include="..\..\data\words\*.txt" LinkBase="data\words" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
+    <!-- Embedded, so the portable build is one exe with no data folder beside it; WordLists.Find reads "words/<file>". -->
+    <EmbeddedResource Include="..\..\data\words\*.txt" LogicalName="words/%(Filename)%(Extension)" />
   </ItemGroup>
 
 </Project>

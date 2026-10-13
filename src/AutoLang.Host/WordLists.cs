@@ -6,7 +6,7 @@ using AutoLang.Engine;
 namespace AutoLang.Host;
 
 /// <summary>
-/// Where each language's word list comes from: bundled next to the exe, or downloaded on demand from
+/// Where each language's word list comes from: bundled in the exe, or downloaded on demand from
 /// hermitdave/FrequencyWords (CC-BY-SA 4.0) into %LocalAppData%\AutoLang\words. A download is the host's only network
 /// use (PLAN.md §6): a plain GET of a public file, pinned to one commit, sending nothing about the user but which
 /// language list it wants.
@@ -22,7 +22,6 @@ internal static class WordLists
     private const int MinEntries = 1000;
 
     public static string DownloadDir => Path.Combine(Log.Dir, "words");
-    public static string BundledDir => Path.Combine(AppContext.BaseDirectory, "data", "words");
 
     /// <summary>
     /// FrequencyWords' name for the language of <paramref name="langId"/>, which is also the local file stem, or null
@@ -45,14 +44,27 @@ internal static class WordLists
 
     public static string FileName(string code) => $"{code}_50k.txt";
 
-    /// <summary>The list on disk for <paramref name="code"/>: a downloaded one wins over the bundled one. Null if neither exists.</summary>
-    public static (string Path, bool Bundled)? Find(string code)
+    /// <summary>
+    /// The list for <paramref name="code"/>: a downloaded one wins over the bundled one. Null if neither exists.
+    /// Bundled lists are resources inside the exe (see the csproj), so the portable build is a single file.
+    /// </summary>
+    public static WordListSource? Find(string code)
     {
         var downloaded = Path.Combine(DownloadDir, FileName(code));
-        if (File.Exists(downloaded)) return (downloaded, false);
-        var bundled = Path.Combine(BundledDir, FileName(code));
-        if (File.Exists(bundled)) return (bundled, true);
-        return null;
+        if (File.Exists(downloaded)) return FromFile(downloaded);
+        var resource = "words/" + FileName(code);
+        if (typeof(WordLists).Assembly.GetManifestResourceInfo(resource) is null) return null;
+        return new WordListSource(Bundled: true, () => ReadResource(resource));
+    }
+
+    public static WordListSource FromFile(string path) => new(Bundled: false, () => File.ReadLines(path));
+
+    private static IEnumerable<string> ReadResource(string name)
+    {
+        using var stream = typeof(WordLists).Assembly.GetManifestResourceStream(name)
+            ?? throw new FileNotFoundException("no bundled word list", name);
+        using var reader = new StreamReader(stream);
+        while (reader.ReadLine() is { } line) yield return line;
     }
 
     public static string Url(string code) =>
@@ -112,6 +124,9 @@ internal static class WordLists
         if (script != expectedScript) throw new InvalidDataException($"list is in {script}, keyboard types {expectedScript}");
     }
 }
+
+/// <summary>A word list to load: bundled in the exe or downloaded. <see cref="ReadLines"/> reads it from the start each call.</summary>
+internal sealed record WordListSource(bool Bundled, Func<IEnumerable<string>> ReadLines);
 
 internal sealed class WordListUnavailableException : Exception
 {
