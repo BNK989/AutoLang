@@ -49,32 +49,10 @@ The result is unsigned on purpose; the Store signs it with Microsoft's certifica
 reads input. Use https://bnk989.github.io/AutoLang/privacy.html (the GitHub Pages copy of `PRIVACY.md`, from
 `docs/privacy.html`; keep the two in step). Website: https://bnk989.github.io/AutoLang/.
 
-**Age ratings:** the questionnaire. No user-generated content, no communication, no purchases → rated 3+ / Everyone.
-
-**Store listing:**
-- Description (draft):
-  > Typed a whole sentence in the wrong keyboard language? AutoLang notices "akuo" should have been "שלום" (or
-  > "יקךךם" should have been "hello"), fixes it as you type, and switches the keyboard for you. Press Pause to undo;
-  > AutoLang remembers. Works with any pair of keyboards that use different alphabets: Hebrew, Arabic, Russian, Greek
-  > and more. Skips password fields, terminals and remote desktops. Nothing you type leaves your PC.
-- Screenshots: at least one, 1366×768 or larger (PNG). Good ones: the tray menu open; the Languages… window;
-  a before/after of a corrected sentence in Notepad.
-- Store logos: `packaging/store-300x300.png` is the 1:1 app tile icon (300×300). The optional box art (1080×1080)
-  and poster art (720×1080) are not generated; the listing works without them.
-
-**Submission options → Notes for certification.** `runFullTrust` is a restricted capability, so reviewers ask why.
-Paste this:
-
-> AutoLang is a desktop (Win32) utility that corrects text typed in the wrong keyboard layout, e.g. Hebrew letters
-> typed while the English layout was active. It needs runFullTrust because it installs a low-level keyboard hook
-> (SetWindowsHookEx WH_KEYBOARD_LL) to see which word is being typed, uses SendInput to replace the mistyped word,
-> and asks the foreground window to switch keyboard layout. None of this is possible from a sandboxed app.
-> Keystrokes are held in memory for the current word only and never stored or transmitted; see the privacy policy.
-> The only network use is downloading public word lists from GitHub. To test: install an English and a Hebrew
-> keyboard, open Notepad with the English layout active, type "akuo " — it becomes "שלום " and the layout switches
-> to Hebrew. Press Pause to undo.
-
-**Pricing:** free; markets as you like.
+**Everything else** (age rating answers, description, features, search terms, screenshots and captions, the
+`runFullTrust` note for certification): copy it from [`store/LISTING.md`](store/LISTING.md). The screenshots are
+`store/screenshot-1.png` .. `screenshot-4.png`, rendered from `store/screenshots.html` by
+`store/render-screenshots.ps1`.
 
 Certification takes from a few hours to a few days. Later updates: bump `<Version>`, rebuild with the same three
 values, upload as a new submission.
@@ -103,7 +81,7 @@ On the test PC (once, as administrator), trust the certificate, then install:
 
 ```
 Import-Certificate dist\dev-signing.cer -CertStoreLocation Cert:\LocalMachine\TrustedPeople
-Add-AppxPackage dist\AutoLang-0.4.0.0-x64.msix
+Add-AppxPackage dist\AutoLang-0.4.1.0-x64.msix
 ```
 
 Testers can do the same by double-clicking: `.cer` → Install Certificate → Local Machine → Trusted People, then

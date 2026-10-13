@@ -54,7 +54,8 @@ internal sealed class TrayApp : ApplicationContext
         _typing.DropDownItems.AddRange(_typingItems);
         _typing.DropDownItems.Add(new ToolStripSeparator());
         _typing.DropDownItems.Add(new ToolStripMenuItem("Only change this if corrections come out garbled in this app.") { Enabled = false });
-        _undo = new ToolStripMenuItem("Undo last correction\tPause key", null, (_, _) => UndoFromMenu());
+        // ToolStrip draws a "\t" in the text as nothing; the shortcut column only shows ShortcutKeyDisplayString.
+        _undo = new ToolStripMenuItem("Undo last correction", null, (_, _) => UndoFromMenu()) { ShortcutKeyDisplayString = "Pause" };
         _fullscreen = new ToolStripMenuItem("Skip fullscreen windows", null, (_, _) => ToggleFullscreen()) { Checked = settings.SkipFullscreen };
         // Packaged, the start-at-login entry is the manifest's StartupTask, switched in Windows Settings (PLAN.md §5, M4).
         _autoStart = Native.IsPackaged
