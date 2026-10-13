@@ -23,20 +23,31 @@ it for every Store submission; the Store reserves the 4th part.
 Build output folders: `packaging/.build` (staging, recreated each run), `packaging/.tools` (cached SDK tools), `dist/`.
 None of them is source.
 
-## 1. Microsoft Store (one-time setup)
+## 1. Microsoft Store (one-time setup, done 2026-10-13)
 
 1. Open a developer account at https://partner.microsoft.com/dashboard (individual accounts are free).
-2. **Apps and games → New product → MSIX or PWA app**, and reserve the name **AutoLang** (or the name you want).
-3. In the new product: **Product management → Product identity**. Copy three values:
-   - `Package/Identity/Name` (looks like `12345YourName.AutoLang`)
-   - `Package/Identity/Publisher` (looks like `CN=1A2B3C4D-....`)
-   - `Package/Properties/PublisherDisplayName`
+2. **Apps and games → New product → MSIX or PWA app**, and reserve a name. **AutoLang** alone was already taken, so
+   the reserved name is **AutoLang Keyboard Layout Fixer**. A reservation lapses if nothing is submitted within 3
+   months.
+3. In the new product: **Product management → Product identity**. The values for this app:
+
+   | Field | Value |
+   |---|---|
+   | `Package/Identity/Name` | `BNK989.AutoLangKeyboardLayoutFixer` |
+   | `Package/Identity/Publisher` | `CN=EA2CA2EB-8AAD-40D0-A0A7-67C9B6A34784` |
+   | `Package/Properties/PublisherDisplayName` | `BNK989` |
+   | Package Family Name | `BNK989.AutoLangKeyboardLayoutFixer_4m90rbqhtha9c` |
+   | Store ID | `9MXFXW2WS66B` (https://apps.microsoft.com/detail/9MXFXW2WS66B) |
 
 ## 2. Build the Store package
 
 ```
-.\packaging\build-msix.ps1 -IdentityName "<Name>" -Publisher "<Publisher>" -PublisherDisplayName "<Display name>"
+.\packaging\build-msix.ps1 -Store
 ```
+
+`-Store` fills in the identity values above and uses the reserved name as the package `DisplayName`, which Partner
+Center checks. The Start menu entry, the startup task and the tray keep the name "AutoLang". The values can also be
+passed one by one with `-IdentityName`, `-Publisher`, `-PublisherDisplayName` and `-DisplayName`.
 
 The result is unsigned on purpose; the Store signs it with Microsoft's certificate, so users get no SmartScreen or
 "unknown publisher" warning.
@@ -55,8 +66,8 @@ step). Website: https://bnk989.github.io/AutoLang/.
 `store/screenshot-1.png` .. `screenshot-4.png`, rendered from `store/screenshots.html` by
 `store/render-screenshots.ps1`.
 
-Certification takes from a few hours to a few days. Later updates: bump `<Version>`, rebuild with the same three
-values, upload as a new submission.
+Certification takes from a few hours to a few days. Later updates: bump `<Version>`, rebuild with `-Store`,
+and upload it as a new submission.
 
 ## 4. Sideload test builds (before or alongside the Store)
 

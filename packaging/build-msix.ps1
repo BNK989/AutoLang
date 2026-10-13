@@ -7,8 +7,10 @@
   dist\AutoLang-<version>-x64.msix.
 
   Store build (Partner Center signs it; upload the .msix as is):
-    .\packaging\build-msix.ps1 -IdentityName 12345Publisher.AutoLang -Publisher "CN=XXXXXXXX-XXXX-..." -PublisherDisplayName "Your Name"
-  The three values are on Partner Center > the app > Product identity.
+    .\packaging\build-msix.ps1 -Store
+  -Store uses the values from Partner Center > the app > Product identity (packaging\STORE.md), and the reserved
+  name as the package DisplayName. Each can also be passed on its own: -IdentityName, -Publisher,
+  -PublisherDisplayName, -DisplayName.
 
   Sideload build for testing (the default): signed with the AutoLang test certificate from your certificate store.
     .\packaging\build-msix.ps1 -NewDevCertificate     # once: creates it, exports the public part
@@ -26,14 +28,24 @@ param(
     [string]$IdentityName = "AutoLang.Dev",
     [string]$Publisher = "CN=AutoLang Dev",
     [string]$PublisherDisplayName = "AutoLang",
+    [string]$DisplayName = "AutoLang",
     [string]$Version,
     [string]$CertificatePath,
     [SecureString]$CertificatePassword,
     [switch]$NewDevCertificate,
-    [switch]$Unsigned
+    [switch]$Unsigned,
+    [switch]$Store
 )
 
 $ErrorActionPreference = "Stop"
+if ($Store) {
+    # Partner Center > AutoLang Keyboard Layout Fixer > Product identity (Store ID 9MXFXW2WS66B). "AutoLang" alone was
+    # already reserved by someone else, so the package carries the reserved name; Start menu and tray stay "AutoLang".
+    $IdentityName = "BNK989.AutoLangKeyboardLayoutFixer"
+    $Publisher = "CN=EA2CA2EB-8AAD-40D0-A0A7-67C9B6A34784"
+    $PublisherDisplayName = "BNK989"
+    $DisplayName = "AutoLang Keyboard Layout Fixer"
+}
 $root = Split-Path -Parent $PSScriptRoot
 $hostProj = Join-Path $root "src\AutoLang.Host\AutoLang.Host.csproj"
 $work = Join-Path $root "packaging\.build"
@@ -124,7 +136,8 @@ if ($LASTEXITCODE -ne 0) { throw "dotnet publish failed" }
 $manifest = Get-Content (Join-Path $PSScriptRoot "msix\AppxManifest.xml") -Raw
 $esc = { param($s) [Security.SecurityElement]::Escape($s) }
 $manifest = $manifest.Replace('$IdentityName$', (& $esc $IdentityName)).Replace('$Publisher$', (& $esc $Publisher)).
-    Replace('$PublisherDisplayName$', (& $esc $PublisherDisplayName)).Replace('$Version$', $Version)
+    Replace('$PublisherDisplayName$', (& $esc $PublisherDisplayName)).Replace('$DisplayName$', (& $esc $DisplayName)).
+    Replace('$Version$', $Version)
 [IO.File]::WriteAllText((Join-Path $layout "AppxManifest.xml"), $manifest, (New-Object Text.UTF8Encoding $false))
 Copy-Item (Join-Path $PSScriptRoot "msix\Assets") (Join-Path $layout "Assets") -Recurse
 

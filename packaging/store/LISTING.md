@@ -27,7 +27,7 @@ Result: 3+ / Everyone.
 
 ## Store listing (English)
 
-**Product name:** AutoLang
+**Product name:** AutoLang Keyboard Layout Fixer (the name reserved in Partner Center; "AutoLang" alone was taken)
 
 **Description:**
 
