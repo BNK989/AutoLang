@@ -1,10 +1,35 @@
 <!doctype html>
-<html lang="en">
+<!-- Generated from site/index.html and site/strings/en.txt by tools/AutoLang.Site. Edit those, not this file. -->
+<html lang="en" dir="ltr">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AutoLang · wrong keyboard layout, fixed</title>
 <meta name="description" content="AutoLang is a free Windows tray app that fixes words typed in the wrong keyboard layout and switches the layout for you. Nothing you type leaves your PC.">
+<link rel="canonical" href="https://bnk989.github.io/AutoLang/">
+<link rel="alternate" hreflang="en" href="https://bnk989.github.io/AutoLang/">
+<link rel="alternate" hreflang="he" href="https://bnk989.github.io/AutoLang/he/">
+<link rel="alternate" hreflang="ar" href="https://bnk989.github.io/AutoLang/ar/">
+<link rel="alternate" hreflang="ru" href="https://bnk989.github.io/AutoLang/ru/">
+<link rel="alternate" hreflang="uk" href="https://bnk989.github.io/AutoLang/uk/">
+<link rel="alternate" hreflang="el" href="https://bnk989.github.io/AutoLang/el/">
+<link rel="alternate" hreflang="x-default" href="https://bnk989.github.io/AutoLang/">
+<script>
+(function () {
+  // First visit: open the page in the browser's language. A choice made in the language menu wins.
+  var have = { he: 1, ar: 1, ru: 1, uk: 1, el: 1 }, pick = null;
+  try { pick = localStorage.getItem('autolang-lang'); } catch (e) {}
+  if (!pick) {
+    var list = navigator.languages || [navigator.language || ''];
+    for (var i = 0; i < list.length; i++) {
+      var p = String(list[i]).toLowerCase().split('-')[0];
+      if (p === 'iw') p = 'he';
+      if (p === 'en' || have[p]) { pick = p; break; }
+    }
+  }
+  if (pick && have[pick]) location.replace(pick + '/' + location.hash);
+})();
+</script>
 <link rel="icon" href="icon.png">
 <link rel="stylesheet" href="style.css">
 </head>
@@ -17,7 +42,18 @@
       <a class="hide-sm" href="#how">How it works</a>
       <a href="#install">Install</a>
       <a href="privacy.html">Privacy</a>
-      <a href="https://github.com/BNK989/AutoLang">GitHub</a>
+      <a class="hide-sm" href="https://github.com/BNK989/AutoLang">GitHub</a>
+      <details class="lang">
+        <summary aria-label="Language: English"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg><span>English</span></summary>
+        <ul>
+          <li><a href="./" lang="en" hreflang="en" data-lang="en" aria-current="true">English</a></li>
+          <li><a href="he/" lang="he" hreflang="he" data-lang="he">עברית</a></li>
+          <li><a href="ar/" lang="ar" hreflang="ar" data-lang="ar">العربية</a></li>
+          <li><a href="ru/" lang="ru" hreflang="ru" data-lang="ru">Русский</a></li>
+          <li><a href="uk/" lang="uk" hreflang="uk" data-lang="uk">Українська</a></li>
+          <li><a href="el/" lang="el" hreflang="el" data-lang="el">Ελληνικά</a></li>
+        </ul>
+      </details>
     </nav>
   </div>
 </header>
@@ -36,10 +72,11 @@
       <p class="fine">Free and open source · Windows 10 &amp; 11 · Nothing you type leaves your PC</p>
     </div>
 
-    <div class="demo" aria-label="Animated example: akuo typed with the English layout becomes שלום">
+    <div class="demo" role="img" aria-label="Animated example: a word typed with the wrong keyboard layout is corrected"
+         data-typing="Typing…" data-switched="Fixed and switched to {to}" data-reduced="{typed} → fixed">
       <div class="demo-bar"><i></i><i></i><i></i></div>
       <div class="demo-body">
-        <div class="demo-line" id="line"><span id="text" dir="auto"></span><span class="caret"></span></div>
+        <div class="demo-line" id="line" dir="ltr"><span id="text" dir="auto"></span><span class="caret"></span></div>
         <div class="demo-status">
           <span id="note">Typing…</span>
           <span class="layout-pill" id="pill">ENG</span>
@@ -186,35 +223,50 @@
 
 <script>
 (function () {
+  var demo = document.querySelector('.demo'), line = document.getElementById('line');
   var text = document.getElementById('text'), note = document.getElementById('note'), pill = document.getElementById('pill');
   var scenes = [
-    { from: 'ENG', to: 'HEB', typed: 'akuo', fixed: 'שלום' },
-    { from: 'HEB', to: 'ENG', typed: 'יקךךם', fixed: 'hello' },
-    { from: 'ENG', to: 'RUS', typed: 'ghbdtn', fixed: 'привет' }
+    { "from": "ENG", "to": "HEB", "typed": "akuo", "fixed": "שלום" },
+    { "from": "HEB", "to": "ENG", "typed": "יקךךם", "fixed": "hello" },
+    { "from": "ENG", "to": "RUS", "typed": "ghbdtn", "fixed": "привет" }
   ];
   var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   var i = 0;
   function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
-  function set(cls, s) { text.className = cls; text.textContent = s; }
+  // Right-to-left words get a right-to-left line, so the caret sits where the next letter would go.
+  function set(cls, s) { line.dir = /[\u0590-\u08FF]/.test(s) ? 'rtl' : 'ltr'; text.className = cls; text.textContent = s; }
+  function say(key, s) { return demo.getAttribute('data-' + key).replace('{typed}', s.typed).replace('{to}', s.to); }
   async function play() {
     var s = scenes[i++ % scenes.length];
     pill.textContent = s.from; pill.classList.remove('flip');
     if (reduce) {
-      set('fixed', s.fixed + ' '); pill.textContent = s.to; note.textContent = s.typed + ' → fixed';
+      set('fixed', s.fixed + ' '); pill.textContent = s.to; note.textContent = say('reduced', s);
       await wait(3000); return play();
     }
-    note.textContent = 'Typing…'; set('', '');
+    note.textContent = say('typing', s); set('', '');
     for (var k = 1; k <= s.typed.length; k++) { set('bad', s.typed.slice(0, k)); await wait(150); }
     await wait(350);
     set('bad', s.typed + ' ');
     await wait(220);
     set('fixed', s.fixed + ' ');
     pill.textContent = s.to; pill.classList.add('flip');
-    note.textContent = 'Fixed and switched to ' + s.to;
+    note.textContent = say('switched', s);
     await wait(2400);
     return play();
   }
   play();
+})();
+</script>
+<script>
+(function () {
+  // The language menu: remember the pick for the next visit, and close on a click outside or Escape.
+  var menu = document.querySelector('details.lang');
+  menu.addEventListener('click', function (e) {
+    var a = e.target.closest('a[data-lang]');
+    if (a) try { localStorage.setItem('autolang-lang', a.getAttribute('data-lang')); } catch (x) {}
+  });
+  document.addEventListener('click', function (e) { if (!menu.contains(e.target)) menu.open = false; });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') menu.open = false; });
 })();
 </script>
 </body>

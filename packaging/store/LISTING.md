@@ -1,7 +1,7 @@
 # Microsoft Store listing
 
 Copy-paste text for Partner Center, in the order the submission pages ask for it. Keep it in step with
-`docs/index.html` and `docs/privacy.html`; every claim here is also made there.
+the website (`site/strings/en.txt`, which builds `docs/`); every claim here is also made there.
 
 ## Pricing and availability
 

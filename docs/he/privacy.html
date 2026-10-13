@@ -1,0 +1,131 @@
+<!doctype html>
+<!-- Generated from site/privacy.html and site/strings/he.txt by tools/AutoLang.Site. Edit those, not this file. -->
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>מדיניות הפרטיות של AutoLang</title>
+<meta name="description" content="מה AutoLang קוראת, מה היא שומרת, ומה יוצא מהמחשב שלך (שום דבר ממה שמקלידים).">
+<link rel="canonical" href="https://bnk989.github.io/AutoLang/he/privacy.html">
+<link rel="alternate" hreflang="en" href="https://bnk989.github.io/AutoLang/privacy.html">
+<link rel="alternate" hreflang="he" href="https://bnk989.github.io/AutoLang/he/privacy.html">
+<link rel="alternate" hreflang="ar" href="https://bnk989.github.io/AutoLang/ar/privacy.html">
+<link rel="alternate" hreflang="ru" href="https://bnk989.github.io/AutoLang/ru/privacy.html">
+<link rel="alternate" hreflang="uk" href="https://bnk989.github.io/AutoLang/uk/privacy.html">
+<link rel="alternate" hreflang="el" href="https://bnk989.github.io/AutoLang/el/privacy.html">
+<link rel="alternate" hreflang="x-default" href="https://bnk989.github.io/AutoLang/privacy.html">
+<link rel="icon" href="../icon.png">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="./"><img src="../icon.png" alt="">AutoLang</a>
+    <nav>
+      <a class="hide-sm" href="./#how">איך זה עובד</a>
+      <a href="./#install">התקנה</a>
+      <a href="privacy.html" aria-current="page">פרטיות</a>
+      <a class="hide-sm" href="https://github.com/BNK989/AutoLang">GitHub</a>
+      <details class="lang">
+        <summary aria-label="שפה: עברית"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg><span>עברית</span></summary>
+        <ul>
+          <li><a href="../privacy.html" lang="en" hreflang="en" data-lang="en">English</a></li>
+          <li><a href="privacy.html" lang="he" hreflang="he" data-lang="he" aria-current="true">עברית</a></li>
+          <li><a href="../ar/privacy.html" lang="ar" hreflang="ar" data-lang="ar">العربية</a></li>
+          <li><a href="../ru/privacy.html" lang="ru" hreflang="ru" data-lang="ru">Русский</a></li>
+          <li><a href="../uk/privacy.html" lang="uk" hreflang="uk" data-lang="uk">Українська</a></li>
+          <li><a href="../el/privacy.html" lang="el" hreflang="el" data-lang="el">Ελληνικά</a></li>
+        </ul>
+      </details>
+    </nav>
+  </div>
+</header>
+
+<!-- Keep in step with PRIVACY.md in the repo root. -->
+<main class="prose">
+  <div class="wrap narrow">
+    <h1>מדיניות הפרטיות של AutoLang</h1>
+    <p class="updated">עודכן לאחרונה: 13 באוקטובר 2026</p>
+    <p class="note">זהו תרגום; אם יש הבדל בינו לבין <a href="../privacy.html">המדיניות באנגלית</a>, הנוסח האנגלי הוא הקובע.</p>
+
+    <p>AutoLang היא תוכנת עזר ל-Windows שמזהה הקלדה בפריסת מקלדת שגויה, מתקנת את המילה
+      ומחליפה את הפריסה. לשם כך היא צריכה לראות את ההקשות שלך. בעמוד הזה מפורט בדיוק מה היא עושה איתן.</p>
+
+    <div class="tldr">
+      <p><strong>בקצרה:</strong> שום דבר ממה שמקלידים לא נשמר ולא נשלח לשום מקום. ל-AutoLang אין חשבון, אין אנליטיקס,
+        אין טלמטריה ואין דיווח קריסות. השימוש היחיד שלה ברשת הוא הורדה של רשימות מילים ציבוריות.</p>
+    </div>
+
+    <h2>מה AutoLang קוראת</h2>
+    <ul>
+      <li><strong>הקשות מקלדת</strong>, דרך ממשק סטנדרטי של Windows ללכידת המקלדת (keyboard hook), כדי לדעת איזו מילה מקלידים.</li>
+      <li><strong>החלון הפעיל</strong>: שם התוכנה שלו, האם הוא במסך מלא, האם הוא רץ בהרשאות מנהל,
+        והאם השדה שבפוקוס הוא שדה סיסמה. לפי זה נקבע אם AutoLang פועלת שם בכלל.</li>
+      <li><strong>פריסות המקלדת שמותקנות אצלך</strong>, כדי לדעת אילו שפות לשקול.</li>
+    </ul>
+
+    <h2>מה AutoLang שומרת</h2>
+    <ul>
+      <li><strong>בזיכרון בלבד:</strong> המילה או השורה שמקלידים ברגע זה. היא נמחקת בלחיצה על Enter,
+        בלחיצת עכבר או במעבר בין חלונות, ואף פעם לא נכתבת לשום מקום.</li>
+      <li><strong>בדיסק, בפרופיל המשתמש שלך:</strong>
+        <ul>
+          <li>ההגדרות שלך (השהיה, אפליקציות שהשבתת, שיטת ההקלדה לכל אפליקציה, בחירת השפות),</li>
+          <li>מילים שביקשת מ-AutoLang לא לתקן (בלחיצה על ביטול אחרי תיקון),</li>
+          <li>רשימות מילים שהורדו (קבצים ציבוריים, ראו בהמשך),</li>
+          <li>לוג של ספירות ותזמונים לאבחון תקלות (למשל "תוקנה מילה אחת ב-chrome.exe תוך 12 מילישניות").
+            הלוג אף פעם לא מכיל שום דבר ממה שהקלדת.</li>
+        </ul>
+      </li>
+    </ul>
+    <p>הסרה של גרסת ה-Store או של הגרסה המותקנת מוחקת את כל המידע הזה. הגרסה הניידת (zip) שומרת אותו בתיקייה
+      <span dir="ltr"><code>%LocalAppData%\AutoLang</code></span>; כדי להסיר אותו, יש למחוק את התיקייה הזו.</p>
+
+    <h2>מה יוצא מהמחשב שלך</h2>
+    <p>שום דבר ממה שמקלידים, אף פעם. ל-AutoLang אין חשבון, אין אנליטיקס, אין טלמטריה ואין דיווח קריסות.</p>
+    <p>בקשת הרשת היחידה שהיא שולחת היא הורדה של <strong>רשימת מילים</strong> לשפת מקלדת שלא מגיעה
+      איתה: הורדה פשוטה של קובץ ציבורי מהפרויקט
+      <a href="https://github.com/hermitdave/FrequencyWords">FrequencyWords</a> ב-GitHub. הבקשה מציינת את
+      השפה (למשל <code>ru</code>) ולא מכילה שום מידע עליך או על ההקלדה שלך. GitHub רואה את כתובת ה-IP שלך,
+      כמו בכל הורדה. אפשר לכבות את זה בתפריט המגש, תחת <strong>Languages…</strong> (שפות).</p>
+
+    <h2>לוח ההעתקה</h2>
+    <p>כברירת מחדל AutoLang אף פעם לא נוגעת בלוח ההעתקה. אם מעבירים אפליקציה מסוימת לשיטת ההקלדה
+      <strong>Paste via clipboard</strong> (הדבקה דרך לוח ההעתקה), כל תיקון באפליקציה הזו מכניס לרגע את המילה המתוקנת
+      ללוח ההעתקה, מדביק אותה, ומחזיר ללוח את מה שהעתקת קודם. המילה המתוקנת מסומנת כך שהיסטוריית לוח ההעתקה של Windows,
+      לוח ההעתקה בענן ומנהלי לוח העתקה ידלגו עליה. התוכן שהעתקת מוחזק בזיכרון לשבריר
+      שנייה, ולא נקרא, לא נשמר ולא נשלח.</p>
+
+    <h2>איפה AutoLang לא פועלת</h2>
+    <p>שדות סיסמה, טרמינלים, חלונות של שולחן עבודה מרוחק ושל מכונות וירטואליות, מנהלי סיסמאות, משחקים במסך מלא,
+      וכל אפליקציה שהשבתת מתפריט המגש. Windows עצמו מונע מ-AutoLang לפעול באפליקציות שרצות בהרשאות מנהל.</p>
+
+    <h2>יצירת קשר</h2>
+    <p>לשאלות על המדיניות הזו, או על כל דבר אחר: אפשר לפתוח דיווח (issue) בכתובת
+      <a href="https://github.com/BNK989/AutoLang/issues">github.com/BNK989/AutoLang/issues</a>.</p>
+    <p>קוד המקור פתוח לציבור בכתובת <a href="https://github.com/BNK989/AutoLang">github.com/BNK989/AutoLang</a>, כך שאפשר
+      לבדוק את כל מה שכתוב כאן.</p>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>AutoLang · ברישיון MIT</span>
+    <span><a href="./">דף הבית</a> · <a href="https://github.com/BNK989/AutoLang/issues">דיווח על בעיה</a> · <a href="https://github.com/BNK989/AutoLang">GitHub</a></span>
+  </div>
+</footer>
+<script>
+(function () {
+  // The language menu: remember the pick for the next visit, and close on a click outside or Escape.
+  var menu = document.querySelector('details.lang');
+  menu.addEventListener('click', function (e) {
+    var a = e.target.closest('a[data-lang]');
+    if (a) try { localStorage.setItem('autolang-lang', a.getAttribute('data-lang')); } catch (x) {}
+  });
+  document.addEventListener('click', function (e) { if (!menu.contains(e.target)) menu.open = false; });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') menu.open = false; });
+})();
+</script>
+</body>
+</html>

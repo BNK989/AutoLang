@@ -1,0 +1,258 @@
+# Strings for the AutoLang website, English (the source; translations follow its keys).
+# Format: a line "@key" starts an entry; its value is everything up to the next "@key", trimmed. Values are HTML.
+# Lines starting with "#" are comments. Build with: dotnet run --project tools/AutoLang.Site
+
+# ---- shared ----
+@lang_name
+English
+@lang_label
+Language
+@nav_how
+How it works
+@nav_install
+Install
+@nav_privacy
+Privacy
+@footer_issue
+Report an issue
+
+# ---- index.html ----
+@title
+AutoLang · wrong keyboard layout, fixed
+@description
+AutoLang is a free Windows tray app that fixes words typed in the wrong keyboard layout and switches the layout for you. Nothing you type leaves your PC.
+
+@hero_h1
+Typed it in the wrong language? It's already fixed.
+@hero_lede
+AutoLang watches for words typed in the wrong keyboard layout, retypes them correctly and
+        switches the keyboard for you, in any Windows app. No more Alt+Shift, delete, retype.
+@cta_download
+Download for Windows
+@cta_source
+Source code
+@hero_fine
+Free and open source · Windows 10 &amp; 11 · Nothing you type leaves your PC
+
+# The animated demo. {typed} and {to} are filled in by the script.
+@demo_label
+Animated example: a word typed with the wrong keyboard layout is corrected
+@demo_typing
+Typing…
+@demo_switched
+Fixed and switched to {to}
+@demo_reduced
+{typed} → fixed
+# Scenes in play order: put this language's pair first. Pills are Windows' layout abbreviations.
+@scenes
+[
+    { "from": "ENG", "to": "HEB", "typed": "akuo", "fixed": "שלום" },
+    { "from": "HEB", "to": "ENG", "typed": "יקךךם", "fixed": "hello" },
+    { "from": "ENG", "to": "RUS", "typed": "ghbdtn", "fixed": "привет" }
+  ]
+
+@how_h2
+How it works
+@how_sub
+The keyboard layout is invisible until you've typed a whole sentence of gibberish.
+      AutoLang reads the words themselves, the way a search engine knows that <code>akuo</code> was meant to be
+      <span class="he">שלום</span>.
+@step1_h
+Every reading at once
+@step1_p
+Each key you press is read on every keyboard you have installed, so the word you're typing exists in
+          all of your alphabets at the same time.
+@step2_h
+Decides on the phrase
+@step2_p
+Word lists and a small language model score each reading. Clear words are fixed on the next space;
+          short ambiguous ones (<code>to</code> / <span class="he">אם</span>) wait until the sentence makes it obvious.
+@step3_h
+Fixes and switches
+@step3_p
+The wrong text is replaced, the keyboard switches to the right language, and you keep typing.
+          Press <kbd>Pause</kbd> to undo, and AutoLang remembers that word.
+
+@alpha_h2
+Any two alphabets
+@alpha_sub
+AutoLang works with the keyboards you already have installed. It switches between
+      different alphabets and leaves same-alphabet pairs, like English and German, alone. Hebrew + English is the most
+      tested pair; the others are newer.
+@alpha_fine
+English and Hebrew word lists ship with the app. For another keyboard language, AutoLang
+      downloads its public word list once (you can turn this off).
+
+@trust_h2
+Built to stay out of the way
+@trust_sub
+A tool that sees your keystrokes has to earn trust. These are design rules, not settings.
+@trust_1
+<strong>Nothing leaves your PC.</strong> No account, no analytics, no telemetry.
+@trust_2
+<strong>Only the current line is kept</strong>, in memory, and dropped on Enter, click or window switch.
+@trust_3
+<strong>Password fields are skipped</strong>, along with password managers, terminals, remote desktops and VMs.
+@trust_4
+<strong>The log never contains text</strong>, only counts and timings for troubleshooting.
+@trust_5
+<strong>One-key undo.</strong> <kbd>Pause</kbd> reverts a correction; <kbd>Shift</kbd>+<kbd>Pause</kbd> forces one.
+@trust_6
+<strong>Always visible.</strong> The tray icon shows when it's watching, paused or skipping a window.
+@trust_7
+<strong>Per-app control.</strong> Disable it for any app, or change how it retypes there.
+@trust_8
+<strong>Open source</strong>, so you can check every claim on this page.
+@trust_more
+Read the full privacy policy →
+
+@install_h2
+Install
+@install_sub
+Windows 10 (1809 or later) or Windows 11, 64-bit, with keyboards for at least two different
+      alphabets (Settings → Time &amp; language → Language &amp; region). No .NET install needed.
+@portable_h3
+Portable (simplest)
+@portable_1
+Download <a href="https://github.com/BNK989/AutoLang/releases/latest/download/AutoLang-win-x64.zip"><code>AutoLang-win-x64.zip</code></a> and unzip it anywhere.
+        Keep <code>AutoLang.exe</code> and the <code>data</code> folder together.
+@portable_2
+Run <code>AutoLang.exe</code>. The preview is not code-signed yet, so Windows SmartScreen warns:
+        click <strong>More info → Run anyway</strong>.
+@portable_3
+A green <strong>A</strong> appears in the tray. Right-click it → <strong>Start with Windows</strong> if you want it at login.
+@msix_h3
+Installer (MSIX)
+@msix_1
+Download <a href="https://github.com/BNK989/AutoLang/releases/latest/download/dev-signing.cer"><code>dev-signing.cer</code></a>
+        and <a href="https://github.com/BNK989/AutoLang/releases/latest/download/AutoLang-x64.msix"><code>AutoLang-x64.msix</code></a>.
+@msix_2
+Trust the test certificate once: double-click the <code>.cer</code> → <strong>Install Certificate…</strong> →
+        <strong>Local Machine</strong> → <strong>Place all certificates in the following store</strong> → <strong>Trusted People</strong> → Finish.
+@msix_3
+Double-click the <code>.msix</code> → <strong>Install</strong>. AutoLang starts with Windows and uninstalls cleanly from Settings → Apps.
+@install_store
+A Microsoft Store version is on the way. It will need no certificate and update itself.
+
+@faq_h2
+Questions
+@faq1_q
+Why does antivirus or SmartScreen complain?
+@faq1_a
+AutoLang uses a standard Windows keyboard hook, which is also what keyloggers use, and the preview build isn't
+        code-signed yet. The source is public so anyone can check what it does. If Defender quarantines it, restore it and
+        add an exclusion for its folder.
+@faq2_q
+It corrected something it shouldn't have.
+@faq2_a
+Press <kbd>Pause</kbd> right away. The correction is undone and that word is never corrected again. If it keeps
+        happening, please <a href="https://github.com/BNK989/AutoLang/issues">open an issue</a> with the words.
+@faq3_q
+Corrections come out garbled in one app.
+@faq3_a
+Click into that app, then right-click the tray icon → <strong>Typing method</strong>, and try
+        <em>Simulated keys</em> or <em>Paste via clipboard</em>. The choice is remembered for that app only.
+@faq4_q
+Why doesn't it work in apps running as administrator?
+@faq4_a
+Windows doesn't let normal apps see or type into elevated windows. The icon turns orange there; everything else keeps working.
+@faq5_q
+Does it switch between English and German, or French and Spanish?
+@faq5_a
+No. Layouts that share an alphabet are left alone, since most words are valid in both and you switch between them on purpose.
+        <kbd>Shift</kbd>+<kbd>Pause</kbd> still converts text by hand.
+@faq6_q
+Japanese, Chinese or Korean?
+@faq6_a
+Not supported. Those are typed through an input method editor, which already handles conversion.
+
+@footer_credits
+AutoLang · MIT licensed · word lists from <a href="https://github.com/hermitdave/FrequencyWords">FrequencyWords</a> (CC BY-SA 4.0)
+
+# ---- privacy.html ----
+@p_title
+AutoLang privacy policy
+@p_description
+What AutoLang reads, what it keeps, and what leaves your computer (nothing you type).
+@p_h1
+AutoLang privacy policy
+@p_updated
+Last updated: 13 October 2026
+# Translations only: says the English policy is the one that counts, and links to it.
+@p_translation_note
+
+@p_intro
+AutoLang is a Windows utility that notices when you type in the wrong keyboard layout, fixes the word, and
+      switches the layout. To do that it has to see your keystrokes. This page says exactly what it does with them.
+@p_tldr
+<strong>In short:</strong> nothing you type is stored or sent anywhere. AutoLang has no account, no analytics,
+        no telemetry and no crash reporting. Its only network use is downloading public word lists.
+
+@p_reads_h
+What AutoLang reads
+@p_reads_1
+<strong>Keystrokes</strong>, through a standard Windows keyboard hook, so it can tell which word you are typing.
+@p_reads_2
+<strong>The active window</strong>: its program name, whether it is fullscreen, whether it runs as administrator,
+        and whether the focused field is a password field. This decides whether AutoLang works there at all.
+@p_reads_3
+<strong>Your installed keyboard layouts</strong>, to know which languages to consider.
+
+@p_keeps_h
+What AutoLang keeps
+@p_keeps_mem
+<strong>In memory only:</strong> the word or line you are typing right now. It is dropped when you press Enter,
+        click, or switch windows, and never written anywhere.
+@p_keeps_disk
+<strong>On disk, in your user profile:</strong>
+@p_keeps_disk_1
+your settings (pause, apps you disabled, the typing method per app, language choices),
+@p_keeps_disk_2
+words you told AutoLang not to correct (by pressing Undo after a correction),
+@p_keeps_disk_3
+downloaded word lists (public files, see below),
+@p_keeps_disk_4
+a log of counts and timings for troubleshooting (for example “corrected 1 word in chrome.exe in 12 ms”).
+            The log never contains anything you typed.
+@p_uninstall
+Uninstalling the Store / installed version removes all of it. The portable (zip) version keeps it in
+      <code>%LocalAppData%\AutoLang</code>; delete that folder to remove it.
+
+@p_leaves_h
+What leaves your computer
+@p_leaves_1
+Nothing you type, ever. AutoLang has no account, no analytics, no telemetry, and no crash reporting.
+@p_leaves_2
+The only network request it makes is downloading a <strong>word list</strong> for a keyboard language that does
+      not ship with it: a plain download of a public file from the
+      <a href="https://github.com/hermitdave/FrequencyWords">FrequencyWords</a> project on GitHub. The request names the
+      language (for example <code>ru</code>) and contains nothing about you or your typing. GitHub sees your IP address,
+      as with any download. You can switch this off in the tray menu → <strong>Languages…</strong>.
+
+@p_clip_h
+The clipboard
+@p_clip
+By default AutoLang never touches the clipboard. If you switch a particular app to the
+      <strong>Paste via clipboard</strong> typing method, a correction in that app briefly puts the corrected word on the
+      clipboard, pastes it, and puts back what you had copied. The corrected word is marked so that Windows clipboard
+      history, cloud clipboard and clipboard managers skip it. Your copied content is held in memory for a fraction of a
+      second and is not read, stored or sent.
+
+@p_out_h
+Where AutoLang stays out
+@p_out
+Password fields, terminals, remote-desktop and virtual-machine windows, password managers, fullscreen games, and
+      any app you disable from the tray menu. Windows itself keeps AutoLang out of apps running as administrator.
+
+@p_contact_h
+Contact
+@p_contact_1
+Questions about this policy, or anything else: open an issue at
+      <a href="https://github.com/BNK989/AutoLang/issues">github.com/BNK989/AutoLang/issues</a>.
+@p_contact_2
+The source code is public at <a href="https://github.com/BNK989/AutoLang">github.com/BNK989/AutoLang</a>, so all
+      of the above can be checked.
+@p_footer_credits
+AutoLang · MIT licensed
+@p_footer_home
+Home

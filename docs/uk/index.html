@@ -1,0 +1,256 @@
+<!doctype html>
+<!-- Generated from site/index.html and site/strings/uk.txt by tools/AutoLang.Site. Edit those, not this file. -->
+<html lang="uk" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AutoLang · не та розкладка клавіатури? Уже виправлено</title>
+<meta name="description" content="AutoLang — безкоштовна програма для Windows, що працює в системному треї: вона виправляє слова, набрані не в тій розкладці клавіатури, і сама перемикає розкладку. Ніщо з того, що ви набираєте, не залишає ваш ПК.">
+<link rel="canonical" href="https://bnk989.github.io/AutoLang/uk/">
+<link rel="alternate" hreflang="en" href="https://bnk989.github.io/AutoLang/">
+<link rel="alternate" hreflang="he" href="https://bnk989.github.io/AutoLang/he/">
+<link rel="alternate" hreflang="ar" href="https://bnk989.github.io/AutoLang/ar/">
+<link rel="alternate" hreflang="ru" href="https://bnk989.github.io/AutoLang/ru/">
+<link rel="alternate" hreflang="uk" href="https://bnk989.github.io/AutoLang/uk/">
+<link rel="alternate" hreflang="el" href="https://bnk989.github.io/AutoLang/el/">
+<link rel="alternate" hreflang="x-default" href="https://bnk989.github.io/AutoLang/">
+<link rel="icon" href="../icon.png">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="./"><img src="../icon.png" alt="">AutoLang</a>
+    <nav>
+      <a class="hide-sm" href="#how">Як це працює</a>
+      <a href="#install">Встановлення</a>
+      <a href="privacy.html">Конфіденційність</a>
+      <a class="hide-sm" href="https://github.com/BNK989/AutoLang">GitHub</a>
+      <details class="lang">
+        <summary aria-label="Мова: Українська"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg><span>Українська</span></summary>
+        <ul>
+          <li><a href="../" lang="en" hreflang="en" data-lang="en">English</a></li>
+          <li><a href="../he/" lang="he" hreflang="he" data-lang="he">עברית</a></li>
+          <li><a href="../ar/" lang="ar" hreflang="ar" data-lang="ar">العربية</a></li>
+          <li><a href="../ru/" lang="ru" hreflang="ru" data-lang="ru">Русский</a></li>
+          <li><a href="./" lang="uk" hreflang="uk" data-lang="uk" aria-current="true">Українська</a></li>
+          <li><a href="../el/" lang="el" hreflang="el" data-lang="el">Ελληνικά</a></li>
+        </ul>
+      </details>
+    </nav>
+  </div>
+</header>
+
+<main>
+<div class="hero">
+  <div class="wrap">
+    <div>
+      <h1>Набрали не тією мовою? Уже виправлено.</h1>
+      <p class="lede">AutoLang помічає слова, набрані не в тій розкладці, правильно передруковує їх і перемикає
+        клавіатуру за вас — у будь-якій програмі Windows. Більше жодних Alt+Shift, стирання й повторного набору.</p>
+      <div class="cta">
+        <a class="btn primary" href="https://github.com/BNK989/AutoLang/releases/latest">Завантажити для Windows</a>
+        <a class="btn" href="https://github.com/BNK989/AutoLang">Вихідний код</a>
+      </div>
+      <p class="fine">Безкоштовно й з відкритим кодом · Windows 10 &amp; 11 · Ніщо з набраного не залишає ваш ПК</p>
+    </div>
+
+    <div class="demo" role="img" aria-label="Анімований приклад: слово, набране не в тій розкладці клавіатури, виправляється"
+         data-typing="Набір…" data-switched="Виправлено, розкладку змінено на {to}" data-reduced="{typed} → виправлено">
+      <div class="demo-bar"><i></i><i></i><i></i></div>
+      <div class="demo-body">
+        <div class="demo-line" id="line" dir="ltr"><span id="text" dir="auto"></span><span class="caret"></span></div>
+        <div class="demo-status">
+          <span id="note">Набір…</span>
+          <span class="layout-pill" id="pill">ENG</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section id="how">
+  <div class="wrap">
+    <h2>Як це працює</h2>
+    <p class="sub">Розкладку клавіатури не видно, аж поки ви не наберете ціле речення абракадабри.
+      AutoLang читає самі слова — так само, як пошуковик розуміє, що <code>ghbdsn</code> мало бути
+      <span lang="uk">привіт</span>.</p>
+    <div class="grid">
+      <div class="card">
+        <span class="step">01</span>
+        <h3>Усі варіанти одночасно</h3>
+        <p>Кожна натиснута клавіша читається в усіх установлених у вас розкладках, тож слово, яке ви набираєте,
+          існує одразу в усіх ваших алфавітах.</p>
+      </div>
+      <div class="card">
+        <span class="step">02</span>
+        <h3>Рішення за фразою</h3>
+        <p>Списки слів і невелика мовна модель оцінюють кожен варіант. Очевидні слова виправляються після наступного пробілу;
+          короткі неоднозначні (як-от англійське <code>to</code> / івритське <span class="he">אם</span>) чекають, доки речення не прояснить, що малося на увазі.</p>
+      </div>
+      <div class="card">
+        <span class="step">03</span>
+        <h3>Виправляє й перемикає</h3>
+        <p>Неправильний текст замінюється, клавіатура перемикається на потрібну мову, а ви просто друкуєте далі.
+          Натисніть <kbd>Pause</kbd>, щоб скасувати, — і AutoLang запам’ятає це слово.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Будь-які два алфавіти</h2>
+    <p class="sub">AutoLang працює з розкладками, які у вас уже встановлено. Він перемикає між різними
+      алфавітами й не чіпає пари з однаковим алфавітом, як-от англійську й німецьку. Іврит + англійська — найретельніше
+      перевірена пара; решту додано нещодавно.</p>
+    <ul class="pairs">
+      <li><code>akuo</code><span class="arrow">→</span><span class="he" dir="rtl">שלום</span></li>
+      <li><span class="from he" dir="rtl">יקךךם</span><span class="arrow">→</span><span>hello</span></li>
+      <li><code>ghbdtn</code><span class="arrow">→</span><span>привет</span></li>
+      <li><code>kalhmera</code><span class="arrow">→</span><span>καλημερα</span></li>
+      <li><code>lvpfh</code><span class="arrow">→</span><span dir="rtl">مرحبا</span></li>
+    </ul>
+    <p class="fine">Списки слів для англійської та івриту постачаються разом із програмою. Для іншої мови клавіатури AutoLang
+      один раз завантажує її загальнодоступний список слів (це можна вимкнути).</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Створено, щоб не заважати</h2>
+    <p class="sub">Інструмент, який бачить ваші натискання клавіш, має заслужити довіру. Це закладені в нього правила, а не налаштування.</p>
+    <ul class="checks">
+      <li><strong>Ніщо не залишає ваш ПК.</strong> Жодного облікового запису, аналітики чи телеметрії.</li>
+      <li><strong>Зберігається лише поточний рядок</strong> — у пам’яті, і стирається після Enter, клацання чи перемикання вікна.</li>
+      <li><strong>Поля паролів пропускаються</strong>, а також менеджери паролів, термінали, віддалені робочі столи й віртуальні машини.</li>
+      <li><strong>Журнал ніколи не містить тексту</strong> — лише лічильники й час виконання для усунення неполадок.</li>
+      <li><strong>Скасування однією клавішею.</strong> <kbd>Pause</kbd> скасовує виправлення; <kbd>Shift</kbd>+<kbd>Pause</kbd> виправляє примусово.</li>
+      <li><strong>Завжди на видноті.</strong> Значок у треї показує, коли AutoLang працює, стоїть на паузі або пропускає вікно.</li>
+      <li><strong>Керування для кожної програми.</strong> Вимкніть AutoLang для будь-якої програми або змініть, як він у ній передруковує текст.</li>
+      <li><strong>Відкритий код</strong> — тож кожне твердження на цій сторінці можна перевірити.</li>
+    </ul>
+    <p class="fine"><a href="privacy.html">Прочитати повну політику конфіденційності →</a></p>
+  </div>
+</section>
+
+<section id="install">
+  <div class="wrap narrow">
+    <h2>Встановлення</h2>
+    <p class="sub">Windows 10 (1809 або новіша) чи Windows 11, 64-розрядна, з розкладками щонайменше для двох різних
+      алфавітів (Настройки → Час і мова → Мова та регіон). Встановлювати .NET не потрібно.</p>
+
+    <h3>Портативна версія (найпростіше)</h3>
+    <ol class="install">
+      <li>Завантажте <a href="https://github.com/BNK989/AutoLang/releases/latest/download/AutoLang-win-x64.zip"><code>AutoLang-win-x64.zip</code></a> і розпакуйте будь-куди.
+        Тримайте <code>AutoLang.exe</code> і папку <code>data</code> разом.</li>
+      <li>Запустіть <code>AutoLang.exe</code>. Попередня версія ще не має цифрового підпису, тож Windows SmartScreen покаже попередження:
+        натисніть <strong>More info → Run anyway</strong>.</li>
+      <li>У треї з’явиться зелена <strong>A</strong>. Клацніть її правою кнопкою миші → <strong>Start with Windows</strong>, якщо хочете, щоб AutoLang запускався під час входу в систему.</li>
+    </ol>
+
+    <h3>Інсталятор (MSIX)</h3>
+    <ol class="install">
+      <li>Завантажте <a href="https://github.com/BNK989/AutoLang/releases/latest/download/dev-signing.cer"><code>dev-signing.cer</code></a>
+        і <a href="https://github.com/BNK989/AutoLang/releases/latest/download/AutoLang-x64.msix"><code>AutoLang-x64.msix</code></a>.</li>
+      <li>Один раз додайте тестовий сертифікат до довірених: двічі клацніть файл <code>.cer</code> → <strong>Install Certificate…</strong> →
+        <strong>Local Machine</strong> → <strong>Place all certificates in the following store</strong> → <strong>Trusted People</strong> → Finish.</li>
+      <li>Двічі клацніть файл <code>.msix</code> → <strong>Install</strong>. AutoLang запускається разом із Windows і повністю видаляється через Настройки → Програми.</li>
+    </ol>
+    <p class="fine">Версія для Microsoft Store уже на підході. Їй не знадобиться сертифікат, і вона оновлюватиметься сама.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap narrow">
+    <h2>Запитання</h2>
+    <details>
+      <summary>Чому антивірус або SmartScreen видають попередження?</summary>
+      <p>AutoLang використовує стандартний механізм перехоплення клавіатури Windows — той самий, що й кейлогери, а попередня збірка
+        ще не має цифрового підпису. Вихідний код відкритий, тож будь-хто може перевірити, що саме робить програма. Якщо Defender
+        помістить її в карантин, відновіть програму й додайте виняток для її папки.</p>
+    </details>
+    <details>
+      <summary>Програма виправила те, чого не слід було виправляти.</summary>
+      <p>Одразу натисніть <kbd>Pause</kbd>. Виправлення скасується, і це слово більше ніколи не виправлятиметься. Якщо таке
+        повторюється, будь ласка, <a href="https://github.com/BNK989/AutoLang/issues">повідомте про проблему</a> і вкажіть ці слова.</p>
+    </details>
+    <details>
+      <summary>В одній програмі виправлення виходять спотвореними.</summary>
+      <p>Клацніть у цій програмі, потім клацніть правою кнопкою значок у треї → <strong>Typing method</strong> (спосіб введення) і спробуйте
+        <em>Simulated keys</em> (імітація натискань) або <em>Paste via clipboard</em> (вставлення через буфер обміну). Вибір запам’ятовується лише для цієї програми.</p>
+    </details>
+    <details>
+      <summary>Чому AutoLang не працює в програмах, запущених від імені адміністратора?</summary>
+      <p>Windows не дозволяє звичайним програмам бачити вікна з підвищеними правами чи вводити в них текст. Там значок стає помаранчевим; усе інше працює як звичайно.</p>
+    </details>
+    <details>
+      <summary>Чи перемикає AutoLang між англійською й німецькою або французькою й іспанською?</summary>
+      <p>Ні. Розкладки зі спільним алфавітом залишаються без змін: більшість слів правильні в обох мовах, а перемикаєтеся між ними ви свідомо.
+        <kbd>Shift</kbd>+<kbd>Pause</kbd> однаково дає змогу перетворити текст вручну.</p>
+    </details>
+    <details>
+      <summary>Японська, китайська чи корейська?</summary>
+      <p>Не підтримуються. Ці мови вводять через редактор методів введення (IME), який і так виконує перетворення.</p>
+    </details>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>AutoLang · ліцензія MIT · списки слів із <a href="https://github.com/hermitdave/FrequencyWords">FrequencyWords</a> (CC BY-SA 4.0)</span>
+    <span><a href="privacy.html">Конфіденційність</a> · <a href="https://github.com/BNK989/AutoLang/issues">Повідомити про проблему</a> · <a href="https://github.com/BNK989/AutoLang">GitHub</a></span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var demo = document.querySelector('.demo'), line = document.getElementById('line');
+  var text = document.getElementById('text'), note = document.getElementById('note'), pill = document.getElementById('pill');
+  var scenes = [
+    { "from": "ENG", "to": "UKR", "typed": "ghbdsn", "fixed": "привіт" },
+    { "from": "UKR", "to": "ENG", "typed": "руддщ", "fixed": "hello" }
+  ];
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var i = 0;
+  function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  // Right-to-left words get a right-to-left line, so the caret sits where the next letter would go.
+  function set(cls, s) { line.dir = /[\u0590-\u08FF]/.test(s) ? 'rtl' : 'ltr'; text.className = cls; text.textContent = s; }
+  function say(key, s) { return demo.getAttribute('data-' + key).replace('{typed}', s.typed).replace('{to}', s.to); }
+  async function play() {
+    var s = scenes[i++ % scenes.length];
+    pill.textContent = s.from; pill.classList.remove('flip');
+    if (reduce) {
+      set('fixed', s.fixed + ' '); pill.textContent = s.to; note.textContent = say('reduced', s);
+      await wait(3000); return play();
+    }
+    note.textContent = say('typing', s); set('', '');
+    for (var k = 1; k <= s.typed.length; k++) { set('bad', s.typed.slice(0, k)); await wait(150); }
+    await wait(350);
+    set('bad', s.typed + ' ');
+    await wait(220);
+    set('fixed', s.fixed + ' ');
+    pill.textContent = s.to; pill.classList.add('flip');
+    note.textContent = say('switched', s);
+    await wait(2400);
+    return play();
+  }
+  play();
+})();
+</script>
+<script>
+(function () {
+  // The language menu: remember the pick for the next visit, and close on a click outside or Escape.
+  var menu = document.querySelector('details.lang');
+  menu.addEventListener('click', function (e) {
+    var a = e.target.closest('a[data-lang]');
+    if (a) try { localStorage.setItem('autolang-lang', a.getAttribute('data-lang')); } catch (x) {}
+  });
+  document.addEventListener('click', function (e) { if (!menu.contains(e.target)) menu.open = false; });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') menu.open = false; });
+})();
+</script>
+</body>
+</html>

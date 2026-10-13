@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="{{@lang}}" dir="{{@dir}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{p_title}}</title>
+<meta name="description" content="{{p_description}}">
+{{@head}}
+<link rel="icon" href="{{@root}}icon.png">
+<link rel="stylesheet" href="{{@root}}style.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="./"><img src="{{@root}}icon.png" alt="">AutoLang</a>
+    <nav>
+      <a class="hide-sm" href="./#how">{{nav_how}}</a>
+      <a href="./#install">{{nav_install}}</a>
+      <a href="privacy.html" aria-current="page">{{nav_privacy}}</a>
+      <a class="hide-sm" href="https://github.com/BNK989/AutoLang">GitHub</a>
+{{@langmenu}}
+    </nav>
+  </div>
+</header>
+
+<!-- Keep in step with PRIVACY.md in the repo root. -->
+<main class="prose">
+  <div class="wrap narrow">
+    <h1>{{p_h1}}</h1>
+    <p class="updated">{{p_updated}}</p>
+    <p class="note">{{?p_translation_note}}</p>
+
+    <p>{{p_intro}}</p>
+
+    <div class="tldr">
+      <p>{{p_tldr}}</p>
+    </div>
+
+    <h2>{{p_reads_h}}</h2>
+    <ul>
+      <li>{{p_reads_1}}</li>
+      <li>{{p_reads_2}}</li>
+      <li>{{p_reads_3}}</li>
+    </ul>
+
+    <h2>{{p_keeps_h}}</h2>
+    <ul>
+      <li>{{p_keeps_mem}}</li>
+      <li>{{p_keeps_disk}}
+        <ul>
+          <li>{{p_keeps_disk_1}}</li>
+          <li>{{p_keeps_disk_2}}</li>
+          <li>{{p_keeps_disk_3}}</li>
+          <li>{{p_keeps_disk_4}}</li>
+        </ul>
+      </li>
+    </ul>
+    <p>{{p_uninstall}}</p>
+
+    <h2>{{p_leaves_h}}</h2>
+    <p>{{p_leaves_1}}</p>
+    <p>{{p_leaves_2}}</p>
+
+    <h2>{{p_clip_h}}</h2>
+    <p>{{p_clip}}</p>
+
+    <h2>{{p_out_h}}</h2>
+    <p>{{p_out}}</p>
+
+    <h2>{{p_contact_h}}</h2>
+    <p>{{p_contact_1}}</p>
+    <p>{{p_contact_2}}</p>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>{{p_footer_credits}}</span>
+    <span><a href="./">{{p_footer_home}}</a> · <a href="https://github.com/BNK989/AutoLang/issues">{{footer_issue}}</a> · <a href="https://github.com/BNK989/AutoLang">GitHub</a></span>
+  </div>
+</footer>
+{{@menuscript}}
+</body>
+</html>

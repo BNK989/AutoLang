@@ -1,0 +1,259 @@
+# Strings for the AutoLang website, Hebrew (translated from en.txt; same keys, same order).
+# Format: a line "@key" starts an entry; its value is everything up to the next "@key", trimmed. Values are HTML.
+# Lines starting with "#" are comments. The page is dir="rtl"; English paths are wrapped in <span dir="ltr">.
+
+# ---- shared ----
+@lang_name
+עברית
+@lang_label
+שפה
+@nav_how
+איך זה עובד
+@nav_install
+התקנה
+@nav_privacy
+פרטיות
+@footer_issue
+דיווח על בעיה
+
+# ---- index.html ----
+@title
+AutoLang · הקלדה בשפה הלא נכונה, מתוקנת
+@description
+AutoLang היא אפליקציית מגש חינמית ל-Windows שמתקנת מילים שהוקלדו בפריסת מקלדת שגויה ומחליפה את הפריסה בשבילך. שום דבר ממה שמקלידים לא יוצא מהמחשב.
+
+@hero_h1
+הקלדת בשפה הלא נכונה? זה כבר תוקן.
+@hero_lede
+AutoLang מזהה מילים שהוקלדו בפריסת מקלדת שגויה, מקלידה אותן מחדש נכון
+        ומחליפה את שפת המקלדת בשבילך, בכל אפליקציה ב-Windows. בלי Alt+Shift, בלי למחוק, בלי להקליד שוב.
+@cta_download
+הורדה ל-Windows
+@cta_source
+קוד מקור
+@hero_fine
+חינם וקוד פתוח · Windows 10 &amp; 11 · שום דבר ממה שמקלידים לא יוצא מהמחשב
+
+# The animated demo. {typed} and {to} are filled in by the script.
+@demo_label
+דוגמה מונפשת: מילה שהוקלדה בפריסת מקלדת שגויה מתוקנת
+@demo_typing
+מקלידים…
+@demo_switched
+תוקן, והמקלדת עברה ל-{to}
+@demo_reduced
+{typed} ← תוקן
+# Scenes in play order: put this language's pair first. Pills are Windows' layout abbreviations.
+@scenes
+[
+    { "from": "ENG", "to": "HEB", "typed": "akuo", "fixed": "שלום" },
+    { "from": "HEB", "to": "ENG", "typed": "יקךךם", "fixed": "hello" },
+    { "from": "ENG", "to": "RUS", "typed": "ghbdtn", "fixed": "привет" }
+  ]
+
+@how_h2
+איך זה עובד
+@how_sub
+לא רואים באיזו שפה המקלדת עד שכבר יש על המסך משפט שלם של ג׳יבריש.
+      AutoLang קוראת את המילים עצמן, כמו שמנוע חיפוש מבין ש-<code>akuo</code> בעצם היה אמור להיות
+      <span class="he">שלום</span>.
+@step1_h
+כל האפשרויות בבת אחת
+@step1_p
+כל מקש שלוחצים עליו נקרא בכל המקלדות שמותקנות אצלך, כך שהמילה שמקלידים קיימת
+          בכל האלפביתים שלך בו-זמנית.
+@step2_h
+מחליטה לפי ההקשר
+@step2_p
+רשימות מילים ומודל שפה קטן נותנים ציון לכל אפשרות. מילים ברורות מתוקנות ברווח הבא;
+          מילים קצרות ודו-משמעיות (<code>to</code> / <span class="he">אם</span>) מחכות עד שהמשפט מבהיר את הכוונה.
+@step3_h
+מתקנת ומחליפה
+@step3_p
+הטקסט השגוי מוחלף, המקלדת עוברת לשפה הנכונה, וממשיכים להקליד.
+          לחיצה על <kbd>Pause</kbd> מבטלת את התיקון, ו-AutoLang זוכרת את המילה הזו.
+
+@alpha_h2
+כל זוג אלפביתים
+@alpha_sub
+AutoLang עובדת עם המקלדות שכבר מותקנות אצלך. היא מחליפה בין
+      אלפביתים שונים ולא נוגעת בזוגות שחולקים אותו אלפבית, כמו אנגלית וגרמנית. עברית + אנגלית הוא הזוג
+      שנבדק הכי הרבה; האחרים חדשים יותר.
+@alpha_fine
+רשימות המילים לאנגלית ולעברית מגיעות עם האפליקציה. לכל שפת מקלדת אחרת, AutoLang
+      מורידה פעם אחת את רשימת המילים הציבורית שלה (אפשר לכבות את זה).
+
+@trust_h2
+בנויה כדי לא להפריע
+@trust_sub
+כלי שרואה את ההקשות שלך צריך להרוויח אמון. אלה עקרונות תכנון, לא הגדרות.
+@trust_1
+<strong>שום דבר לא יוצא מהמחשב.</strong> בלי חשבון, בלי אנליטיקס, בלי טלמטריה.
+@trust_2
+<strong>רק השורה הנוכחית נשמרת</strong>, בזיכרון, והיא נמחקת בלחיצה על Enter, בלחיצת עכבר או במעבר לחלון אחר.
+@trust_3
+<strong>דילוג על שדות סיסמה</strong>, וגם על מנהלי סיסמאות, טרמינלים, שולחן עבודה מרוחק ומכונות וירטואליות.
+@trust_4
+<strong>הלוג אף פעם לא מכיל טקסט</strong>, רק ספירות ותזמונים לאבחון תקלות.
+@trust_5
+<strong>ביטול במקש אחד.</strong> <kbd>Pause</kbd> מבטל תיקון; <kbd>Shift</kbd>+<kbd>Pause</kbd> כופה תיקון.
+@trust_6
+<strong>תמיד גלוי.</strong> סמל המגש מראה מתי AutoLang פעילה, מושהית או מדלגת על חלון.
+@trust_7
+<strong>שליטה לכל אפליקציה.</strong> אפשר להשבית אותה בכל אפליקציה, או לשנות את האופן שבו היא מקלידה מחדש באותה אפליקציה.
+@trust_8
+<strong>קוד פתוח</strong>, כך שאפשר לבדוק כל טענה בעמוד הזה.
+@trust_more
+לקריאת מדיניות הפרטיות המלאה ←
+
+@install_h2
+התקנה
+@install_sub
+Windows 10 (גרסה 1809 ומעלה) או Windows 11, בגרסת 64 סיביות, עם מקלדות לשני אלפביתים
+      שונים לפחות (הגדרות ← זמן ושפה ← שפה ואזור). לא צריך להתקין .NET.
+@portable_h3
+גרסה ניידת (הכי פשוט)
+@portable_1
+להוריד את <a href="https://github.com/BNK989/AutoLang/releases/latest/download/AutoLang-win-x64.zip"><code>AutoLang-win-x64.zip</code></a> ולחלץ אותו לאן שרוצים.
+        הקובץ <code>AutoLang.exe</code> והתיקייה <code>data</code> צריכים להישאר יחד.
+@portable_2
+להפעיל את <code>AutoLang.exe</code>. גרסת התצוגה המקדימה עדיין לא חתומה בחתימת קוד, ולכן Windows SmartScreen מציג אזהרה:
+        ללחוץ על <span dir="ltr"><strong>More info → Run anyway</strong></span>.
+@portable_3
+במגש המערכת מופיעה האות <strong>A</strong> בירוק. כדי שהיא תופעל עם הכניסה למערכת, ללחוץ עליה לחיצה ימנית ולבחור <strong>Start with Windows</strong> (הפעלה עם Windows).
+@msix_h3
+מתקין (MSIX)
+@msix_1
+להוריד את <a href="https://github.com/BNK989/AutoLang/releases/latest/download/dev-signing.cer"><code>dev-signing.cer</code></a>
+        ואת <a href="https://github.com/BNK989/AutoLang/releases/latest/download/AutoLang-x64.msix"><code>AutoLang-x64.msix</code></a>.
+@msix_2
+לסמן את אישור הבדיקה (certificate) כמהימן, פעם אחת: ללחוץ פעמיים על הקובץ <span dir="ltr"><code>.cer</code></span> ולעבור באשף
+        <span dir="ltr"><strong>Install Certificate…</strong> → <strong>Local Machine</strong> → <strong>Place all certificates in the following store</strong> → <strong>Trusted People</strong> → Finish</span>.
+@msix_3
+ללחוץ פעמיים על הקובץ <span dir="ltr"><code>.msix</code></span> ואז על <strong>התקן</strong>. AutoLang תופעל עם Windows, ואפשר להסיר אותה בצורה נקייה דרך הגדרות ← אפליקציות.
+@install_store
+גרסה ל-Microsoft Store בדרך. היא לא תצטרך אישור ותתעדכן לבד.
+
+@faq_h2
+שאלות
+@faq1_q
+למה האנטי-וירוס או SmartScreen מזהירים?
+@faq1_a
+AutoLang משתמשת בממשק סטנדרטי של Windows ללכידת המקלדת (keyboard hook), שבו משתמשים גם רושמי הקשות (keyloggers), וגרסת התצוגה המקדימה
+        עדיין לא חתומה בחתימת קוד. הקוד פתוח לציבור, כך שכל מי שרוצה יכול לבדוק מה הוא עושה. אם Defender מכניס אותה להסגר, אפשר לשחזר אותה
+        ולהוסיף החרגה לתיקייה שלה.
+@faq2_q
+AutoLang תיקנה משהו שלא היה צריך לתקן.
+@faq2_a
+ללחוץ מיד על <kbd>Pause</kbd>. התיקון מבוטל, והמילה הזו לא תתוקן שוב לעולם. אם זה ממשיך
+        לקרות, בבקשה <a href="https://github.com/BNK989/AutoLang/issues">לפתוח דיווח</a> ולצרף את המילים.
+@faq3_q
+התיקונים יוצאים משובשים באפליקציה מסוימת.
+@faq3_a
+ללחוץ בתוך האפליקציה הזו, ואז ללחוץ לחיצה ימנית על סמל המגש, לבחור <strong>Typing method</strong> (שיטת הקלדה) ולנסות
+        את <em>Simulated keys</em> (הקשות מדומות) או את <em>Paste via clipboard</em> (הדבקה דרך לוח ההעתקה). הבחירה נשמרת לאפליקציה הזו בלבד.
+@faq4_q
+למה זה לא עובד באפליקציות שרצות בהרשאות מנהל?
+@faq4_a
+Windows לא מאפשר לאפליקציות רגילות לראות חלונות עם הרשאות מוגבהות או להקליד לתוכם. שם הסמל הופך לכתום; כל השאר ממשיך לעבוד.
+@faq5_q
+האם היא מחליפה בין אנגלית לגרמנית, או בין צרפתית לספרדית?
+@faq5_a
+לא. פריסות שחולקות אלפבית נשארות כמו שהן, כי רוב המילים תקינות בשתיהן, ובין פריסות כאלה מחליפים בכוונה.
+        עם <kbd>Shift</kbd>+<kbd>Pause</kbd> עדיין אפשר להמיר טקסט ידנית.
+@faq6_q
+יפנית, סינית או קוריאנית?
+@faq6_a
+לא נתמכות. בשפות האלה מקלידים דרך עורך שיטות קלט (IME), שכבר מטפל בהמרה.
+
+@footer_credits
+AutoLang · ברישיון MIT · רשימות מילים מ-<a href="https://github.com/hermitdave/FrequencyWords">FrequencyWords</a> (CC BY-SA 4.0)
+
+# ---- privacy.html ----
+@p_title
+מדיניות הפרטיות של AutoLang
+@p_description
+מה AutoLang קוראת, מה היא שומרת, ומה יוצא מהמחשב שלך (שום דבר ממה שמקלידים).
+@p_h1
+מדיניות הפרטיות של AutoLang
+@p_updated
+עודכן לאחרונה: 13 באוקטובר 2026
+# Translations only: says the English policy is the one that counts, and links to it.
+@p_translation_note
+זהו תרגום; אם יש הבדל בינו לבין <a href="../privacy.html">המדיניות באנגלית</a>, הנוסח האנגלי הוא הקובע.
+
+@p_intro
+AutoLang היא תוכנת עזר ל-Windows שמזהה הקלדה בפריסת מקלדת שגויה, מתקנת את המילה
+      ומחליפה את הפריסה. לשם כך היא צריכה לראות את ההקשות שלך. בעמוד הזה מפורט בדיוק מה היא עושה איתן.
+@p_tldr
+<strong>בקצרה:</strong> שום דבר ממה שמקלידים לא נשמר ולא נשלח לשום מקום. ל-AutoLang אין חשבון, אין אנליטיקס,
+        אין טלמטריה ואין דיווח קריסות. השימוש היחיד שלה ברשת הוא הורדה של רשימות מילים ציבוריות.
+
+@p_reads_h
+מה AutoLang קוראת
+@p_reads_1
+<strong>הקשות מקלדת</strong>, דרך ממשק סטנדרטי של Windows ללכידת המקלדת (keyboard hook), כדי לדעת איזו מילה מקלידים.
+@p_reads_2
+<strong>החלון הפעיל</strong>: שם התוכנה שלו, האם הוא במסך מלא, האם הוא רץ בהרשאות מנהל,
+        והאם השדה שבפוקוס הוא שדה סיסמה. לפי זה נקבע אם AutoLang פועלת שם בכלל.
+@p_reads_3
+<strong>פריסות המקלדת שמותקנות אצלך</strong>, כדי לדעת אילו שפות לשקול.
+
+@p_keeps_h
+מה AutoLang שומרת
+@p_keeps_mem
+<strong>בזיכרון בלבד:</strong> המילה או השורה שמקלידים ברגע זה. היא נמחקת בלחיצה על Enter,
+        בלחיצת עכבר או במעבר בין חלונות, ואף פעם לא נכתבת לשום מקום.
+@p_keeps_disk
+<strong>בדיסק, בפרופיל המשתמש שלך:</strong>
+@p_keeps_disk_1
+ההגדרות שלך (השהיה, אפליקציות שהשבתת, שיטת ההקלדה לכל אפליקציה, בחירת השפות),
+@p_keeps_disk_2
+מילים שביקשת מ-AutoLang לא לתקן (בלחיצה על ביטול אחרי תיקון),
+@p_keeps_disk_3
+רשימות מילים שהורדו (קבצים ציבוריים, ראו בהמשך),
+@p_keeps_disk_4
+לוג של ספירות ותזמונים לאבחון תקלות (למשל "תוקנה מילה אחת ב-chrome.exe תוך 12 מילישניות").
+            הלוג אף פעם לא מכיל שום דבר ממה שהקלדת.
+@p_uninstall
+הסרה של גרסת ה-Store או של הגרסה המותקנת מוחקת את כל המידע הזה. הגרסה הניידת (zip) שומרת אותו בתיקייה
+      <span dir="ltr"><code>%LocalAppData%\AutoLang</code></span>; כדי להסיר אותו, יש למחוק את התיקייה הזו.
+
+@p_leaves_h
+מה יוצא מהמחשב שלך
+@p_leaves_1
+שום דבר ממה שמקלידים, אף פעם. ל-AutoLang אין חשבון, אין אנליטיקס, אין טלמטריה ואין דיווח קריסות.
+@p_leaves_2
+בקשת הרשת היחידה שהיא שולחת היא הורדה של <strong>רשימת מילים</strong> לשפת מקלדת שלא מגיעה
+      איתה: הורדה פשוטה של קובץ ציבורי מהפרויקט
+      <a href="https://github.com/hermitdave/FrequencyWords">FrequencyWords</a> ב-GitHub. הבקשה מציינת את
+      השפה (למשל <code>ru</code>) ולא מכילה שום מידע עליך או על ההקלדה שלך. GitHub רואה את כתובת ה-IP שלך,
+      כמו בכל הורדה. אפשר לכבות את זה בתפריט המגש, תחת <strong>Languages…</strong> (שפות).
+
+@p_clip_h
+לוח ההעתקה
+@p_clip
+כברירת מחדל AutoLang אף פעם לא נוגעת בלוח ההעתקה. אם מעבירים אפליקציה מסוימת לשיטת ההקלדה
+      <strong>Paste via clipboard</strong> (הדבקה דרך לוח ההעתקה), כל תיקון באפליקציה הזו מכניס לרגע את המילה המתוקנת
+      ללוח ההעתקה, מדביק אותה, ומחזיר ללוח את מה שהעתקת קודם. המילה המתוקנת מסומנת כך שהיסטוריית לוח ההעתקה של Windows,
+      לוח ההעתקה בענן ומנהלי לוח העתקה ידלגו עליה. התוכן שהעתקת מוחזק בזיכרון לשבריר
+      שנייה, ולא נקרא, לא נשמר ולא נשלח.
+
+@p_out_h
+איפה AutoLang לא פועלת
+@p_out
+שדות סיסמה, טרמינלים, חלונות של שולחן עבודה מרוחק ושל מכונות וירטואליות, מנהלי סיסמאות, משחקים במסך מלא,
+      וכל אפליקציה שהשבתת מתפריט המגש. Windows עצמו מונע מ-AutoLang לפעול באפליקציות שרצות בהרשאות מנהל.
+
+@p_contact_h
+יצירת קשר
+@p_contact_1
+לשאלות על המדיניות הזו, או על כל דבר אחר: אפשר לפתוח דיווח (issue) בכתובת
+      <a href="https://github.com/BNK989/AutoLang/issues">github.com/BNK989/AutoLang/issues</a>.
+@p_contact_2
+קוד המקור פתוח לציבור בכתובת <a href="https://github.com/BNK989/AutoLang">github.com/BNK989/AutoLang</a>, כך שאפשר
+      לבדוק את כל מה שכתוב כאן.
+@p_footer_credits
+AutoLang · ברישיון MIT
+@p_footer_home
+דף הבית

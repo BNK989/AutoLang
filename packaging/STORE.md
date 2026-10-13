@@ -46,8 +46,9 @@ The result is unsigned on purpose; the Store signs it with Microsoft's certifica
 **Packages:** upload `dist/AutoLang-<version>-x64.msix`. Device family: Desktop only.
 
 **Properties:** category *Utilities & tools*. Privacy policy URL: required, because the app has `runFullTrust` and
-reads input. Use https://bnk989.github.io/AutoLang/privacy.html (the GitHub Pages copy of `PRIVACY.md`, from
-`docs/privacy.html`; keep the two in step). Website: https://bnk989.github.io/AutoLang/.
+reads input. Use https://bnk989.github.io/AutoLang/privacy.html (the GitHub Pages copy of `PRIVACY.md`, built from
+`site/privacy.html` and `site/strings/en.txt` by `dotnet run --project tools/AutoLang.Site`; keep the two in
+step). Website: https://bnk989.github.io/AutoLang/.
 
 **Everything else** (age rating answers, description, features, search terms, screenshots and captions, the
 `runFullTrust` note for certification): copy it from [`store/LISTING.md`](store/LISTING.md). The screenshots are

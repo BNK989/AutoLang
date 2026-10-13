@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="{{@lang}}" dir="{{@dir}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{title}}</title>
+<meta name="description" content="{{description}}">
+{{@head}}
+<link rel="icon" href="{{@root}}icon.png">
+<link rel="stylesheet" href="{{@root}}style.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="./"><img src="{{@root}}icon.png" alt="">AutoLang</a>
+    <nav>
+      <a class="hide-sm" href="#how">{{nav_how}}</a>
+      <a href="#install">{{nav_install}}</a>
+      <a href="privacy.html">{{nav_privacy}}</a>
+      <a class="hide-sm" href="https://github.com/BNK989/AutoLang">GitHub</a>
+{{@langmenu}}
+    </nav>
+  </div>
+</header>
+
+<main>
+<div class="hero">
+  <div class="wrap">
+    <div>
+      <h1>{{hero_h1}}</h1>
+      <p class="lede">{{hero_lede}}</p>
+      <div class="cta">
+        <a class="btn primary" href="https://github.com/BNK989/AutoLang/releases/latest">{{cta_download}}</a>
+        <a class="btn" href="https://github.com/BNK989/AutoLang">{{cta_source}}</a>
+      </div>
+      <p class="fine">{{hero_fine}}</p>
+    </div>
+
+    <div class="demo" role="img" aria-label="{{demo_label}}"
+         data-typing="{{demo_typing}}" data-switched="{{demo_switched}}" data-reduced="{{demo_reduced}}">
+      <div class="demo-bar"><i></i><i></i><i></i></div>
+      <div class="demo-body">
+        <div class="demo-line" id="line" dir="ltr"><span id="text" dir="auto"></span><span class="caret"></span></div>
+        <div class="demo-status">
+          <span id="note">{{demo_typing}}</span>
+          <span class="layout-pill" id="pill">ENG</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section id="how">
+  <div class="wrap">
+    <h2>{{how_h2}}</h2>
+    <p class="sub">{{how_sub}}</p>
+    <div class="grid">
+      <div class="card">
+        <span class="step">01</span>
+        <h3>{{step1_h}}</h3>
+        <p>{{step1_p}}</p>
+      </div>
+      <div class="card">
+        <span class="step">02</span>
+        <h3>{{step2_h}}</h3>
+        <p>{{step2_p}}</p>
+      </div>
+      <div class="card">
+        <span class="step">03</span>
+        <h3>{{step3_h}}</h3>
+        <p>{{step3_p}}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>{{alpha_h2}}</h2>
+    <p class="sub">{{alpha_sub}}</p>
+    <ul class="pairs">
+      <li><code>akuo</code><span class="arrow">→</span><span class="he" dir="rtl">שלום</span></li>
+      <li><span class="from he" dir="rtl">יקךךם</span><span class="arrow">→</span><span>hello</span></li>
+      <li><code>ghbdtn</code><span class="arrow">→</span><span>привет</span></li>
+      <li><code>kalhmera</code><span class="arrow">→</span><span>καλημερα</span></li>
+      <li><code>lvpfh</code><span class="arrow">→</span><span dir="rtl">مرحبا</span></li>
+    </ul>
+    <p class="fine">{{alpha_fine}}</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>{{trust_h2}}</h2>
+    <p class="sub">{{trust_sub}}</p>
+    <ul class="checks">
+      <li>{{trust_1}}</li>
+      <li>{{trust_2}}</li>
+      <li>{{trust_3}}</li>
+      <li>{{trust_4}}</li>
+      <li>{{trust_5}}</li>
+      <li>{{trust_6}}</li>
+      <li>{{trust_7}}</li>
+      <li>{{trust_8}}</li>
+    </ul>
+    <p class="fine"><a href="privacy.html">{{trust_more}}</a></p>
+  </div>
+</section>
+
+<section id="install">
+  <div class="wrap narrow">
+    <h2>{{install_h2}}</h2>
+    <p class="sub">{{install_sub}}</p>
+
+    <h3>{{portable_h3}}</h3>
+    <ol class="install">
+      <li>{{portable_1}}</li>
+      <li>{{portable_2}}</li>
+      <li>{{portable_3}}</li>
+    </ol>
+
+    <h3>{{msix_h3}}</h3>
+    <ol class="install">
+      <li>{{msix_1}}</li>
+      <li>{{msix_2}}</li>
+      <li>{{msix_3}}</li>
+    </ol>
+    <p class="fine">{{install_store}}</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap narrow">
+    <h2>{{faq_h2}}</h2>
+    <details>
+      <summary>{{faq1_q}}</summary>
+      <p>{{faq1_a}}</p>
+    </details>
+    <details>
+      <summary>{{faq2_q}}</summary>
+      <p>{{faq2_a}}</p>
+    </details>
+    <details>
+      <summary>{{faq3_q}}</summary>
+      <p>{{faq3_a}}</p>
+    </details>
+    <details>
+      <summary>{{faq4_q}}</summary>
+      <p>{{faq4_a}}</p>
+    </details>
+    <details>
+      <summary>{{faq5_q}}</summary>
+      <p>{{faq5_a}}</p>
+    </details>
+    <details>
+      <summary>{{faq6_q}}</summary>
+      <p>{{faq6_a}}</p>
+    </details>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>{{footer_credits}}</span>
+    <span><a href="privacy.html">{{nav_privacy}}</a> · <a href="https://github.com/BNK989/AutoLang/issues">{{footer_issue}}</a> · <a href="https://github.com/BNK989/AutoLang">GitHub</a></span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var demo = document.querySelector('.demo'), line = document.getElementById('line');
+  var text = document.getElementById('text'), note = document.getElementById('note'), pill = document.getElementById('pill');
+  var scenes = {{scenes}};
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var i = 0;
+  function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  // Right-to-left words get a right-to-left line, so the caret sits where the next letter would go.
+  function set(cls, s) { line.dir = /[\u0590-\u08FF]/.test(s) ? 'rtl' : 'ltr'; text.className = cls; text.textContent = s; }
+  function say(key, s) { return demo.getAttribute('data-' + key).replace('{typed}', s.typed).replace('{to}', s.to); }
+  async function play() {
+    var s = scenes[i++ % scenes.length];
+    pill.textContent = s.from; pill.classList.remove('flip');
+    if (reduce) {
+      set('fixed', s.fixed + ' '); pill.textContent = s.to; note.textContent = say('reduced', s);
+      await wait(3000); return play();
+    }
+    note.textContent = say('typing', s); set('', '');
+    for (var k = 1; k <= s.typed.length; k++) { set('bad', s.typed.slice(0, k)); await wait(150); }
+    await wait(350);
+    set('bad', s.typed + ' ');
+    await wait(220);
+    set('fixed', s.fixed + ' ');
+    pill.textContent = s.to; pill.classList.add('flip');
+    note.textContent = say('switched', s);
+    await wait(2400);
+    return play();
+  }
+  play();
+})();
+</script>
+{{@menuscript}}
+</body>
+</html>

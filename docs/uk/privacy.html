@@ -1,0 +1,131 @@
+<!doctype html>
+<!-- Generated from site/privacy.html and site/strings/uk.txt by tools/AutoLang.Site. Edit those, not this file. -->
+<html lang="uk" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Політика конфіденційності AutoLang</title>
+<meta name="description" content="Що AutoLang читає, що зберігає і що залишає ваш комп’ютер (нічого з того, що ви набираєте).">
+<link rel="canonical" href="https://bnk989.github.io/AutoLang/uk/privacy.html">
+<link rel="alternate" hreflang="en" href="https://bnk989.github.io/AutoLang/privacy.html">
+<link rel="alternate" hreflang="he" href="https://bnk989.github.io/AutoLang/he/privacy.html">
+<link rel="alternate" hreflang="ar" href="https://bnk989.github.io/AutoLang/ar/privacy.html">
+<link rel="alternate" hreflang="ru" href="https://bnk989.github.io/AutoLang/ru/privacy.html">
+<link rel="alternate" hreflang="uk" href="https://bnk989.github.io/AutoLang/uk/privacy.html">
+<link rel="alternate" hreflang="el" href="https://bnk989.github.io/AutoLang/el/privacy.html">
+<link rel="alternate" hreflang="x-default" href="https://bnk989.github.io/AutoLang/privacy.html">
+<link rel="icon" href="../icon.png">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="./"><img src="../icon.png" alt="">AutoLang</a>
+    <nav>
+      <a class="hide-sm" href="./#how">Як це працює</a>
+      <a href="./#install">Встановлення</a>
+      <a href="privacy.html" aria-current="page">Конфіденційність</a>
+      <a class="hide-sm" href="https://github.com/BNK989/AutoLang">GitHub</a>
+      <details class="lang">
+        <summary aria-label="Мова: Українська"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg><span>Українська</span></summary>
+        <ul>
+          <li><a href="../privacy.html" lang="en" hreflang="en" data-lang="en">English</a></li>
+          <li><a href="../he/privacy.html" lang="he" hreflang="he" data-lang="he">עברית</a></li>
+          <li><a href="../ar/privacy.html" lang="ar" hreflang="ar" data-lang="ar">العربية</a></li>
+          <li><a href="../ru/privacy.html" lang="ru" hreflang="ru" data-lang="ru">Русский</a></li>
+          <li><a href="privacy.html" lang="uk" hreflang="uk" data-lang="uk" aria-current="true">Українська</a></li>
+          <li><a href="../el/privacy.html" lang="el" hreflang="el" data-lang="el">Ελληνικά</a></li>
+        </ul>
+      </details>
+    </nav>
+  </div>
+</header>
+
+<!-- Keep in step with PRIVACY.md in the repo root. -->
+<main class="prose">
+  <div class="wrap narrow">
+    <h1>Політика конфіденційності AutoLang</h1>
+    <p class="updated">Останнє оновлення: 13 жовтня 2026 р.</p>
+    <p class="note">Це переклад; якщо він у чомусь розходиться з <a href="../privacy.html">англійською версією політики</a>, чинною є англійська версія.</p>
+
+    <p>AutoLang — це утиліта для Windows, яка помічає, що ви набираєте текст не в тій розкладці клавіатури, виправляє слово
+      й перемикає розкладку. Для цього вона мусить бачити ваші натискання клавіш. На цій сторінці точно описано, що вона з ними робить.</p>
+
+    <div class="tldr">
+      <p><strong>Коротко:</strong> ніщо з того, що ви набираєте, не зберігається й нікуди не надсилається. AutoLang не має облікових записів, аналітики,
+        телеметрії та звітів про збої. Мережу AutoLang використовує лише для завантаження загальнодоступних списків слів.</p>
+    </div>
+
+    <h2>Що AutoLang читає</h2>
+    <ul>
+      <li><strong>Натискання клавіш</strong> — через стандартний механізм перехоплення клавіатури Windows, щоб розуміти, яке слово ви набираєте.</li>
+      <li><strong>Активне вікно</strong>: назву його програми, чи відкрите воно на весь екран, чи запущене від імені адміністратора,
+        і чи є поле у фокусі полем пароля. Від цього залежить, чи працюватиме там AutoLang узагалі.</li>
+      <li><strong>Установлені у вас розкладки клавіатури</strong> — щоб знати, які мови враховувати.</li>
+    </ul>
+
+    <h2>Що AutoLang зберігає</h2>
+    <ul>
+      <li><strong>Лише в пам’яті:</strong> слово чи рядок, які ви набираєте саме зараз. Вони стираються, коли ви натискаєте Enter,
+        клацаєте мишею або перемикаєте вікна, і ніде не записуються.</li>
+      <li><strong>На диску, у вашому профілі користувача:</strong>
+        <ul>
+          <li>ваші налаштування (пауза, вимкнені вами програми, спосіб введення для кожної програми, вибір мов),</li>
+          <li>слова, які ви заборонили AutoLang виправляти (натиснувши клавішу скасування після виправлення),</li>
+          <li>завантажені списки слів (загальнодоступні файли, див. нижче),</li>
+          <li>журнал із лічильниками й часом виконання для усунення неполадок (наприклад, «виправлено 1 слово в chrome.exe за 12 мс»).
+            Журнал ніколи не містить нічого з того, що ви набирали.</li>
+        </ul>
+      </li>
+    </ul>
+    <p>Під час видалення версії зі Store або інстальованої версії все це видаляється. Портативна (zip) версія зберігає ці дані в
+      <code>%LocalAppData%\AutoLang</code>; щоб їх прибрати, видаліть цю папку.</p>
+
+    <h2>Що залишає ваш комп’ютер</h2>
+    <p>Ніщо з того, що ви набираєте, — ніколи. AutoLang не має облікових записів, аналітики, телеметрії та звітів про збої.</p>
+    <p>Єдиний мережевий запит, який робить AutoLang, — це завантаження <strong>списку слів</strong> для мови клавіатури, що не
+      постачається разом із програмою: звичайне завантаження загальнодоступного файлу з проєкту
+      <a href="https://github.com/hermitdave/FrequencyWords">FrequencyWords</a> на GitHub. У запиті вказано
+      мову (наприклад, <code>ru</code>), і він не містить нічого про вас чи ваш набір тексту. GitHub бачить вашу IP-адресу,
+      як і під час будь-якого завантаження. Це можна вимкнути в меню в треї → <strong>Languages…</strong> (мови).</p>
+
+    <h2>Буфер обміну</h2>
+    <p>За замовчуванням AutoLang ніколи не використовує буфер обміну. Якщо для певної програми вибрати спосіб введення
+      <strong>Paste via clipboard</strong> (вставлення через буфер обміну), то під час виправлення в цій програмі AutoLang ненадовго кладе виправлене слово
+      в буфер обміну, вставляє його й повертає туди те, що ви скопіювали. Виправлене слово позначається так, щоб журнал буфера обміну
+      Windows, хмарний буфер обміну та менеджери буфера обміну його пропускали. Скопійований вами вміст утримується в пам’яті частку
+      секунди; його не читають, не зберігають і нікуди не надсилають.</p>
+
+    <h2>Де AutoLang не працює</h2>
+    <p>Поля паролів, термінали, вікна віддаленого робочого столу та віртуальних машин, менеджери паролів, повноекранні ігри, а також
+      будь-які програми, які ви вимкнули в меню в треї. До програм, запущених від імені адміністратора, AutoLang не допускає сама Windows.</p>
+
+    <h2>Контакти</h2>
+    <p>Із запитаннями щодо цієї політики чи будь-чого іншого створіть звернення (issue) на
+      <a href="https://github.com/BNK989/AutoLang/issues">github.com/BNK989/AutoLang/issues</a>.</p>
+    <p>Вихідний код опубліковано на <a href="https://github.com/BNK989/AutoLang">github.com/BNK989/AutoLang</a>, тож усе
+      викладене вище можна перевірити.</p>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>AutoLang · ліцензія MIT</span>
+    <span><a href="./">Головна</a> · <a href="https://github.com/BNK989/AutoLang/issues">Повідомити про проблему</a> · <a href="https://github.com/BNK989/AutoLang">GitHub</a></span>
+  </div>
+</footer>
+<script>
+(function () {
+  // The language menu: remember the pick for the next visit, and close on a click outside or Escape.
+  var menu = document.querySelector('details.lang');
+  menu.addEventListener('click', function (e) {
+    var a = e.target.closest('a[data-lang]');
+    if (a) try { localStorage.setItem('autolang-lang', a.getAttribute('data-lang')); } catch (x) {}
+  });
+  document.addEventListener('click', function (e) { if (!menu.contains(e.target)) menu.open = false; });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') menu.open = false; });
+})();
+</script>
+</body>
+</html>

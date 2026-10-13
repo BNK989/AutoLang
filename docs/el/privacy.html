@@ -1,0 +1,131 @@
+<!doctype html>
+<!-- Generated from site/privacy.html and site/strings/el.txt by tools/AutoLang.Site. Edit those, not this file. -->
+<html lang="el" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Πολιτική απορρήτου του AutoLang</title>
+<meta name="description" content="Τι διαβάζει το AutoLang, τι κρατά και τι φεύγει από τον υπολογιστή σας (τίποτα από όσα πληκτρολογείτε).">
+<link rel="canonical" href="https://bnk989.github.io/AutoLang/el/privacy.html">
+<link rel="alternate" hreflang="en" href="https://bnk989.github.io/AutoLang/privacy.html">
+<link rel="alternate" hreflang="he" href="https://bnk989.github.io/AutoLang/he/privacy.html">
+<link rel="alternate" hreflang="ar" href="https://bnk989.github.io/AutoLang/ar/privacy.html">
+<link rel="alternate" hreflang="ru" href="https://bnk989.github.io/AutoLang/ru/privacy.html">
+<link rel="alternate" hreflang="uk" href="https://bnk989.github.io/AutoLang/uk/privacy.html">
+<link rel="alternate" hreflang="el" href="https://bnk989.github.io/AutoLang/el/privacy.html">
+<link rel="alternate" hreflang="x-default" href="https://bnk989.github.io/AutoLang/privacy.html">
+<link rel="icon" href="../icon.png">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="./"><img src="../icon.png" alt="">AutoLang</a>
+    <nav>
+      <a class="hide-sm" href="./#how">Πώς λειτουργεί</a>
+      <a href="./#install">Εγκατάσταση</a>
+      <a href="privacy.html" aria-current="page">Απόρρητο</a>
+      <a class="hide-sm" href="https://github.com/BNK989/AutoLang">GitHub</a>
+      <details class="lang">
+        <summary aria-label="Γλώσσα: Ελληνικά"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg><span>Ελληνικά</span></summary>
+        <ul>
+          <li><a href="../privacy.html" lang="en" hreflang="en" data-lang="en">English</a></li>
+          <li><a href="../he/privacy.html" lang="he" hreflang="he" data-lang="he">עברית</a></li>
+          <li><a href="../ar/privacy.html" lang="ar" hreflang="ar" data-lang="ar">العربية</a></li>
+          <li><a href="../ru/privacy.html" lang="ru" hreflang="ru" data-lang="ru">Русский</a></li>
+          <li><a href="../uk/privacy.html" lang="uk" hreflang="uk" data-lang="uk">Українська</a></li>
+          <li><a href="privacy.html" lang="el" hreflang="el" data-lang="el" aria-current="true">Ελληνικά</a></li>
+        </ul>
+      </details>
+    </nav>
+  </div>
+</header>
+
+<!-- Keep in step with PRIVACY.md in the repo root. -->
+<main class="prose">
+  <div class="wrap narrow">
+    <h1>Πολιτική απορρήτου του AutoLang</h1>
+    <p class="updated">Τελευταία ενημέρωση: 13 Οκτωβρίου 2026</p>
+    <p class="note">Αυτή η σελίδα είναι μετάφραση· αν διαφέρει από την <a href="../privacy.html">αγγλική πολιτική</a>, ισχύει η αγγλική έκδοση.</p>
+
+    <p>Το AutoLang είναι ένα βοηθητικό πρόγραμμα για Windows που καταλαβαίνει πότε πληκτρολογείτε με λάθος διάταξη πληκτρολογίου, διορθώνει τη λέξη και
+      αλλάζει τη διάταξη. Για να το κάνει αυτό, πρέπει να βλέπει τα πλήκτρα που πατάτε. Αυτή η σελίδα εξηγεί ακριβώς τι κάνει με αυτά.</p>
+
+    <div class="tldr">
+      <p><strong>Με λίγα λόγια:</strong> τίποτα από όσα πληκτρολογείτε δεν αποθηκεύεται ούτε αποστέλλεται πουθενά. Το AutoLang δεν έχει λογαριασμό, στατιστικά χρήσης,
+        τηλεμετρία ή αναφορές σφαλμάτων. Η μόνη χρήση δικτύου που κάνει είναι η λήψη δημόσιων λιστών λέξεων.</p>
+    </div>
+
+    <h2>Τι διαβάζει το AutoLang</h2>
+    <ul>
+      <li><strong>Τα πλήκτρα που πατάτε</strong>, μέσω ενός τυπικού μηχανισμού των Windows για το πληκτρολόγιο (keyboard hook), ώστε να καταλαβαίνει ποια λέξη πληκτρολογείτε.</li>
+      <li><strong>Το ενεργό παράθυρο</strong>: το όνομα του προγράμματος, αν είναι σε πλήρη οθόνη, αν εκτελείται ως διαχειριστής
+        και αν το πεδίο που έχει την εστίαση είναι πεδίο κωδικού πρόσβασης. Από αυτά εξαρτάται αν το AutoLang θα λειτουργήσει καθόλου εκεί.</li>
+      <li><strong>Τις εγκατεστημένες διατάξεις πληκτρολογίου σας</strong>, για να ξέρει ποιες γλώσσες να λάβει υπόψη.</li>
+    </ul>
+
+    <h2>Τι κρατά το AutoLang</h2>
+    <ul>
+      <li><strong>Μόνο στη μνήμη:</strong> τη λέξη ή τη γραμμή που πληκτρολογείτε εκείνη τη στιγμή. Απορρίπτεται όταν πατήσετε Enter,
+        κάνετε κλικ ή αλλάξετε παράθυρο, και δεν γράφεται ποτέ πουθενά.</li>
+      <li><strong>Στον δίσκο, στο προφίλ χρήστη σας:</strong>
+        <ul>
+          <li>τις ρυθμίσεις σας (παύση, εφαρμογές που απενεργοποιήσατε, τον τρόπο πληκτρολόγησης ανά εφαρμογή, επιλογές γλωσσών),</li>
+          <li>λέξεις που ζητήσατε από το AutoLang να μη διορθώνει (κάνοντας αναίρεση μετά από μια διόρθωση),</li>
+          <li>λίστες λέξεων που έχουν ληφθεί (δημόσια αρχεία, δείτε παρακάτω),</li>
+          <li>ένα αρχείο καταγραφής με μετρήσεις και χρόνους για την αντιμετώπιση προβλημάτων (για παράδειγμα «διορθώθηκε 1 λέξη στο chrome.exe σε 12 ms»).
+            Το αρχείο καταγραφής δεν περιέχει ποτέ τίποτα από όσα πληκτρολογήσατε.</li>
+        </ul>
+      </li>
+    </ul>
+    <p>Η απεγκατάσταση της έκδοσης από το Store ή της εγκατεστημένης έκδοσης τα αφαιρεί όλα. Η φορητή έκδοση (zip) τα κρατά στο
+      <code>%LocalAppData%\AutoLang</code>· διαγράψτε αυτόν τον φάκελο για να τα αφαιρέσετε.</p>
+
+    <h2>Τι φεύγει από τον υπολογιστή σας</h2>
+    <p>Τίποτα από όσα πληκτρολογείτε, ποτέ. Το AutoLang δεν έχει λογαριασμό, στατιστικά χρήσης, τηλεμετρία ή αναφορές σφαλμάτων.</p>
+    <p>Το μόνο αίτημα δικτύου που κάνει είναι η λήψη μιας <strong>λίστας λέξεων</strong> για μια γλώσσα πληκτρολογίου που δεν
+      περιλαμβάνεται στην εφαρμογή: μια απλή λήψη ενός δημόσιου αρχείου από το έργο
+      <a href="https://github.com/hermitdave/FrequencyWords">FrequencyWords</a> στο GitHub. Το αίτημα αναφέρει τη
+      γλώσσα (για παράδειγμα <code>ru</code>) και δεν περιέχει τίποτα για εσάς ή για όσα πληκτρολογείτε. Το GitHub βλέπει τη διεύθυνση IP σας,
+      όπως σε κάθε λήψη. Μπορείτε να το απενεργοποιήσετε από το μενού της περιοχής ειδοποιήσεων → <strong>Languages…</strong> (γλώσσες).</p>
+
+    <h2>Το πρόχειρο</h2>
+    <p>Από προεπιλογή, το AutoLang δεν αγγίζει ποτέ το πρόχειρο. Αν ορίσετε για μια συγκεκριμένη εφαρμογή τον τρόπο πληκτρολόγησης
+      <strong>Paste via clipboard</strong> (επικόλληση μέσω προχείρου), κάθε διόρθωση σε αυτή την εφαρμογή βάζει για λίγο τη διορθωμένη λέξη στο
+      πρόχειρο, την επικολλά και επαναφέρει ό,τι είχατε αντιγράψει. Η διορθωμένη λέξη επισημαίνεται ώστε να την παραλείπουν το ιστορικό
+      προχείρου των Windows, το πρόχειρο στο cloud και τα προγράμματα διαχείρισης προχείρου. Το περιεχόμενο που είχατε αντιγράψει κρατιέται στη μνήμη
+      για ένα κλάσμα του δευτερολέπτου και δεν διαβάζεται, δεν αποθηκεύεται και δεν αποστέλλεται.</p>
+
+    <h2>Πού δεν παρεμβαίνει το AutoLang</h2>
+    <p>Σε πεδία κωδικού πρόσβασης, τερματικά, παράθυρα απομακρυσμένης επιφάνειας εργασίας και εικονικών μηχανών, διαχειριστές κωδικών πρόσβασης, παιχνίδια σε πλήρη οθόνη
+      και σε οποιαδήποτε εφαρμογή απενεργοποιήσετε από το μενού της περιοχής ειδοποιήσεων. Τα ίδια τα Windows κρατούν το AutoLang έξω από εφαρμογές που εκτελούνται ως διαχειριστής.</p>
+
+    <h2>Επικοινωνία</h2>
+    <p>Για ερωτήσεις σχετικά με αυτή την πολιτική ή για οτιδήποτε άλλο, ανοίξτε ένα issue στο
+      <a href="https://github.com/BNK989/AutoLang/issues">github.com/BNK989/AutoLang/issues</a>.</p>
+    <p>Ο πηγαίος κώδικας είναι δημόσιος στο <a href="https://github.com/BNK989/AutoLang">github.com/BNK989/AutoLang</a>, οπότε
+      όλα τα παραπάνω μπορούν να ελεγχθούν.</p>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>AutoLang · Άδεια MIT</span>
+    <span><a href="./">Αρχική</a> · <a href="https://github.com/BNK989/AutoLang/issues">Αναφορά προβλήματος</a> · <a href="https://github.com/BNK989/AutoLang">GitHub</a></span>
+  </div>
+</footer>
+<script>
+(function () {
+  // The language menu: remember the pick for the next visit, and close on a click outside or Escape.
+  var menu = document.querySelector('details.lang');
+  menu.addEventListener('click', function (e) {
+    var a = e.target.closest('a[data-lang]');
+    if (a) try { localStorage.setItem('autolang-lang', a.getAttribute('data-lang')); } catch (x) {}
+  });
+  document.addEventListener('click', function (e) { if (!menu.contains(e.target)) menu.open = false; });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') menu.open = false; });
+})();
+</script>
+</body>
+</html>
