@@ -105,9 +105,10 @@ Word lists are derived from FrequencyWords by Hermit Dave (OpenSubtitles 2018), 
 Leave the short description, short title, sort title, voice title, trailers and additional system requirements
 empty; they are optional.
 
-## Submission options → Notes for certification
+## Notes for certification (Supplemental info → Additional Testing Information)
 
-`runFullTrust` is a restricted capability, so reviewers ask why. Paste this:
+Submission options no longer has a notes box; it links to the Additional Testing Information page. `runFullTrust` is
+a restricted capability, so reviewers ask why. Paste this:
 
 ```
 AutoLang is a desktop (Win32) utility that corrects text typed in the wrong keyboard layout, e.g. Hebrew letters typed while the English layout was active. It needs runFullTrust because it installs a low-level keyboard hook (SetWindowsHookEx WH_KEYBOARD_LL) to see which word is being typed, uses SendInput to replace the mistyped word, and asks the foreground window to switch keyboard layout. None of this is possible from a sandboxed app. Keystrokes are held in memory for the current line only and are never stored or transmitted; see the privacy policy. The only network use is downloading public word lists from GitHub.
@@ -115,7 +116,7 @@ AutoLang is a desktop (Win32) utility that corrects text typed in the wrong keyb
 To test: add the English (US) and Hebrew keyboards in Settings > Time & language > Language & region. Open Notepad with the English layout active and type "akuo " (with the space). It becomes "שלום " and the layout switches to Hebrew. Press Pause to undo. The tray icon (green "A") has the settings.
 ```
 
-**Restricted capability justification** (the same page asks again for `runFullTrust`):
+**Restricted capability justification** (Submission options → "Why do you need the runFullTrust capability"):
 
 ```
 Required for a low-level keyboard hook (WH_KEYBOARD_LL), SendInput and keyboard layout switching in other apps' windows. AutoLang is a Win32 desktop app packaged with the Desktop Bridge.
