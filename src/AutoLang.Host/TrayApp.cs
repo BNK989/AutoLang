@@ -95,11 +95,11 @@ internal sealed class TrayApp : ApplicationContext
             // Once per session: the orange icon alone does not say why nothing gets corrected here.
             _adminNoticeShown = true;
             _icon.ShowBalloonTip(6000, "AutoLang can't help in this window",
-                $"{s.Process} is running as administrator, and Windows does not let ordinary apps read or type into it. " +
+                $"{AppName(s.Process)} is running as administrator, and Windows does not let ordinary apps read or type into it. " +
                 "AutoLang keeps working everywhere else.", ToolTipIcon.Info);
         }
         string state = _settings.Paused ? "Paused" : !_controller.CanCorrect ? "Idle: needs two alphabets" : s.Blocked ? $"Blocked: {s.Reason}" : "Watching";
-        string app = string.IsNullOrEmpty(s.Process) ? "" : $" — {s.Process}";
+        string app = string.IsNullOrEmpty(s.Process) ? "" : $" — {AppName(s.Process)}";
         _status.Text = state + app;
         _icon.Icon = _settings.Paused || !_controller.CanCorrect ? _grey : s.Blocked ? _orange : _green;
         var tip = $"AutoLang: {state}{app}\n{_corrector.AppliedCount} corrections this session\nClick to {(_settings.Paused ? "resume" : "pause")}";
@@ -111,10 +111,10 @@ internal sealed class TrayApp : ApplicationContext
         var p = _focus.Status.Process;
         bool hasApp = !string.IsNullOrEmpty(p) && !p.StartsWith("pid ") && !_settings.IsExcluded(p);
         _disableApp.Enabled = hasApp;
-        _disableApp.Text = hasApp ? $"Disable for {p}" : "Disable for this app";
+        _disableApp.Text = hasApp ? $"Disable for {AppName(p)}" : "Disable for this app";
         _disableApp.Checked = hasApp && _settings.IsDisabled(p);
         _typing.Enabled = hasApp;
-        _typing.Text = hasApp ? $"Typing method for {p}" : "Typing method for this app";
+        _typing.Text = hasApp ? $"Typing method for {AppName(p)}" : "Typing method for this app";
         TypingMethod current;
         lock (_settings) current = hasApp ? _settings.TypingMethodFor(p) : TypingMethod.Unicode;
         foreach (var item in _typingItems) item.Checked = (TypingMethod)item.Tag! == current;
@@ -140,7 +140,7 @@ internal sealed class TrayApp : ApplicationContext
         Log.Info($"{p}: typing method {method.ToString().ToLowerInvariant()}");
         if (method == TypingMethod.Paste)
             _icon.ShowBalloonTip(6000, "AutoLang",
-                $"Corrections in {p} now go through the clipboard. Your copied content is put back right after each one " +
+                $"Corrections in {AppName(p)} now go through the clipboard. Your copied content is put back right after each one " +
                 "and is never kept or sent anywhere.", ToolTipIcon.Info);
     }
 
@@ -176,6 +176,10 @@ internal sealed class TrayApp : ApplicationContext
     }
 
     private string PauseText() => _settings.Paused ? "Resume AutoLang" : "Pause AutoLang";
+
+    /// <summary>How an app is shown to the user: "chrome", not "chrome.exe". Settings keep the full process name.</summary>
+    private static string AppName(string process)
+        => process.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) ? process[..^4] : process;
 
     private void ToggleDisableApp()
     {
