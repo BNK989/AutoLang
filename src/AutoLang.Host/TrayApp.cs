@@ -18,7 +18,7 @@ internal sealed class TrayApp : ApplicationContext
     private readonly LanguageManager _languages;
     private LanguagesForm? _languagesForm;
     private LogViewerForm? _logForm;
-    private readonly ToolStripMenuItem _status, _layouts, _pause, _disableApp, _typing, _undo, _fullscreen, _autoStart;
+    private readonly ToolStripMenuItem _status, _layouts, _pause, _disableApp, _typing, _undo, _convert, _fullscreen, _autoStart;
     private readonly ToolStripMenuItem[] _typingItems;
     private bool _adminNoticeShown;
     private readonly Icon _green, _grey, _orange;
@@ -42,7 +42,8 @@ internal sealed class TrayApp : ApplicationContext
         var menu = new ContextMenuStrip();
         _status = new ToolStripMenuItem("Starting…") { Enabled = false };
         _layouts = new ToolStripMenuItem(LayoutSummary()) { Enabled = false };
-        _pause = new ToolStripMenuItem("Pause AutoLang", null, (_, _) => TogglePause()) { Checked = settings.Paused, CheckOnClick = false };
+        // ToolStrip draws a "\t" in the text as nothing; the shortcut column only shows ShortcutKeyDisplayString.
+        _pause = new ToolStripMenuItem(PauseText(), null, (_, _) => TogglePause()) { ShortcutKeyDisplayString = "Click icon" };
         _disableApp = new ToolStripMenuItem("Disable for this app", null, (_, _) => ToggleDisableApp());
         _typingItems = new[]
         {
@@ -54,8 +55,10 @@ internal sealed class TrayApp : ApplicationContext
         _typing.DropDownItems.AddRange(_typingItems);
         _typing.DropDownItems.Add(new ToolStripSeparator());
         _typing.DropDownItems.Add(new ToolStripMenuItem("Only change this if corrections come out garbled in this app.") { Enabled = false });
-        // ToolStrip draws a "\t" in the text as nothing; the shortcut column only shows ShortcutKeyDisplayString.
-        _undo = new ToolStripMenuItem("Undo last correction", null, (_, _) => UndoFromMenu()) { ShortcutKeyDisplayString = "Pause" };
+        _undo = new ToolStripMenuItem("Undo last correction", null, (_, _) => HotkeyFromMenu(
+            "Press the Pause key in the text field, right after a correction, to undo it.")) { ShortcutKeyDisplayString = "Pause" };
+        _convert = new ToolStripMenuItem("Convert what you just typed", null, (_, _) => HotkeyFromMenu(
+            "Press Shift+Pause in the text field, right after typing, to switch it to the other layout.")) { ShortcutKeyDisplayString = "Shift+Pause" };
         _fullscreen = new ToolStripMenuItem("Skip fullscreen windows", null, (_, _) => ToggleFullscreen()) { Checked = settings.SkipFullscreen };
         // Packaged, the start-at-login entry is the manifest's StartupTask, switched in Windows Settings (PLAN.md §5, M4).
         _autoStart = Native.IsPackaged
@@ -64,7 +67,8 @@ internal sealed class TrayApp : ApplicationContext
         menu.Items.AddRange(new ToolStripItem[]
         {
             _status, _layouts, new ToolStripSeparator(),
-            _pause, _disableApp, _typing, _undo, new ToolStripSeparator(),
+            _pause, _disableApp, _typing, new ToolStripSeparator(),
+            _undo, _convert, new ToolStripSeparator(),
             new ToolStripMenuItem("Languages…", null, (_, _) => ShowLanguages()),
             _fullscreen,
             _autoStart,
@@ -75,7 +79,8 @@ internal sealed class TrayApp : ApplicationContext
         menu.Opening += (_, _) => RefreshMenu();
 
         _icon = new NotifyIcon { Icon = _green, Visible = true, ContextMenuStrip = menu, Text = "AutoLang" };
-        _icon.DoubleClick += (_, _) => TogglePause();
+        // One click, not a double-click: a double-click still raises one MouseClick, so it toggles once too.
+        _icon.MouseClick += (_, e) => { if (e.Button == MouseButtons.Left) TogglePause(); };
 
         _focus.StatusChanged += s => _ui.Post(_ => Refresh(s), null);
         _corrector.Applied += _ => _ui.Post(_ => Refresh(_focus.Status), null);
@@ -97,7 +102,7 @@ internal sealed class TrayApp : ApplicationContext
         string app = string.IsNullOrEmpty(s.Process) ? "" : $" — {s.Process}";
         _status.Text = state + app;
         _icon.Icon = _settings.Paused || !_controller.CanCorrect ? _grey : s.Blocked ? _orange : _green;
-        var tip = $"AutoLang: {state}{app}\n{_corrector.AppliedCount} corrections this session";
+        var tip = $"AutoLang: {state}{app}\n{_corrector.AppliedCount} corrections this session\nClick to {(_settings.Paused ? "resume" : "pause")}";
         _icon.Text = tip.Length > 127 ? tip[..127] : tip;
     }
 
@@ -114,7 +119,8 @@ internal sealed class TrayApp : ApplicationContext
         lock (_settings) current = hasApp ? _settings.TypingMethodFor(p) : TypingMethod.Unicode;
         foreach (var item in _typingItems) item.Checked = (TypingMethod)item.Tag! == current;
         _undo.Enabled = _controller.CanUndo;
-        _pause.Checked = _settings.Paused;
+        _convert.Enabled = !_settings.Paused;
+        _pause.Text = PauseText();
         if (!Native.IsPackaged) _autoStart.Checked = StartupRegistration.IsEnabled();
     }
 
@@ -162,7 +168,14 @@ internal sealed class TrayApp : ApplicationContext
         _focus.Poke();
         Refresh(_focus.Status);
         Log.Info(_settings.Paused ? "paused by user" : "resumed by user");
+        // The icon only changes colour, which is easy to miss: say what happened and how to undo it.
+        if (_settings.Paused)
+            _icon.ShowBalloonTip(3000, "AutoLang is paused", "Nothing is corrected until you click the tray icon again.", ToolTipIcon.None);
+        else
+            _icon.ShowBalloonTip(3000, "AutoLang is on", "Fixing words typed in the wrong layout again.", ToolTipIcon.None);
     }
+
+    private string PauseText() => _settings.Paused ? "Resume AutoLang" : "Pause AutoLang";
 
     private void ToggleDisableApp()
     {
@@ -198,11 +211,11 @@ internal sealed class TrayApp : ApplicationContext
         _autoStart.Checked = StartupRegistration.IsEnabled();
     }
 
-    private void UndoFromMenu()
+    private void HotkeyFromMenu(string how)
     {
-        // The menu click already moved focus away from the text, so the undo would land in the wrong window.
-        // Pressing the Pause key inside the text field is the reliable path; say so instead of guessing.
-        _icon.ShowBalloonTip(4000, "AutoLang", "Press the Pause key in the text field to undo the last correction.", ToolTipIcon.Info);
+        // The menu click already moved focus away from the text, so the edit would land in the wrong window.
+        // Pressing the key inside the text field is the reliable path; say so instead of guessing.
+        _icon.ShowBalloonTip(4000, "AutoLang", how, ToolTipIcon.Info);
     }
 
     private void OpenLog()

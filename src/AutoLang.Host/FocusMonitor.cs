@@ -61,11 +61,19 @@ internal sealed class FocusMonitor : IDisposable
             Thread.Sleep(30);
             int seq = Volatile.Read(ref _seq);
             FocusStatus status;
+            bool passing = false;
             var sw = Stopwatch.StartNew();
-            try { status = Evaluate(); }
+            try
+            {
+                var hwnd = Native.GetForegroundWindow();
+                // Clicking the tray icon focuses the taskbar, then our menu. The app the user was in stays the target
+                // (for the status line and the per-app menu items), re-checked against the settings; no typing is tracked.
+                passing = IsTrayOrSelf(hwnd) && _status.Hwnd != 0 && Native.IsWindow(_status.Hwnd);
+                status = passing ? Evaluate(_status.Hwnd, _status) : Evaluate(hwnd);
+            }
             catch (Exception ex) { status = new FocusStatus(0, "", "", true, "focus check failed"); Log.Warn($"focus: {ex.GetType().Name}: {ex.Message}"); }
             if (Volatile.Read(ref _seq) != seq) continue; // focus moved again while we looked; the newer poke wins
-            _controller.Blocked = status.Blocked;
+            _controller.Blocked = passing || status.Blocked;
             var prev = _status;
             _status = status;
             if (prev != status)
@@ -76,11 +84,12 @@ internal sealed class FocusMonitor : IDisposable
         }
     }
 
-    private FocusStatus Evaluate()
+    /// <param name="previous">The app's last status, when it is not in front: UI Automation would see our menu, not its
+    /// focused control, so what it said about that control is kept.</param>
+    private FocusStatus Evaluate(nint hwnd, FocusStatus? previous = null)
     {
-        var hwnd = Native.GetForegroundWindow();
         if (hwnd == 0) return new FocusStatus(0, "", "", true, "no foreground window");
-        var process = Native.ProcessNameOf(hwnd);
+        var process = previous?.Process ?? Native.ProcessNameOf(hwnd);
         FocusStatus Blocked(string reason, string control = "") => new(hwnd, process, control, true, reason);
         if (_settings.Paused) return Blocked("paused");
         if (Native.IsOutOfReach(hwnd)) return Blocked(FocusStatus.AdminReason);
@@ -88,6 +97,8 @@ internal sealed class FocusMonitor : IDisposable
         if (_settings.IsExcluded(process)) return Blocked("excluded app");
         if (_settings.IsDisabled(process)) return Blocked("disabled by you");
         if (_settings.SkipFullscreen && Native.IsFullscreen(hwnd) && !IsShell(hwnd, process)) return Blocked("fullscreen window");
+        if (previous is not null)
+            return previous.Reason == "password field" ? previous : new FocusStatus(hwnd, process, previous.Control, false, "");
 
         string control = "";
         try
@@ -107,6 +118,15 @@ internal sealed class FocusMonitor : IDisposable
             control = "uia:" + ex.GetType().Name;
         }
         return new FocusStatus(hwnd, process, control, false, "");
+    }
+
+    /// <summary>The taskbar and its notification area, or one of our own windows (tray menu, Languages, log).</summary>
+    private static bool IsTrayOrSelf(nint hwnd)
+    {
+        Native.GetWindowThreadProcessId(hwnd, out var pid);
+        if (pid == Environment.ProcessId) return true;
+        return Native.ClassNameOf(hwnd) is "Shell_TrayWnd" or "Shell_SecondaryTrayWnd" or "NotifyIconOverflowWindow"
+            or "TopLevelWindowForOverflowXamlIsland";
     }
 
     private static bool IsShell(nint hwnd, string process)

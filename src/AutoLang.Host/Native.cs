@@ -184,6 +184,9 @@ internal static class Native
     public static extern nint GetForegroundWindow();
 
     [DllImport("user32.dll")]
+    public static extern bool IsWindow(nint hWnd);
+
+    [DllImport("user32.dll")]
     public static extern uint GetWindowThreadProcessId(nint hWnd, out uint lpdwProcessId);
 
     [DllImport("user32.dll", CharSet = CharSet.Unicode)]

@@ -62,7 +62,7 @@ crashes, Windows restarts it by itself.
   (hover for the reason).
 - Right-click the icon: pause, disable for the current app, typing method for the current app,
   skip fullscreen windows, show the log.
-- Double-click the icon to pause/resume.
+- Click the icon once to pause or resume.
 
 ### If corrections come out garbled in one app
 

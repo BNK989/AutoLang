@@ -32,7 +32,7 @@ A Microsoft Store version is on the way; it will need neither step.
   ambiguous words are fixed once the phrase makes it clear.
 - **Pause** undoes the last correction and remembers the word, so it is never corrected again. No Pause key? Delete the whole correction (AutoLang switches the layout back for you) and type the word again: AutoLang keeps it and remembers it the same way.
 - **Shift+Pause** forces the current text into the other layout.
-- Tray icon: green = watching, grey = paused, orange = this window is skipped (hover for why).
+- Tray icon: green = watching, grey = paused, orange = this window is skipped (hover for why). Click it to pause or resume.
   Right-click it to pause, disable AutoLang for the current app, change the typing method for an app,
   or manage languages.
 
