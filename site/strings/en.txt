@@ -71,7 +71,7 @@ Word lists and a small language model score each reading. Clear words are fixed 
 Fixes and switches
 @step3_p
 The wrong text is replaced, the keyboard switches to the right language, and you keep typing.
-          Press <kbd>Pause</kbd> to undo, and AutoLang remembers that word.
+          Tap <kbd>Shift</kbd> twice to undo, and AutoLang remembers that word.
 
 @alpha_h2
 Any two alphabets
@@ -96,7 +96,7 @@ A tool that sees your keystrokes has to earn trust. These are design rules, not 
 @trust_4
 <strong>The log never contains text</strong>, only counts and timings for troubleshooting.
 @trust_5
-<strong>One-key undo.</strong> <kbd>Pause</kbd> reverts a correction; <kbd>Shift</kbd>+<kbd>Pause</kbd> forces one.
+<strong>Easy undo.</strong> Tap <kbd>Shift</kbd> twice to revert a correction, or to convert text it missed.
 @trust_6
 <strong>Always visible.</strong> The tray icon shows when it's watching, paused or skipping a window.
 @trust_7
@@ -145,13 +145,13 @@ AutoLang uses a standard Windows keyboard hook, which is also what keyloggers us
 @faq2_q
 It corrected something it shouldn't have.
 @faq2_a
-Press <kbd>Pause</kbd> right away, or delete the whole correction (AutoLang switches the layout back) and type the word again. Either way the correction is undone and that word is never corrected again. If it keeps
+Tap <kbd>Shift</kbd> twice right away, or delete the whole correction (AutoLang switches the layout back) and type the word again. Either way the correction is undone and that word is never corrected again. If it keeps
         happening, please <a href="https://github.com/BNK989/AutoLang/issues">open an issue</a> with the words.
 @faq3_q
 Corrections come out garbled in one app.
 @faq3_a
-Click into that app, then right-click the tray icon → <strong>Typing method</strong>, and try
-        <em>Simulated keys</em> or <em>Paste via clipboard</em>. The choice is remembered for that app only.
+Click into that app, then right-click the tray icon → <strong>Compatibility for</strong> that app, and try
+        <em>Key presses</em> or <em>Paste</em>. The choice is remembered for that app only.
 @faq4_q
 Why doesn't it work in apps running as administrator?
 @faq4_a
@@ -160,7 +160,7 @@ Windows doesn't let normal apps see or type into elevated windows. The icon turn
 Does it switch between English and German, or French and Spanish?
 @faq5_a
 No. Layouts that share an alphabet are left alone, since most words are valid in both and you switch between them on purpose.
-        <kbd>Shift</kbd>+<kbd>Pause</kbd> still converts text by hand.
+        Tapping <kbd>Shift</kbd> twice still converts text by hand.
 @faq6_q
 Japanese, Chinese or Korean?
 @faq6_a
@@ -208,7 +208,7 @@ What AutoLang keeps
 @p_keeps_disk_1
 your settings (pause, apps you disabled, the typing method per app, language choices),
 @p_keeps_disk_2
-words you told AutoLang not to correct (by pressing <kbd>Pause</kbd> to undo a correction, or by deleting a correction and typing the word again),
+words you told AutoLang not to correct (by tapping <kbd>Shift</kbd> twice to undo a correction, or by deleting a correction and typing the word again),
 @p_keeps_disk_3
 downloaded word lists (public files, see below),
 @p_keeps_disk_4
