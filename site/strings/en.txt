@@ -208,7 +208,7 @@ What AutoLang keeps
 @p_keeps_disk_1
 your settings (pause, apps you disabled, the typing method per app, language choices),
 @p_keeps_disk_2
-words you told AutoLang not to correct (by pressing Undo after a correction),
+words you told AutoLang not to correct (by pressing <kbd>Pause</kbd> to undo a correction),
 @p_keeps_disk_3
 downloaded word lists (public files, see below),
 @p_keeps_disk_4

@@ -19,7 +19,7 @@ what it does with them.
   click, or switch windows, and never written anywhere.
 - **On disk, in your user profile:**
   - your settings (pause, apps you disabled, the typing method per app, language choices),
-  - words you told AutoLang not to correct (by pressing Undo after a correction),
+  - words you told AutoLang not to correct (by pressing Pause to undo a correction),
   - downloaded word lists (public files, see below),
   - a log of counts and timings for troubleshooting (for example "corrected 1 word in chrome.exe
     in 12 ms"). The log never contains anything you typed.
