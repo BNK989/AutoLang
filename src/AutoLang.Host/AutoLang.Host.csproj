@@ -25,7 +25,7 @@
     <!-- Rendered by tools/AutoLang.Assets from IconArt.cs. -->
     <ApplicationIcon>AutoLang.ico</ApplicationIcon>
     <!-- The MSIX version is this plus ".0" (packaging/build-msix.ps1); the Store requires the 4th part to stay 0. -->
-    <Version>0.4.2</Version>
+    <Version>0.4.3</Version>
     <Product>AutoLang</Product>
     <Company>AutoLang</Company>
     <Description>Fixes words typed in the wrong keyboard layout and switches the layout for you.</Description>
