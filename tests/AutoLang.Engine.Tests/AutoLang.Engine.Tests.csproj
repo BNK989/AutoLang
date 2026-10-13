@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>AutoLang.Engine.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\AutoLang.Engine\AutoLang.Engine.csproj" />
+    <ProjectReference Include="..\..\src\AutoLang.Session\AutoLang.Session.csproj" />
+  </ItemGroup>
+
+  <!-- Real layout tables dumped by the host and the word lists live in /data; tests find them relative to the repo.
+       The Tatoeba corpus (~120 MB) is only used by tools/AutoLang.Eval and is not copied. -->
+  <ItemGroup>
+    <None Include="..\..\data\layouts\**\*" Link="data\layouts\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\data\words\**\*" Link="data\words\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

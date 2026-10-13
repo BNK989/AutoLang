@@ -1,0 +1,16 @@
+# Build output
+bin/
+obj/
+dist/
+packaging/.build/
+packaging/.tools/
+*.user
+.vs/
+
+# Eval corpus (Tatoeba, ~116 MB): download it, see data/README.md
+data/corpus/
+
+# Signing material never goes in the repo (the .cer next to the build scripts is public-key only)
+*.pfx
+*.p12
+.claude/

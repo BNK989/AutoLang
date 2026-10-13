@@ -1,0 +1,27 @@
+AutoLang test build - how to install
+=====================================
+
+Needs Windows 10 (1809 or later) or Windows 11, 64-bit, with keyboards for two different
+alphabets installed (for example English + Hebrew).
+
+1. Trust the test certificate (once per PC; later test builds need only step 2):
+   Double-click dev-signing.cer -> Install Certificate... -> Local Machine -> Next
+   -> "Place all certificates in the following store" -> Browse... -> Trusted People
+   -> OK -> Next -> Finish. Windows asks for administrator permission; allow it.
+
+2. Double-click the .msix file -> Install.
+
+AutoLang appears in the Start menu, starts with Windows, and shows a green "A" icon next to the
+clock (click the ^ if it is hidden). Type "akuo " in Notepad with the English keyboard: it becomes
+"שלום ". Press Pause to undo a correction.
+
+If the installer says the publisher is not trusted, step 1 went into the wrong store: repeat it and
+pick Local Machine and Trusted People.
+
+If you used the older zip version of AutoLang, exit it first (right-click its tray icon -> Exit)
+and delete its folder, so only one copy runs.
+
+Uninstall: Settings -> Apps -> AutoLang -> Uninstall.
+
+Problems: right-click the tray icon -> Show log -> Copy all, and send it with a short description
+of what you typed and where. The log never contains what you typed.

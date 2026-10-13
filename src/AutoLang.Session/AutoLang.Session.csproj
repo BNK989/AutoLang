@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- The host's state machine without the host: the run buffer, the boundary decision, undo and force.
+       No Windows dependencies, so it is unit-tested next to the engine. The tray host only translates
+       hook events into calls on SessionController and Correction records into SendInput. -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>AutoLang.Session</RootNamespace>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AutoLang.Engine\AutoLang.Engine.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AutoLang · wrong keyboard layout, fixed</title>
+<meta name="description" content="AutoLang is a free Windows tray app that fixes words typed in the wrong keyboard layout and switches the layout for you. Nothing you type leaves your PC.">
+<link rel="icon" href="icon.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="./"><img src="icon.png" alt="">AutoLang</a>
+    <nav>
+      <a class="hide-sm" href="#how">How it works</a>
+      <a href="#install">Install</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="https://github.com/BNK989/AutoLang">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<div class="hero">
+  <div class="wrap">
+    <div>
+      <h1>Typed it in the wrong language? It's already fixed.</h1>
+      <p class="lede">AutoLang watches for words typed in the wrong keyboard layout, retypes them correctly and
+        switches the keyboard for you, in any Windows app. No more Alt+Shift, delete, retype.</p>
+      <div class="cta">
+        <a class="btn primary" href="https://github.com/BNK989/AutoLang/releases/latest">Download for Windows</a>
+        <a class="btn" href="https://github.com/BNK989/AutoLang">Source code</a>
+      </div>
+      <p class="fine">Free and open source · Windows 10 &amp; 11 · Nothing you type leaves your PC</p>
+    </div>
+
+    <div class="demo" aria-label="Animated example: akuo typed with the English layout becomes שלום">
+      <div class="demo-bar"><i></i><i></i><i></i></div>
+      <div class="demo-body">
+        <div class="demo-line" id="line"><span id="text" dir="auto"></span><span class="caret"></span></div>
+        <div class="demo-status">
+          <span id="note">Typing…</span>
+          <span class="layout-pill" id="pill">ENG</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section id="how">
+  <div class="wrap">
+    <h2>How it works</h2>
+    <p class="sub">The keyboard layout is invisible until you've typed a whole sentence of gibberish.
+      AutoLang reads the words themselves, the way a search engine knows that <code>akuo</code> was meant to be
+      <span class="he">שלום</span>.</p>
+    <div class="grid">
+      <div class="card">
+        <span class="step">01</span>
+        <h3>Every reading at once</h3>
+        <p>Each key you press is read on every keyboard you have installed, so the word you're typing exists in
+          all of your alphabets at the same time.</p>
+      </div>
+      <div class="card">
+        <span class="step">02</span>
+        <h3>Decides on the phrase</h3>
+        <p>Word lists and a small language model score each reading. Clear words are fixed on the next space;
+          short ambiguous ones (<code>to</code> / <span class="he">אם</span>) wait until the sentence makes it obvious.</p>
+      </div>
+      <div class="card">
+        <span class="step">03</span>
+        <h3>Fixes and switches</h3>
+        <p>The wrong text is replaced, the keyboard switches to the right language, and you keep typing.
+          Press <kbd>Pause</kbd> to undo, and AutoLang remembers that word.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Any two alphabets</h2>
+    <p class="sub">AutoLang works with the keyboards you already have installed. It switches between
+      different alphabets and leaves same-alphabet pairs, like English and German, alone. Hebrew + English is the most
+      tested pair; the others are newer.</p>
+    <ul class="pairs">
+      <li><code>akuo</code><span class="arrow">→</span><span class="he" dir="rtl">שלום</span></li>
+      <li><span class="from he" dir="rtl">יקךךם</span><span class="arrow">→</span><span>hello</span></li>
+      <li><code>ghbdtn</code><span class="arrow">→</span><span>привет</span></li>
+      <li><code>kalhmera</code><span class="arrow">→</span><span>καλημερα</span></li>
+      <li><code>lvpfh</code><span class="arrow">→</span><span dir="rtl">مرحبا</span></li>
+    </ul>
+    <p class="fine">English and Hebrew word lists ship with the app. For another keyboard language, AutoLang
+      downloads its public word list once (you can turn this off).</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Built to stay out of the way</h2>
+    <p class="sub">A tool that sees your keystrokes has to earn trust. These are design rules, not settings.</p>
+    <ul class="checks">
+      <li><strong>Nothing leaves your PC.</strong> No account, no analytics, no telemetry.</li>
+      <li><strong>Only the current line is kept</strong>, in memory, and dropped on Enter, click or window switch.</li>
+      <li><strong>Password fields are skipped</strong>, along with password managers, terminals, remote desktops and VMs.</li>
+      <li><strong>The log never contains text</strong>, only counts and timings for troubleshooting.</li>
+      <li><strong>One-key undo.</strong> <kbd>Pause</kbd> reverts a correction; <kbd>Shift</kbd>+<kbd>Pause</kbd> forces one.</li>
+      <li><strong>Always visible.</strong> The tray icon shows when it's watching, paused or skipping a window.</li>
+      <li><strong>Per-app control.</strong> Disable it for any app, or change how it retypes there.</li>
+      <li><strong>Open source</strong>, so you can check every claim on this page.</li>
+    </ul>
+    <p class="fine"><a href="privacy.html">Read the full privacy policy →</a></p>
+  </div>
+</section>
+
+<section id="install">
+  <div class="wrap narrow">
+    <h2>Install</h2>
+    <p class="sub">Windows 10 (1809 or later) or Windows 11, 64-bit, with keyboards for at least two different
+      alphabets (Settings → Time &amp; language → Language &amp; region). No .NET install needed.</p>
+
+    <h3>Portable (simplest)</h3>
+    <ol class="install">
+      <li>Download <a href="https://github.com/BNK989/AutoLang/releases/latest/download/AutoLang-win-x64.zip"><code>AutoLang-win-x64.zip</code></a> and unzip it anywhere.
+        Keep <code>AutoLang.exe</code> and the <code>data</code> folder together.</li>
+      <li>Run <code>AutoLang.exe</code>. The preview is not code-signed yet, so Windows SmartScreen warns:
+        click <strong>More info → Run anyway</strong>.</li>
+      <li>A green <strong>A</strong> appears in the tray. Right-click it → <strong>Start with Windows</strong> if you want it at login.</li>
+    </ol>
+
+    <h3>Installer (MSIX)</h3>
+    <ol class="install">
+      <li>Download <a href="https://github.com/BNK989/AutoLang/releases/latest/download/dev-signing.cer"><code>dev-signing.cer</code></a>
+        and <a href="https://github.com/BNK989/AutoLang/releases/latest/download/AutoLang-x64.msix"><code>AutoLang-x64.msix</code></a>.</li>
+      <li>Trust the test certificate once: double-click the <code>.cer</code> → <strong>Install Certificate…</strong> →
+        <strong>Local Machine</strong> → <strong>Place all certificates in the following store</strong> → <strong>Trusted People</strong> → Finish.</li>
+      <li>Double-click the <code>.msix</code> → <strong>Install</strong>. AutoLang starts with Windows and uninstalls cleanly from Settings → Apps.</li>
+    </ol>
+    <p class="fine">A Microsoft Store version is on the way. It will need no certificate and update itself.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap narrow">
+    <h2>Questions</h2>
+    <details>
+      <summary>Why does antivirus or SmartScreen complain?</summary>
+      <p>AutoLang uses a standard Windows keyboard hook, which is also what keyloggers use, and the preview build isn't
+        code-signed yet. The source is public so anyone can check what it does. If Defender quarantines it, restore it and
+        add an exclusion for its folder.</p>
+    </details>
+    <details>
+      <summary>It corrected something it shouldn't have.</summary>
+      <p>Press <kbd>Pause</kbd> right away. The correction is undone and that word is never corrected again. If it keeps
+        happening, please <a href="https://github.com/BNK989/AutoLang/issues">open an issue</a> with the words.</p>
+    </details>
+    <details>
+      <summary>Corrections come out garbled in one app.</summary>
+      <p>Click into that app, then right-click the tray icon → <strong>Typing method</strong>, and try
+        <em>Simulated keys</em> or <em>Paste via clipboard</em>. The choice is remembered for that app only.</p>
+    </details>
+    <details>
+      <summary>Why doesn't it work in apps running as administrator?</summary>
+      <p>Windows doesn't let normal apps see or type into elevated windows. The icon turns orange there; everything else keeps working.</p>
+    </details>
+    <details>
+      <summary>Does it switch between English and German, or French and Spanish?</summary>
+      <p>No. Layouts that share an alphabet are left alone, since most words are valid in both and you switch between them on purpose.
+        <kbd>Shift</kbd>+<kbd>Pause</kbd> still converts text by hand.</p>
+    </details>
+    <details>
+      <summary>Japanese, Chinese or Korean?</summary>
+      <p>Not supported. Those are typed through an input method editor, which already handles conversion.</p>
+    </details>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>AutoLang · MIT licensed · word lists from <a href="https://github.com/hermitdave/FrequencyWords">FrequencyWords</a> (CC BY-SA 4.0)</span>
+    <span><a href="privacy.html">Privacy</a> · <a href="https://github.com/BNK989/AutoLang/issues">Report an issue</a> · <a href="https://github.com/BNK989/AutoLang">GitHub</a></span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var text = document.getElementById('text'), note = document.getElementById('note'), pill = document.getElementById('pill');
+  var scenes = [
+    { from: 'ENG', to: 'HEB', typed: 'akuo', fixed: 'שלום' },
+    { from: 'HEB', to: 'ENG', typed: 'יקךךם', fixed: 'hello' },
+    { from: 'ENG', to: 'RUS', typed: 'ghbdtn', fixed: 'привет' }
+  ];
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var i = 0;
+  function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  function set(cls, s) { text.className = cls; text.textContent = s; }
+  async function play() {
+    var s = scenes[i++ % scenes.length];
+    pill.textContent = s.from; pill.classList.remove('flip');
+    if (reduce) {
+      set('fixed', s.fixed + ' '); pill.textContent = s.to; note.textContent = s.typed + ' → fixed';
+      await wait(3000); return play();
+    }
+    note.textContent = 'Typing…'; set('', '');
+    for (var k = 1; k <= s.typed.length; k++) { set('bad', s.typed.slice(0, k)); await wait(150); }
+    await wait(350);
+    set('bad', s.typed + ' ');
+    await wait(220);
+    set('fixed', s.fixed + ' ');
+    pill.textContent = s.to; pill.classList.add('flip');
+    note.textContent = 'Fixed and switched to ' + s.to;
+    await wait(2400);
+    return play();
+  }
+  play();
+})();
+</script>
+</body>
+</html>

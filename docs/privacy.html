@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AutoLang privacy policy</title>
+<meta name="description" content="What AutoLang reads, what it keeps, and what leaves your computer (nothing you type).">
+<link rel="icon" href="icon.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="./"><img src="icon.png" alt="">AutoLang</a>
+    <nav>
+      <a class="hide-sm" href="./#how">How it works</a>
+      <a href="./#install">Install</a>
+      <a href="privacy.html" aria-current="page">Privacy</a>
+      <a href="https://github.com/BNK989/AutoLang">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<!-- Keep in step with PRIVACY.md in the repo root. -->
+<main class="prose">
+  <div class="wrap narrow">
+    <h1>AutoLang privacy policy</h1>
+    <p class="updated">Last updated: 13 October 2026</p>
+
+    <p>AutoLang is a Windows utility that notices when you type in the wrong keyboard layout, fixes the word, and
+      switches the layout. To do that it has to see your keystrokes. This page says exactly what it does with them.</p>
+
+    <div class="tldr">
+      <p><strong>In short:</strong> nothing you type is stored or sent anywhere. AutoLang has no account, no analytics,
+        no telemetry and no crash reporting. Its only network use is downloading public word lists.</p>
+    </div>
+
+    <h2>What AutoLang reads</h2>
+    <ul>
+      <li><strong>Keystrokes</strong>, through a standard Windows keyboard hook, so it can tell which word you are typing.</li>
+      <li><strong>The active window</strong>: its program name, whether it is fullscreen, whether it runs as administrator,
+        and whether the focused field is a password field. This decides whether AutoLang works there at all.</li>
+      <li><strong>Your installed keyboard layouts</strong>, to know which languages to consider.</li>
+    </ul>
+
+    <h2>What AutoLang keeps</h2>
+    <ul>
+      <li><strong>In memory only:</strong> the word or line you are typing right now. It is dropped when you press Enter,
+        click, or switch windows, and never written anywhere.</li>
+      <li><strong>On disk, in your user profile:</strong>
+        <ul>
+          <li>your settings (pause, apps you disabled, the typing method per app, language choices),</li>
+          <li>words you told AutoLang not to correct (by pressing Undo after a correction),</li>
+          <li>downloaded word lists (public files, see below),</li>
+          <li>a log of counts and timings for troubleshooting (for example “corrected 1 word in chrome.exe in 12 ms”).
+            The log never contains anything you typed.</li>
+        </ul>
+      </li>
+    </ul>
+    <p>Uninstalling the Store / installed version removes all of it. The portable (zip) version keeps it in
+      <code>%LocalAppData%\AutoLang</code>; delete that folder to remove it.</p>
+
+    <h2>What leaves your computer</h2>
+    <p>Nothing you type, ever. AutoLang has no account, no analytics, no telemetry, and no crash reporting.</p>
+    <p>The only network request it makes is downloading a <strong>word list</strong> for a keyboard language that does
+      not ship with it: a plain download of a public file from the
+      <a href="https://github.com/hermitdave/FrequencyWords">FrequencyWords</a> project on GitHub. The request names the
+      language (for example <code>ru</code>) and contains nothing about you or your typing. GitHub sees your IP address,
+      as with any download. You can switch this off in the tray menu → <strong>Languages…</strong>.</p>
+
+    <h2>The clipboard</h2>
+    <p>By default AutoLang never touches the clipboard. If you switch a particular app to the
+      <strong>Paste via clipboard</strong> typing method, a correction in that app briefly puts the corrected word on the
+      clipboard, pastes it, and puts back what you had copied. The corrected word is marked so that Windows clipboard
+      history, cloud clipboard and clipboard managers skip it. Your copied content is held in memory for a fraction of a
+      second and is not read, stored or sent.</p>
+
+    <h2>Where AutoLang stays out</h2>
+    <p>Password fields, terminals, remote-desktop and virtual-machine windows, password managers, fullscreen games, and
+      any app you disable from the tray menu. Windows itself keeps AutoLang out of apps running as administrator.</p>
+
+    <h2>Contact</h2>
+    <p>Questions about this policy, or anything else: open an issue at
+      <a href="https://github.com/BNK989/AutoLang/issues">github.com/BNK989/AutoLang/issues</a>.</p>
+    <p>The source code is public at <a href="https://github.com/BNK989/AutoLang">github.com/BNK989/AutoLang</a>, so all
+      of the above can be checked.</p>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>AutoLang · MIT licensed</span>
+    <span><a href="./">Home</a> · <a href="https://github.com/BNK989/AutoLang/issues">Report an issue</a> · <a href="https://github.com/BNK989/AutoLang">GitHub</a></span>
+  </div>
+</footer>
+</body>
+</html>

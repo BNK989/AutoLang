@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Tray host (PLAN.md §5, M2-M4): low-level hook that only enqueues, session tracker, engine decision at word
+       boundaries, correction injected from a worker thread (per-app typing method), undo / force hotkeys, default
+       app exclusions, password-field and admin-window skip, hook watchdog and restart-on-crash, no persistence of
+       typed text. WinForms gives the tray icon; WPF is pulled in for the UI Automation client.
+       Ships as an MSIX (packaging/build-msix.ps1) or a zip (packaging/build-zip.ps1). -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWindowsForms>true</UseWindowsForms>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>AutoLang.Host</RootNamespace>
+    <AssemblyName>AutoLang</AssemblyName>
+    <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- Background GC keeps pauses short; the hook callback must answer within a few ms. -->
+    <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
+    <ServerGarbageCollection>false</ServerGarbageCollection>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <!-- Rendered by tools/AutoLang.Assets from IconArt.cs. -->
+    <ApplicationIcon>AutoLang.ico</ApplicationIcon>
+    <!-- The MSIX version is this plus ".0" (packaging/build-msix.ps1); the Store requires the 4th part to stay 0. -->
+    <Version>0.4.0</Version>
+    <Product>AutoLang</Product>
+    <Company>AutoLang</Company>
+    <Description>Fixes words typed in the wrong keyboard layout and switches the layout for you.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- The WPF implicit-usings set omits System.IO. -->
+    <Using Include="System.IO" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AutoLang.Engine\AutoLang.Engine.csproj" />
+    <ProjectReference Include="..\AutoLang.Session\AutoLang.Session.csproj" />
+  </ItemGroup>
+
+  <!-- The word lists are the engine's dictionaries; they ship next to the exe. One file per language, named by
+       the ISO 639-1 code of the installed layout's language (en_50k.txt, he_50k.txt, ...). -->
+  <ItemGroup>
+    <!-- ExcludeFromSingleFile: the single-file bundler otherwise swallows some of these into the exe (it bundled
+         en_50k.txt and left he_50k.txt beside it); the host reads them from disk via AppContext.BaseDirectory. -->
+    <None Include="..\..\data\words\*.txt" LinkBase="data\words" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
+  </ItemGroup>
+
+</Project>

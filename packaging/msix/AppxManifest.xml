@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  MSIX manifest template (PLAN.md §5, M4). packaging/build-msix.ps1 fills the $Tokens$:
+    IdentityName / Publisher / PublisherDisplayName - from Partner Center (Product identity page) for a Store build,
+                                                      or the dev defaults for a sideloaded build signed with a test cert.
+    Version                                         - from AutoLang.Host.csproj, 4th part 0 (Store rule).
+  Full trust (runFullTrust) because AutoLang is a desktop app with a global keyboard hook; Store review asks why,
+  the answer is in packaging/STORE.md.
+-->
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  IgnorableNamespaces="uap desktop rescap">
+
+  <Identity Name="$IdentityName$" Publisher="$Publisher$" Version="$Version$" ProcessorArchitecture="x64" />
+
+  <Properties>
+    <DisplayName>AutoLang</DisplayName>
+    <PublisherDisplayName>$PublisherDisplayName$</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
+    <Description>Fixes words typed in the wrong keyboard layout and switches the layout for you.</Description>
+  </Properties>
+
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.17763.0" MaxVersionTested="10.0.26100.0" />
+  </Dependencies>
+
+  <Resources>
+    <Resource Language="en-us" />
+  </Resources>
+
+  <Applications>
+    <Application Id="AutoLang" Executable="AutoLang.exe" EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements
+        DisplayName="AutoLang"
+        Description="Fixes words typed in the wrong keyboard layout and switches the layout for you."
+        BackgroundColor="transparent"
+        Square150x150Logo="Assets\Square150x150Logo.png"
+        Square44x44Logo="Assets\Square44x44Logo.png">
+        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" Square310x310Logo="Assets\Square310x310Logo.png" Square71x71Logo="Assets\Square71x71Logo.png" />
+      </uap:VisualElements>
+      <Extensions>
+        <!-- Start at login. Packaged apps cannot use the HKCU Run key (writes are virtualized); the user turns this
+             on or off in Settings > Apps > Startup, which the tray's "Start with Windows…" opens. -->
+        <desktop:Extension Category="windows.startupTask" Executable="AutoLang.exe" EntryPoint="Windows.FullTrustApplication">
+          <desktop:StartupTask TaskId="AutoLangStartup" Enabled="true" DisplayName="AutoLang" />
+        </desktop:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+
+  <Capabilities>
+    <!-- Only for downloading a missing word list (PLAN.md §6); nothing typed ever leaves the machine. -->
+    <Capability Name="internetClient" />
+    <rescap:Capability Name="runFullTrust" />
+  </Capabilities>
+</Package>
