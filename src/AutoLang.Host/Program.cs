@@ -90,18 +90,19 @@ internal static class Program
             return 1;
         }
 
-        // Persist words the user undid, as they happen: the only thing learnt from typing that ever hits disk, and
-        // only because the user explicitly asked for that word to be left alone.
-        corrector.Applied += job =>
+        // Persist words the user undid, or erased our correction of and typed again, as they happen: the only thing
+        // learnt from typing that ever hits disk, and only because the user explicitly asked for that word to be left alone.
+        void SaveExceptions()
         {
-            if (job.Correction.Kind != CorrectionKind.Undo) return;
             var words = controller.Exceptions;
             lock (settings)
             {
                 settings.ExceptionWords = words.ToList();
                 settings.Save();
             }
-        };
+        }
+        corrector.Applied += job => { if (job.Correction.Kind == CorrectionKind.Undo) SaveExceptions(); };
+        controller.ExceptionsAdded += () => ThreadPool.QueueUserWorkItem(_ => SaveExceptions()); // raised on the hook thread: no disk I/O there
 
         using var tray = new TrayApp(settings, controller, focus, corrector, languages, onExit: () => Log.Info("exit by user"));
         Application.Run(tray);

@@ -145,7 +145,7 @@ AutoLang uses a standard Windows keyboard hook, which is also what keyloggers us
 @faq2_q
 It corrected something it shouldn't have.
 @faq2_a
-Press <kbd>Pause</kbd> right away. The correction is undone and that word is never corrected again. If it keeps
+Press <kbd>Pause</kbd> right away, or delete the whole correction (AutoLang switches the layout back) and type the word again. Either way the correction is undone and that word is never corrected again. If it keeps
         happening, please <a href="https://github.com/BNK989/AutoLang/issues">open an issue</a> with the words.
 @faq3_q
 Corrections come out garbled in one app.
@@ -208,7 +208,7 @@ What AutoLang keeps
 @p_keeps_disk_1
 your settings (pause, apps you disabled, the typing method per app, language choices),
 @p_keeps_disk_2
-words you told AutoLang not to correct (by pressing <kbd>Pause</kbd> to undo a correction),
+words you told AutoLang not to correct (by pressing <kbd>Pause</kbd> to undo a correction, or by deleting a correction and typing the word again),
 @p_keeps_disk_3
 downloaded word lists (public files, see below),
 @p_keeps_disk_4

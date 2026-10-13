@@ -216,7 +216,9 @@ internal sealed class KeyboardHook : IDisposable
 
         switch (vk)
         {
-            case VK_BACK: _controller.OnBackspace(); return false;
+            case VK_BACK:
+                if (_controller.OnBackspace() is { } back) SwitchBack(back, hwnd);
+                return false;
             case VK_RETURN: return Apply(_controller.OnEnter(LangOf(hwnd, out _)), hwnd);
             case VK_ESCAPE or VK_TAB or VK_DELETE or VK_INSERT
               or VK_LEFT or VK_RIGHT or VK_UP or VK_DOWN or VK_HOME or VK_END or VK_PRIOR or VK_NEXT:
@@ -262,6 +264,17 @@ internal sealed class KeyboardHook : IDisposable
         bool shift = c.PressEnter && (GetAsyncKeyState(VK_SHIFT) & 0x8000) != 0;
         var hkl = _lastHkl.TryGetValue(c.TargetLangId, out var last) ? last : _hklOfLang(c.TargetLangId);
         _corrector.Enqueue(new Corrector.Job(c, hwnd, hkl, _focus.Status.Process, shift, _caps));
+    }
+
+    /// <summary>
+    /// The user erased our whole correction: put the window back in the layout they had typed it in. Queued behind any
+    /// correction still being applied, so our own switch to the target cannot land after it. Harmless if the user
+    /// already switched back themselves.
+    /// </summary>
+    private void SwitchBack(ushort lang, nint hwnd)
+    {
+        var hkl = _lastHkl.TryGetValue(lang, out var last) ? last : _hklOfLang(lang);
+        if (hkl != 0) _corrector.EnqueueSwitch(hwnd, hkl);
     }
 
     private ushort LangOf(nint hwnd, out nint hkl)

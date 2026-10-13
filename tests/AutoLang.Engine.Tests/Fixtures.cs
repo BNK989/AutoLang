@@ -50,3 +50,12 @@ public sealed class DataFactAttribute : FactAttribute
         if (Fixtures.Decider is null) Skip = "data/layouts or data/words missing";
     }
 }
+
+/// <summary>Theory that skips when layouts or word lists are missing.</summary>
+public sealed class DataTheoryAttribute : TheoryAttribute
+{
+    public DataTheoryAttribute()
+    {
+        if (Fixtures.Decider is null) Skip = "data/layouts or data/words missing";
+    }
+}

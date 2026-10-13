@@ -11,8 +11,10 @@ namespace AutoLang.Host;
 internal sealed class Corrector : IDisposable
 {
     public sealed record Job(Correction Correction, nint Hwnd, nint TargetHkl, string Process, bool ShiftEnter, bool CapsLock);
+    /// <summary>Only a layout switch: the user erased a correction and goes back to their own layout.</summary>
+    private sealed record Switch(nint Hwnd, nint Hkl);
 
-    private readonly BlockingCollection<Job> _queue = new();
+    private readonly BlockingCollection<object> _queue = new();
     private readonly Thread _thread;
     private readonly Func<string, TypingMethod> _methodFor;
     private int _applied;
@@ -31,12 +33,22 @@ internal sealed class Corrector : IDisposable
 
     public void Enqueue(Job job) => _queue.Add(job);
 
+    /// <summary>Switch the window's layout, after any correction queued before it.</summary>
+    public void EnqueueSwitch(nint hwnd, nint hkl) => _queue.Add(new Switch(hwnd, hkl));
+
     private void Loop()
     {
-        foreach (var job in _queue.GetConsumingEnumerable())
+        foreach (var item in _queue.GetConsumingEnumerable())
         {
             try
             {
+                if (item is Switch s)
+                {
+                    Injector.SwitchLayout(s.Hwnd, s.Hkl);
+                    Log.Info("correction erased: layout switched back");
+                    continue;
+                }
+                var job = (Job)item;
                 var c = job.Correction;
                 var sw = Stopwatch.StartNew();
                 var method = _methodFor(job.Process);

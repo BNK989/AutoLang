@@ -56,6 +56,7 @@ crashes, Windows restarts it by itself.
 
 - Just type. When a word is clearly in the wrong layout it is replaced on the next space or Enter.
 - **Pause key** = undo the last correction. The words you undid are remembered and never corrected again.
+- **No Pause key?** Delete the whole correction (AutoLang switches the layout back for you) and type the word again. AutoLang leaves it alone and remembers it, just like Pause.
 - **Shift+Pause** = force the current text into the other layout (when it did not correct and you wanted it to).
 - Tray icon colours: green = watching, grey = paused, orange = this window is skipped
   (hover for the reason).

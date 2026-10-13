@@ -74,6 +74,10 @@ public sealed class PhraseDecider
             // A token that reads the same under both layouts (digits, shifted Latin capitals under Hebrew, "XXX")
             // says nothing about which layout was meant: it must not tilt the margin either way.
             if (remapped == t.Text) continue;
+            // Neither is a token that is no word in any language: one letter repeated (laughter "חחח", "jjj") or letters
+            // glued to digits (user names, codes: "bnk989"). Both readings score as gibberish, and whichever happens to
+            // be a short dictionary word ("jj", "נמל") would win.
+            if (IsRepeatedLetter(t.Text) || TouchesDigit(typed, t)) continue;
             typedScore += ScoreWord(t.Text, typedProfile, typedLayout);
             otherScore += ScoreWord(remapped, otherProfile, otherLayout);
             letters += t.Text.Count(char.IsLetter);
@@ -90,6 +94,17 @@ public sealed class PhraseDecider
             return Decision.Defer(margin, $"short run, |margin| {Math.Abs(margin):F1} < {_opt.TLow}");
         return Decision.Keep(margin, $"margin {margin:F1}");
     }
+
+    private static bool IsRepeatedLetter(string token)
+    {
+        if (token.Length < 2 || !char.IsLetter(token[0])) return false;
+        var first = char.ToLowerInvariant(token[0]);
+        for (int i = 1; i < token.Length; i++) if (char.ToLowerInvariant(token[i]) != first) return false;
+        return true;
+    }
+
+    private static bool TouchesDigit(string typed, Token t)
+        => (t.Start > 0 && char.IsDigit(typed[t.Start - 1])) || (t.Start + t.Length < typed.Length && char.IsDigit(typed[t.Start + t.Length]));
 
     /// <summary>How much does <paramref name="word"/> look like a word of <paramref name="p"/>? Higher is better; in nats-ish units.</summary>
     public double ScoreWord(string word, LanguageProfile p, KeyboardLayoutTable layout)

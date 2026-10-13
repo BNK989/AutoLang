@@ -148,6 +148,112 @@ public class SessionControllerTests
         Assert.Equal("שלום ", corr?.Text);
     }
 
+    [DataTheory]
+    [InlineData("חח ")]
+    [InlineData("חחחח ")]
+    [InlineData("בסדר חח ")]
+    [InlineData("זה היה מצחיק חחח ")]
+    public void Hebrew_laughter_is_left_alone(string text)
+    {
+        var c = New();
+        Assert.Null(Type(c, text, He));
+    }
+
+    [DataTheory]
+    [InlineData("bnk989 ")]
+    [InlineData("my user is bnk989 ")]
+    public void Letters_glued_to_digits_are_left_alone(string text)
+    {
+        var c = New();
+        Assert.Null(Type(c, text, En));
+    }
+
+    /// <summary>Backspace n times. Only the last may ask the host to switch layouts; returns what it asked for.</summary>
+    private static ushort? Erase(SessionController c, int n)
+    {
+        for (int i = 1; i < n; i++) Assert.Null(c.OnBackspace());
+        return n > 0 ? c.OnBackspace() : null;
+    }
+
+    [DataFact]
+    public void Switching_back_by_hand_still_works()
+    {
+        var c = New();
+        var corr = Type(c, "akuo ", En)!;
+        Assert.Null(Erase(c, 2));
+        c.Reset(ResetScope.Run);                 // Alt+Shift halfway through erasing
+        Assert.Equal(En, Erase(c, corr.Text.Length - 2));
+        Assert.Null(Type(c, "akuo ", En));
+        Assert.Contains("akuo", c.Exceptions);
+    }
+
+    [DataFact]
+    public void Erasing_a_correction_and_typing_it_again_keeps_it()
+    {
+        var c = New();
+        bool learnt = false;
+        c.ExceptionsAdded += () => learnt = true;
+        var corr = Type(c, "akuo ", En)!;
+        Assert.Equal(En, Erase(c, corr.Text.Length)); // the last of it: the host switches back to English
+        Assert.Null(Type(c, "akuo ", En));
+        Assert.True(learnt);
+        Assert.Contains("akuo", c.Exceptions);
+        // And from now on, like an undone word.
+        Assert.Null(Type(c, "akuo ", En));
+    }
+
+    [DataFact]
+    public void Erasing_a_multi_word_correction_and_typing_it_again_keeps_it()
+    {
+        var c = New();
+        Assert.Null(Type(c, "to fi ", En));
+        var corr = Type(c, "tbh ", En)!;
+        Assert.Equal(En, Erase(c, corr.Text.Length));
+        Assert.Null(Type(c, "to fi tbh ", En));
+        Assert.Equal(new[] { "fi", "tbh", "to" }, c.Exceptions.Order());
+    }
+
+    [DataFact]
+    public void Typing_the_same_word_again_without_erasing_is_still_corrected()
+    {
+        var c = New();
+        Assert.NotNull(Type(c, "akuo ", En));
+        Assert.NotNull(Type(c, "akuo ", En));
+        Assert.Empty(c.Exceptions);
+    }
+
+    [DataFact]
+    public void Erasing_part_of_a_correction_is_an_edit_not_a_rejection()
+    {
+        var c = New();
+        var corr = Type(c, "akuo ", En)!;
+        Assert.Null(Erase(c, corr.Text.Length - 1)); // the user fixes a letter of the replacement: no switch
+        Type(c, "ום ", He);
+        Assert.NotNull(Type(c, "akuo ", En));   // nothing was learnt
+    }
+
+    [DataFact]
+    public void Erasing_a_correction_and_typing_something_else_learns_nothing()
+    {
+        var c = New();
+        var corr = Type(c, "akuo ", En)!;
+        Assert.Equal(En, Erase(c, corr.Text.Length));
+        Assert.Null(Type(c, "hello ", En));
+        Assert.NotNull(Type(c, "akuo ", En));
+        Assert.Empty(c.Exceptions);
+    }
+
+    [DataFact]
+    public void Text_typed_after_the_correction_is_erased_first()
+    {
+        var c = New();
+        var corr = Type(c, "akuo ", En)!;
+        Type(c, "עו", He);
+        Assert.Equal(En, Erase(c, 2 + corr.Text.Length));
+        Assert.Null(Type(c, "akuo ", En));
+        Assert.Contains("akuo", c.Exceptions);
+    }
+
     [DataFact]
     public void Reset_drops_the_run_and_reports_how_much()
     {

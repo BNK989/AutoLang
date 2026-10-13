@@ -64,6 +64,13 @@ public sealed class SessionController
     private ushort _runLang;
     private ushort? _confirmedLang;
     private Undoable? _undo;
+    /// <summary>The last correction while the user may still erase it: chars typed after it, and how much of it was erased.</summary>
+    private Undoable? _fix;
+    private int _afterFix, _fixDeleted;
+    /// <summary>What the user had typed before they erased our whole correction; typing it again means "leave this alone".</summary>
+    private (string Original, ushort Lang)? _rejected;
+    /// <summary>Set when a retype added exceptions; the public entry point raises <see cref="ExceptionsAdded"/> outside the lock.</summary>
+    private bool _learnt;
     private readonly HashSet<string> _exceptions = new(StringComparer.Ordinal);
     private volatile bool _blocked;
 
@@ -105,6 +112,8 @@ public sealed class SessionController
             }
             _run.Clear();
             _undo = null;
+            _fix = null;
+            _rejected = null;
             if (_confirmedLang is { } c && !_byLang.ContainsKey(c)) _confirmedLang = null;
         }
     }
@@ -121,7 +130,7 @@ public sealed class SessionController
     public bool Blocked
     {
         get => _blocked;
-        set { lock (_sync) { _blocked = value; if (value) { _run.Clear(); _undo = null; } } }
+        set { lock (_sync) { _blocked = value; if (value) { _run.Clear(); _undo = null; _fix = null; _rejected = null; } } }
     }
 
     public int RunLength { get { lock (_sync) return _run.Length; } }
@@ -135,6 +144,12 @@ public sealed class SessionController
     {
         lock (_sync) foreach (var w in words) if (!string.IsNullOrWhiteSpace(w)) _exceptions.Add(Norm(w.Trim()));
     }
+
+    /// <summary>
+    /// Raised (on the caller's thread, outside the lock) when the user rejected a correction by erasing it and typing the
+    /// same keys again: those words joined <see cref="Exceptions"/>. Undo needs no event, the host sees its correction.
+    /// </summary>
+    public event Action? ExceptionsAdded;
     public ushort? ConfirmedLangId { get { lock (_sync) return _confirmedLang; } }
 
     /// <summary>
@@ -145,10 +160,14 @@ public sealed class SessionController
     /// </summary>
     public Correction? OnChar(char c, ushort langId)
     {
+        Correction? result = null;
+        bool learnt;
         lock (_sync)
         {
             _undo = null;
-            if (_blocked || !_byLang.TryGetValue(langId, out var table)) { _run.Clear(); return null; }
+            if (_blocked || !_byLang.TryGetValue(langId, out var table)) { _run.Clear(); _fix = null; return null; }
+            // Typing after erasing part of the correction edits it (the user keeps it); otherwise the char sits after it.
+            if (_fix is not null && (_fixDeleted > 0 || ++_afterFix > _opt.MaxRunChars)) _fix = null;
             if (_run.Length > 0 && langId != _runLang) _run.Clear(); // the layout changed under us: the screen is no longer one run
             _runLang = langId;
             _recentInScript[table.Script] = langId;
@@ -157,33 +176,52 @@ public sealed class SessionController
             if (_run.Length == 0) return null; // a separator with nothing before it: nothing to judge, nothing to track
 
             var (corr, resetRun) = DecideAt(c.ToString(), enter: false);
-            if (corr is not null) return corr;
-            if (resetRun) _run.Clear();
+            if (corr is not null) result = corr;
+            else if (resetRun) _run.Clear();
             else { _run.Append(c); Trim(); }
-            return null;
+            learnt = TakeLearnt();
         }
+        if (learnt) ExceptionsAdded?.Invoke();
+        return result;
     }
 
     /// <summary>Enter ends the run either way; if it corrects, the host presses Enter after the replacement. Not undoable.</summary>
     public Correction? OnEnter(ushort langId)
     {
+        Correction? corr;
+        bool learnt;
         lock (_sync)
         {
             _undo = null;
-            if (_blocked || _run.Length == 0 || langId != _runLang) { _run.Clear(); return null; }
-            var (corr, _) = DecideAt("", enter: true);
+            if (_blocked || _run.Length == 0 || langId != _runLang) { _run.Clear(); _fix = null; _rejected = null; return null; }
+            (corr, _) = DecideAt("", enter: true);
             _run.Clear();
             _undo = null;
-            return corr;
+            _fix = null;
+            _rejected = null;
+            learnt = TakeLearnt();
         }
+        if (learnt) ExceptionsAdded?.Invoke();
+        return corr;
     }
 
-    public void OnBackspace()
+    /// <summary>
+    /// Returns the language the host must switch the window back to when this Backspace erased the last of our
+    /// correction: the user is taking it back, and will most likely type their own text again in their own layout.
+    /// </summary>
+    public ushort? OnBackspace()
     {
         lock (_sync)
         {
             _undo = null;
             if (_run.Length > 0) _run.Length--;
+            if (_fix is not { } f) return null;
+            if (_afterFix > 0) { _afterFix--; return null; }
+            if (++_fixDeleted < f.OnScreen.Length) return null;
+            // All of our correction is gone. If the user now types what they had typed before, they meant it.
+            _rejected = (f.Original, f.OriginalLang);
+            _fix = null;
+            return f.OriginalLang;
         }
     }
 
@@ -195,7 +233,10 @@ public sealed class SessionController
             int dropped = _run.Length;
             _run.Clear();
             _undo = null;
-            if (scope == ResetScope.All) _confirmedLang = null;
+            // The correction being watched survives a Run reset: switching the layout back (Alt+Shift) is one, and so is
+            // Ctrl+Backspace. After an arrow key the count of erased chars is only approximate, but nothing is learnt
+            // until the user types the very keys we corrected again, in the layout we corrected them from.
+            if (scope == ResetScope.All) { _confirmedLang = null; _fix = null; _rejected = null; }
             return dropped;
         }
     }
@@ -208,6 +249,7 @@ public sealed class SessionController
             if (_undo is null) return null;
             var u = _undo;
             _undo = null;
+            _fix = null;
             var table = _byLang[u.OriginalLang];
             foreach (var t in Tokenizer.Split(u.Original, table, _others[u.OriginalLang])) _exceptions.Add(Norm(t.Text));
             // The restored text is not tracked any more: it must never be corrected again, and the user's next words are judged alone.
@@ -235,6 +277,7 @@ public sealed class SessionController
             double bestMargin = best.Margin;
             var replacement = typedTable.TransliterateTo(target, onScreen);
             _undo = new Undoable(replacement, onScreen, langId, target.LangId);
+            _fix = null; // asked for explicitly: erasing it is not a rejection of ours
             _run.Clear();
             _confirmedLang = target.LangId;
             _recentInScript[target.Script] = target.LangId;
@@ -249,14 +292,33 @@ public sealed class SessionController
         var typed = onScreen + boundary;
         var ctx = new DecisionContext(_confirmedLang);
 
+        if (_rejected is { } rj)
+        {
+            if (rj.Lang == _runLang && Retypes(typed, typedTable, rj.Original) is { } complete)
+            {
+                if (!complete) return (null, false); // the first words of it so far: wait for the rest
+                foreach (var t in Tokenizer.Split(rj.Original, typedTable, _others[_runLang])) _exceptions.Add(Norm(t.Text));
+                _rejected = null;
+                _learnt = true;
+                _confirmedLang = _runLang;
+                return (null, true);
+            }
+            _rejected = null; // they typed something else
+        }
+        // Words the user insisted on stay as typed and confirm their language, so the next words are judged on their own
+        // and cannot drag them into a correction.
+        if (IsException(typed, typedTable)) { _confirmedLang = _runLang; return (null, true); }
+
         var picked = Pick(_targets[_runLang].Select(o => (o, _decider.Decide(typed, typedTable, o, ctx))), byRank: true);
         if (picked is not { } p) return (null, false);
         var (target, best) = p;
 
-        if (best.Kind == DecisionKind.Correct && best.Replacement is { } replacement && !IsException(typed, typedTable))
+        if (best.Kind == DecisionKind.Correct && best.Replacement is { } replacement)
         {
             var corr = new Correction(CorrectionKind.Auto, onScreen.Length, replacement, enter, _runLang, target.LangId, best.Margin, best.Reason);
             _undo = enter ? null : new Undoable(replacement, typed, _runLang, target.LangId);
+            _fix = _undo;
+            _afterFix = _fixDeleted = 0;
             _run.Clear();
             _confirmedLang = target.LangId;
             _recentInScript[target.Script] = target.LangId;
@@ -299,6 +361,21 @@ public sealed class SessionController
         var tokens = Tokenizer.Split(typed, table, _others[table.LangId]);
         return tokens.Count > 0 && tokens.All(t => _exceptions.Contains(Norm(t.Text)));
     }
+
+    /// <summary>
+    /// Null if <paramref name="typed"/> is not <paramref name="original"/> being typed again; false while it is its first
+    /// words, true once it has all of them.
+    /// </summary>
+    private bool? Retypes(string typed, KeyboardLayoutTable table, string original)
+    {
+        var now = Tokenizer.Split(typed, table, _others[table.LangId]);
+        var was = Tokenizer.Split(original, table, _others[table.LangId]);
+        if (now.Count == 0 || now.Count > was.Count) return null;
+        for (int i = 0; i < now.Count; i++) if (Norm(now[i].Text) != Norm(was[i].Text)) return null;
+        return now.Count == was.Count;
+    }
+
+    private bool TakeLearnt() { var l = _learnt; _learnt = false; return l; }
 
     private static string Norm(string s) => s.ToLowerInvariant();
 
