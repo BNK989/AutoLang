@@ -21,6 +21,8 @@ internal sealed class KeyboardHook : IDisposable
     private const uint WatchdogIntervalMs = 2000;
     /// <summary>A key reaching the callback this late means the thread stalled: Windows may have dropped the hook.</summary>
     private const uint LateDeliveryMs = 500;
+    /// <summary>Double-tapping Shift: each tap held at most this long, the second pressed at most this long after the first.</summary>
+    private const uint ShiftTapMs = 300, ShiftGapMs = 400;
 
     private readonly SessionController _controller;
     private readonly Corrector _corrector;
@@ -39,6 +41,9 @@ internal sealed class KeyboardHook : IDisposable
     private nint _kbHook, _mouseHook, _focusHook;
 
     private bool _caps;
+    // Double-tap Shift state, hook thread only. _shiftTapAt is when a clean tap (no other key during it) was released, 0 = none.
+    private bool _shiftHeld, _shiftAlone;
+    private uint _shiftDownAt, _shiftTapAt;
     // Watchdog state, hook thread only (PLAN.md §7: a silently dropped hook must not leave AutoLang deaf).
     private uint _lastHookTick;
     private bool _late;
@@ -189,13 +194,14 @@ internal sealed class KeyboardHook : IDisposable
         bool down = wParam == WM_KEYDOWN || wParam == WM_SYSKEYDOWN;
         int vk = (int)k.vkCode;
 
+        if (vk is VK_SHIFT or VK_LSHIFT or VK_RSHIFT) { ShiftKey(down, k.time); return false; }
+        if (down) { _shiftAlone = false; _shiftTapAt = 0; } // any other key breaks a double tap
+
         if (vk == VK_CAPITAL) { if (down) _caps = !_caps; return false; }
         if (!down) return false;
 
         // Hotkeys (PLAN.md §3.4): Pause = undo last correction, Shift+Pause = force-convert the current run.
-        if (vk == VK_PAUSE) return Hotkey();
-
-        if (vk is VK_SHIFT or VK_LSHIFT or VK_RSHIFT) return false;
+        if (vk == VK_PAUSE) return Hotkey(convert: (GetAsyncKeyState(VK_SHIFT) & 0x8000) != 0);
         if (vk is VK_CONTROL or VK_LCONTROL or VK_RCONTROL or VK_MENU or VK_LMENU or VK_RMENU or VK_LWIN or VK_RWIN or VK_APPS)
         { _controller.Reset(ResetScope.Run); return false; }
 
@@ -241,11 +247,39 @@ internal sealed class KeyboardHook : IDisposable
         return Apply(_controller.OnChar(c, langId), hwnd);
     }
 
-    private bool Hotkey()
+    /// <summary>
+    /// Double-tapping Shift, the hotkey every keyboard has (most laptops lack Pause): undoes the correction just made, or
+    /// else converts the current run, so either way it flips what was just typed to the other layout. Shift is never
+    /// swallowed; a lone Shift does nothing in apps, and keys injected while it is held are unaffected by it.
+    /// </summary>
+    private void ShiftKey(bool down, uint time)
     {
-        bool shift = (GetAsyncKeyState(VK_SHIFT) & 0x8000) != 0;
+        if (down)
+        {
+            if (_shiftHeld) return; // auto-repeat, or the other Shift key
+            _shiftHeld = true;
+            if (_shiftTapAt != 0 && time - _shiftTapAt <= ShiftGapMs)
+            {
+                _shiftTapAt = 0;
+                _shiftAlone = false;
+                Hotkey(convert: !_controller.CanUndo);
+                return;
+            }
+            // Shift with Ctrl, Alt or Win held is a layout switch (Alt+Shift, Ctrl+Shift) or a shortcut, not a tap.
+            static bool Held(int vk) => (GetAsyncKeyState(vk) & 0x8000) != 0;
+            _shiftAlone = !(Held(VK_CONTROL) || Held(VK_MENU) || Held(VK_LWIN) || Held(VK_RWIN));
+            _shiftDownAt = time;
+            return;
+        }
+        _shiftHeld = false;
+        _shiftTapAt = _shiftAlone && time - _shiftDownAt <= ShiftTapMs ? Math.Max(time, 1) : 0;
+        _shiftAlone = false;
+    }
+
+    private bool Hotkey(bool convert)
+    {
         var hwnd = GetForegroundWindow();
-        Correction? c = shift ? _controller.Force(LangOf(hwnd, out _)) : _controller.Undo();
+        Correction? c = convert ? _controller.Force(LangOf(hwnd, out _)) : _controller.Undo();
         if (c is null) return false;
         Enqueue(c, hwnd);
         return true; // the hotkey did something: do not let the app see the Pause key

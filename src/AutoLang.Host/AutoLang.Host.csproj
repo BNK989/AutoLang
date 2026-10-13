@@ -46,6 +46,8 @@
   <ItemGroup>
     <!-- Embedded, so the portable build is one exe with no data folder beside it; WordLists.Find reads "words/<file>". -->
     <EmbeddedResource Include="..\..\data\words\*.txt" LogicalName="words/%(Filename)%(Extension)" />
+    <!-- Tray menu icons: Fluent UI System Icons, 16 px regular (MIT, Icons/LICENSE.txt). MenuIcons reads "icons/<name>.svg". -->
+    <EmbeddedResource Include="Icons\*.svg" LogicalName="icons/%(Filename)%(Extension)" />
   </ItemGroup>
 
 </Project>

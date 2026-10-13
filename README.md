@@ -30,8 +30,8 @@ A Microsoft Store version is on the way; it will need neither step.
 
 - Just type. A word that is clearly in the wrong layout is replaced on the next space or Enter, and short
   ambiguous words are fixed once the phrase makes it clear.
-- **Pause** undoes the last correction and remembers the word, so it is never corrected again. No Pause key? Delete the whole correction (AutoLang switches the layout back for you) and type the word again: AutoLang keeps it and remembers it the same way.
-- **Shift+Pause** forces the current text into the other layout.
+- **Tap Shift twice** to switch what you just typed to the other layout. Right after a correction it undoes it and remembers the word, so it is never corrected again; otherwise it converts the text you are typing by hand.
+- Keyboards with a Pause key can also use **Pause** (undo) and **Shift+Pause** (convert). Deleting a whole correction and typing the word again also keeps it and remembers it.
 - Tray icon: green = watching, grey = paused, orange = this window is skipped (hover for why). Click it to pause or resume.
   Right-click it to pause, disable AutoLang for the current app, change the typing method for an app,
   or manage languages.

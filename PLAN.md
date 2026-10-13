@@ -216,6 +216,8 @@ timeout) — it only enqueues.
   list. Shown as a hint in the caret toast for ~1.5 s.
 - **Force convert** hotkey (default `Shift+Pause`): remap the last word or
   current selection regardless of score — the manual fallback.
+- **Double-tap Shift** does both, for keyboards without Pause (most laptops):
+  undo when a correction was just made, force convert otherwise.
 - **Pause/resume** from tray; **per-app disable** from tray menu.
 - Settings: aggressiveness (conservative / balanced / aggressive), excluded
   apps, exception words, start at login.

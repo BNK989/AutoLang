@@ -114,7 +114,7 @@ Install and start
 
 Core
 - [ ] Notepad, Chrome, Word/Outlook, WhatsApp desktop: `akuo ` → `שלום `, and `יקךךם ` → `hello `; layout follows.
-- [ ] Pause undoes and the word is not corrected again; Shift+Pause forces a conversion.
+- [ ] Shift twice (and Pause) undoes and the word is not corrected again; Shift twice after an uncorrected word (and Shift+Pause) forces a conversion.
 - [ ] Password field (any login page): nothing is corrected, icon orange.
 - [ ] Windows Terminal / cmd: nothing is corrected.
 

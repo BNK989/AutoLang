@@ -18,8 +18,9 @@ internal sealed class TrayApp : ApplicationContext
     private readonly LanguageManager _languages;
     private LanguagesForm? _languagesForm;
     private LogViewerForm? _logForm;
-    private readonly ToolStripMenuItem _status, _layouts, _pause, _disableApp, _typing, _undo, _convert, _fullscreen, _autoStart;
-    private readonly ToolStripMenuItem[] _typingItems;
+    private readonly TrayMenuHeader _header;
+    private readonly TrayMenuItem _pause, _disableApp, _typing, _typingHint, _swap, _fullscreen, _autoStart;
+    private readonly TrayMenuItem[] _typingItems;
     private bool _adminNoticeShown;
     private readonly Icon _green, _grey, _orange;
     private readonly SynchronizationContext _ui;
@@ -39,42 +40,45 @@ internal sealed class TrayApp : ApplicationContext
         _grey = Draw(IconArt.Paused);
         _orange = Draw(IconArt.Blocked);
 
-        var menu = new ContextMenuStrip();
-        _status = new ToolStripMenuItem("Starting…") { Enabled = false };
-        _layouts = new ToolStripMenuItem(LayoutSummary()) { Enabled = false };
+        var menu = TrayMenu.Create();
+        _header = new TrayMenuHeader { Title = "Starting…", Subtitle = LayoutSummary() };
         // ToolStrip draws a "\t" in the text as nothing; the shortcut column only shows ShortcutKeyDisplayString.
-        _pause = new ToolStripMenuItem(PauseText(), null, (_, _) => TogglePause()) { ShortcutKeyDisplayString = "Click icon" };
-        _disableApp = new ToolStripMenuItem("Disable for this app", null, (_, _) => ToggleDisableApp());
+        _pause = new TrayMenuItem(PauseText(), PauseIcon(), TogglePause) { ShortcutKeyDisplayString = "Click tray icon" };
+        _disableApp = new TrayMenuItem("Disable for this app", "prohibited", ToggleDisableApp) { Toggle = true };
         _typingItems = new[]
         {
-            TypingItem("Unicode (default)", TypingMethod.Unicode),
-            TypingItem("Simulated keys", TypingMethod.Keys),
-            TypingItem("Paste via clipboard", TypingMethod.Paste),
+            TypingItem("Standard", "Recommended", TypingMethod.Unicode),
+            TypingItem("Key presses", "For games and remote desktops", TypingMethod.Keys),
+            TypingItem("Paste", "Uses the clipboard for a moment", TypingMethod.Paste),
         };
-        _typing = new ToolStripMenuItem("Typing method for this app");
+        // Named for the problem it solves: the method only matters when an app mangles the default typing.
+        _typing = new TrayMenuItem("Compatibility for this app", "keyboard");
+        TrayMenu.Style((ToolStripDropDownMenu)_typing.DropDown);
         _typing.DropDownItems.AddRange(_typingItems);
-        _typing.DropDownItems.Add(new ToolStripSeparator());
-        _typing.DropDownItems.Add(new ToolStripMenuItem("Only change this if corrections come out garbled in this app.") { Enabled = false });
-        _undo = new ToolStripMenuItem("Undo last correction", null, (_, _) => HotkeyFromMenu(
-            "Press the Pause key in the text field, right after a correction, to undo it.")) { ShortcutKeyDisplayString = "Pause" };
-        _convert = new ToolStripMenuItem("Convert what you just typed", null, (_, _) => HotkeyFromMenu(
-            "Press Shift+Pause in the text field, right after typing, to switch it to the other layout.")) { ShortcutKeyDisplayString = "Shift+Pause" };
-        _fullscreen = new ToolStripMenuItem("Skip fullscreen windows", null, (_, _) => ToggleFullscreen()) { Checked = settings.SkipFullscreen };
+        _typing.DropDownItems.Add(new TrayMenuSeparator());
+        _typingHint = new TrayMenuItem("") { Enabled = false };
+        _typing.DropDownItems.Add(_typingHint);
+        // One item for both hotkey jobs: double-tapping Shift undoes a fresh correction or else converts (KeyboardHook.ShiftKey).
+        _swap = new TrayMenuItem("Switch what you just typed", "arrow_swap", () => HotkeyFromMenu(
+            "Tap Shift twice in the text field, right after typing, to switch the text to the other layout. " +
+            "Right after AutoLang fixes a word, it undoes the fix. (The Pause key also undoes, and Shift+Pause converts.)"))
+            { ShortcutKeyDisplayString = "Shift twice" };
+        _fullscreen = new TrayMenuItem("Skip fullscreen windows", "full_screen_maximize", ToggleFullscreen) { Toggle = true, Checked = settings.SkipFullscreen };
         // Packaged, the start-at-login entry is the manifest's StartupTask, switched in Windows Settings (PLAN.md §5, M4).
         _autoStart = Native.IsPackaged
-            ? new ToolStripMenuItem("Start with Windows…", null, (_, _) => OpenStartupSettings())
-            : new ToolStripMenuItem("Start with Windows", null, (_, _) => ToggleAutoStart()) { Checked = StartupRegistration.IsEnabled() };
+            ? new TrayMenuItem("Start with Windows…", "rocket", OpenStartupSettings)
+            : new TrayMenuItem("Start with Windows", "rocket", ToggleAutoStart) { Toggle = true, Checked = StartupRegistration.IsEnabled() };
         menu.Items.AddRange(new ToolStripItem[]
         {
-            _status, _layouts, new ToolStripSeparator(),
-            _pause, _disableApp, _typing, new ToolStripSeparator(),
-            _undo, _convert, new ToolStripSeparator(),
-            new ToolStripMenuItem("Languages…", null, (_, _) => ShowLanguages()),
+            _header, new TrayMenuSeparator(),
+            _pause, _disableApp, _typing, new TrayMenuSeparator(),
+            _swap, new TrayMenuSeparator(),
+            new TrayMenuItem("Languages…", "local_language", ShowLanguages),
             _fullscreen,
             _autoStart,
-            new ToolStripMenuItem(Native.IsPackaged ? "Show log" : "Open log file", null, (_, _) => OpenLog()),
-            new ToolStripSeparator(),
-            new ToolStripMenuItem("Exit", null, (_, _) => Exit()),
+            new TrayMenuItem(Native.IsPackaged ? "Show log" : "Open log file", "document_text", OpenLog),
+            new TrayMenuSeparator(),
+            new TrayMenuItem("Exit", "dismiss", Exit),
         });
         menu.Opening += (_, _) => RefreshMenu();
 
@@ -84,7 +88,7 @@ internal sealed class TrayApp : ApplicationContext
 
         _focus.StatusChanged += s => _ui.Post(_ => Refresh(s), null);
         _corrector.Applied += _ => _ui.Post(_ => Refresh(_focus.Status), null);
-        _languages.Changed += () => _ui.Post(_ => { _layouts.Text = LayoutSummary(); Refresh(_focus.Status); }, null);
+        _languages.Changed += () => _ui.Post(_ => { _header.Subtitle = LayoutSummary(); Refresh(_focus.Status); }, null);
         Refresh(_focus.Status);
     }
 
@@ -100,7 +104,8 @@ internal sealed class TrayApp : ApplicationContext
         }
         string state = _settings.Paused ? "Paused" : !_controller.CanCorrect ? "Idle: needs two alphabets" : s.Blocked ? $"Blocked: {s.Reason}" : "Watching";
         string app = string.IsNullOrEmpty(s.Process) ? "" : $" — {AppName(s.Process)}";
-        _status.Text = state + app;
+        _header.Title = state + app;
+        _header.Mark = _settings.Paused || !_controller.CanCorrect ? IconArt.Paused : s.Blocked ? IconArt.Blocked : IconArt.Brand;
         _icon.Icon = _settings.Paused || !_controller.CanCorrect ? _grey : s.Blocked ? _orange : _green;
         var tip = $"AutoLang: {state}{app}\n{_corrector.AppliedCount} corrections this session\nClick to {(_settings.Paused ? "resume" : "pause")}";
         _icon.Text = tip.Length > 127 ? tip[..127] : tip;
@@ -114,18 +119,19 @@ internal sealed class TrayApp : ApplicationContext
         _disableApp.Text = hasApp ? $"Disable for {AppName(p)}" : "Disable for this app";
         _disableApp.Checked = hasApp && _settings.IsDisabled(p);
         _typing.Enabled = hasApp;
-        _typing.Text = hasApp ? $"Typing method for {AppName(p)}" : "Typing method for this app";
+        _typing.Text = hasApp ? $"Compatibility for {AppName(p)}" : "Compatibility for this app";
+        _typingHint.Text = $"Try another option if fixes come out garbled in {(hasApp ? AppName(p) : "this app")}.";
         TypingMethod current;
         lock (_settings) current = hasApp ? _settings.TypingMethodFor(p) : TypingMethod.Unicode;
         foreach (var item in _typingItems) item.Checked = (TypingMethod)item.Tag! == current;
-        _undo.Enabled = _controller.CanUndo;
-        _convert.Enabled = !_settings.Paused;
+        _swap.Enabled = !_settings.Paused;
         _pause.Text = PauseText();
+        _pause.Icon = PauseIcon();
         if (!Native.IsPackaged) _autoStart.Checked = StartupRegistration.IsEnabled();
     }
 
-    private ToolStripMenuItem TypingItem(string text, TypingMethod method)
-        => new(text, null, (_, _) => SetTypingMethod(method)) { Tag = method };
+    private TrayMenuItem TypingItem(string text, string note, TypingMethod method)
+        => new(text, null, () => SetTypingMethod(method)) { Tag = method, ShortcutKeyDisplayString = note };
 
     /// <summary>Per-app typing method (PLAN.md §3.3), for the target the menu was opened over.</summary>
     private void SetTypingMethod(TypingMethod method)
@@ -177,6 +183,8 @@ internal sealed class TrayApp : ApplicationContext
 
     private string PauseText() => _settings.Paused ? "Resume AutoLang" : "Pause AutoLang";
 
+    private string PauseIcon() => _settings.Paused ? "play" : "pause";
+
     /// <summary>How an app is shown to the user: "chrome", not "chrome.exe". Settings keep the full process name.</summary>
     private static string AppName(string process)
         => process.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) ? process[..^4] : process;
@@ -219,7 +227,7 @@ internal sealed class TrayApp : ApplicationContext
     {
         // The menu click already moved focus away from the text, so the edit would land in the wrong window.
         // Pressing the key inside the text field is the reliable path; say so instead of guessing.
-        _icon.ShowBalloonTip(4000, "AutoLang", how, ToolTipIcon.Info);
+        _icon.ShowBalloonTip(6000, "AutoLang", how, ToolTipIcon.Info);
     }
 
     private void OpenLog()

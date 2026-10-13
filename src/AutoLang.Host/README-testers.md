@@ -55,12 +55,15 @@ crashes, Windows restarts it by itself.
 ## Using it
 
 - Just type. When a word is clearly in the wrong layout it is replaced on the next space or Enter.
-- **Pause key** = undo the last correction. The words you undid are remembered and never corrected again.
-- **No Pause key?** Delete the whole correction (AutoLang switches the layout back for you) and type the word again. AutoLang leaves it alone and remembers it, just like Pause.
-- **Shift+Pause** = force the current text into the other layout (when it did not correct and you wanted it to).
+- **Tap Shift twice** = switch what you just typed to the other layout. Right after a correction it undoes it, and the
+  words you undid are remembered and never corrected again. Otherwise it converts the current text (when AutoLang did
+  not correct and you wanted it to).
+- Have a Pause key? **Pause** = undo, **Shift+Pause** = convert.
+- Or delete the whole correction (AutoLang switches the layout back for you) and type the word again. AutoLang leaves
+  it alone and remembers it, just like an undo.
 - Tray icon colours: green = watching, grey = paused, orange = this window is skipped
   (hover for the reason).
-- Right-click the icon: pause, disable for the current app, typing method for the current app,
+- Right-click the icon: pause, disable for the current app, compatibility for the current app,
   skip fullscreen windows, show the log.
 - Click the icon once to pause or resume.
 

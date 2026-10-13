@@ -36,7 +36,7 @@ Typed a whole sentence before noticing the keyboard was set to the wrong languag
 
 When a word comes out in the wrong alphabet ("akuo" instead of "שלום", or "יקךךם" instead of "hello"), AutoLang retypes it in the right one and switches the keyboard for you, so the rest of the sentence comes out right. It works in any app you type in: browsers, Office, chat apps, editors.
 
-Made a correction you didn't want? Press Pause and it is undone; AutoLang remembers that word and never touches it again. Shift+Pause converts text by hand.
+Made a correction you didn't want? Tap Shift twice and it is undone; AutoLang remembers that word and never touches it again. Tap Shift twice after a word it left alone and it converts it by hand. (Keyboards with a Pause key can use Pause and Shift+Pause too.)
 
 Works with any pair of keyboards that use different alphabets: Hebrew, Arabic, Russian, Ukrainian, Greek and more, next to English. Keyboards that share an alphabet (English and German, say) are left alone, since most words are valid in both.
 
@@ -60,8 +60,8 @@ Requires keyboards for at least two different alphabets (Settings → Time & lan
 Fixes words typed in the wrong keyboard layout as you type
 Switches the keyboard to the right language for you
 Works in any app: browsers, Office, chat, editors
-Pause undoes a correction, and the word is never corrected again
-Shift+Pause converts text by hand
+Tap Shift twice to undo a correction, and the word is never corrected again
+Tap Shift twice to convert text by hand
 Supports Hebrew, Arabic, Russian, Ukrainian, Greek and more, next to English
 Lives in the tray; the icon shows when it is watching or paused
 Turn it off for any app, or change how it retypes there
@@ -113,7 +113,7 @@ a restricted capability, so reviewers ask why. Paste this:
 ```
 AutoLang is a desktop (Win32) utility that corrects text typed in the wrong keyboard layout, e.g. Hebrew letters typed while the English layout was active. It needs runFullTrust because it installs a low-level keyboard hook (SetWindowsHookEx WH_KEYBOARD_LL) to see which word is being typed, uses SendInput to replace the mistyped word, and asks the foreground window to switch keyboard layout. None of this is possible from a sandboxed app. Keystrokes are held in memory for the current line only and are never stored or transmitted; see the privacy policy. The only network use is downloading public word lists from GitHub.
 
-To test: add the English (US) and Hebrew keyboards in Settings > Time & language > Language & region. Open Notepad with the English layout active and type "akuo " (with the space). It becomes "שלום " and the layout switches to Hebrew. Press Pause to undo. The tray icon (green "A") has the settings.
+To test: add the English (US) and Hebrew keyboards in Settings > Time & language > Language & region. Open Notepad with the English layout active and type "akuo " (with the space). It becomes "שלום " and the layout switches to Hebrew. Tap Shift twice to undo. The tray icon (green "A") has the settings.
 ```
 
 **Restricted capability justification** (Submission options → "Why do you need the runFullTrust capability"):
