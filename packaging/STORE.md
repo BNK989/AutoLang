@@ -93,7 +93,7 @@ On the test PC (once, as administrator), trust the certificate, then install:
 
 ```
 Import-Certificate dist\dev-signing.cer -CertStoreLocation Cert:\LocalMachine\TrustedPeople
-Add-AppxPackage dist\AutoLang-0.4.3.0-x64.msix
+Add-AppxPackage dist\AutoLang-0.4.4.0-x64.msix
 ```
 
 Testers can do the same by double-clicking: `.cer` → Install Certificate → Local Machine → Trusted People, then
