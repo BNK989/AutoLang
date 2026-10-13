@@ -13,7 +13,7 @@ alphabets installed (for example English + Hebrew).
 
 AutoLang appears in the Start menu, starts with Windows, and shows a green "A" icon next to the
 clock (click the ^ if it is hidden). Type "akuo " in Notepad with the English keyboard: it becomes
-"שלום ". Press Pause to undo a correction.
+"שלום ". Tap Shift twice to undo a correction.
 
 If the installer says the publisher is not trusted, step 1 went into the wrong store: repeat it and
 pick Local Machine and Trusted People.

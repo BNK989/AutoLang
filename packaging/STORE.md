@@ -120,7 +120,7 @@ Core
 
 M4 features
 - [ ] Notepad run as administrator: icon orange, one notice balloon per session, nothing typed there is touched.
-- [ ] Typing method: in some app switch to **Simulated keys**, then **Paste via clipboard**; corrections still
+- [ ] Compatibility for <app>: in some app switch to **Key presses**, then **Paste**; corrections still
       work. With Paste: copy an image first, trigger a correction, paste. The image comes back, and the corrected
       word is not in Win+V history.
 - [ ] Crash restart cannot be forced from outside: `taskkill` is not a crash, and Windows only restarts an app that
