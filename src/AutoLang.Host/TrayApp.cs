@@ -18,6 +18,7 @@ internal sealed class TrayApp : ApplicationContext
     private readonly LanguageManager _languages;
     private LanguagesForm? _languagesForm;
     private LogViewerForm? _logForm;
+    private WelcomeCard? _welcome;
     private readonly TrayMenuHeader _header;
     private readonly TrayMenuItem _pause, _disableApp, _typing, _typingHint, _swap, _fullscreen, _autoStart;
     private readonly TrayMenuItem[] _typingItems;
@@ -87,9 +88,70 @@ internal sealed class TrayApp : ApplicationContext
         _icon.MouseClick += (_, e) => { if (e.Button == MouseButtons.Left) TogglePause(); };
 
         _focus.StatusChanged += s => _ui.Post(_ => Refresh(s), null);
-        _corrector.Applied += _ => _ui.Post(_ => Refresh(_focus.Status), null);
+        _corrector.Applied += job => _ui.Post(_ => { Refresh(_focus.Status); if (job.Correction.Kind == CorrectionKind.Auto) FirstFixNotice(); }, null);
         _languages.Changed += () => _ui.Post(_ => { _header.Subtitle = LayoutSummary(); Refresh(_focus.Status); }, null);
         Refresh(_focus.Status);
+
+        // First run: AutoLang has no window, so say that it started and where it lives. Posted, so it shows once the
+        // message loop runs; not activated, so typing that is already under way keeps its focus.
+        if (!_settings.WelcomeShown)
+        {
+            lock (_settings) { _settings.WelcomeShown = true; _settings.Save(); }
+            _ui.Post(_ => ShowWelcome(activate: false), null);
+        }
+    }
+
+    /// <summary>Shows the welcome card again, from any thread: a second launch of AutoLang asks for it (Program).</summary>
+    public void RequestWelcome() => _ui.Post(_ => ShowWelcome(activate: true), null);
+
+    private void ShowWelcome(bool activate)
+    {
+        if (_welcome is { IsDisposed: false })
+        {
+            _welcome.Reload();
+            if (activate) _welcome.Activate();
+            return;
+        }
+        _welcome = new WelcomeCard(WelcomeContent, WelcomeAction, activate);
+        _welcome.FormClosed += (_, _) => { _welcome?.Dispose(); _welcome = null; };
+        _welcome.Present();
+    }
+
+    private void WelcomeAction()
+    {
+        if (_settings.Paused) TogglePause(quiet: true); // the card itself turns into "AutoLang is on"
+        else _welcome?.Dismiss();
+    }
+
+    private WelcomeModel WelcomeContent()
+    {
+        var active = _languages.Languages.Where(l => l.Active).Select(l => l.LangId).ToHashSet();
+        var example = WelcomeCard.Example(_languages.Installed.Where(t => active.Contains(t.LangId)));
+        string what = "Typed in the wrong keyboard layout? AutoLang fixes the word and switches the layout for you" +
+                      (example is null ? "." : ":");
+        if (_settings.Paused)
+            return new("AutoLang is paused", "Nothing is corrected until you resume", what, IconArt.Paused, "Resume", example);
+        if (!_controller.CanCorrect)
+        {
+            bool downloading = _languages.Languages.Any(l => l.Active && l.State == WordListState.Downloading);
+            return downloading
+                ? new("AutoLang is getting ready", "Downloading word lists…", what, IconArt.Paused, "Got it", example)
+                : new("AutoLang is idle", "Needs word lists for two alphabets",
+                    "Open Languages… from the tray menu to choose which keyboards AutoLang works with.", IconArt.Paused, "Got it", null);
+        }
+        return new("AutoLang is on", "Running in the background", what, IconArt.Brand, "Got it", example);
+    }
+
+    /// <summary>
+    /// Once ever, after the first automatic fix: a word changing by itself is startling the first time, so say who did
+    /// it and how to take it back. Never names the word.
+    /// </summary>
+    private void FirstFixNotice()
+    {
+        if (_settings.FirstFixNoticeShown) return;
+        lock (_settings) { _settings.FirstFixNoticeShown = true; _settings.Save(); }
+        _icon.ShowBalloonTip(6000, "That was AutoLang",
+            "It fixed a word typed in the wrong keyboard layout. To undo, tap Shift twice right away.", ToolTipIcon.None);
     }
 
     private void Refresh(FocusStatus s)
@@ -109,6 +171,7 @@ internal sealed class TrayApp : ApplicationContext
         _icon.Icon = _settings.Paused || !_controller.CanCorrect ? _grey : s.Blocked ? _orange : _green;
         var tip = $"AutoLang: {state}{app}\n{_corrector.AppliedCount} corrections this session\nClick to {(_settings.Paused ? "resume" : "pause")}";
         _icon.Text = tip.Length > 127 ? tip[..127] : tip;
+        _welcome?.Reload();
     }
 
     private void RefreshMenu()
@@ -166,7 +229,9 @@ internal sealed class TrayApp : ApplicationContext
         _languagesForm.Show();
     }
 
-    private void TogglePause()
+    private void TogglePause() => TogglePause(quiet: false);
+
+    private void TogglePause(bool quiet)
     {
         _settings.Paused = !_settings.Paused;
         _settings.Save();
@@ -175,6 +240,7 @@ internal sealed class TrayApp : ApplicationContext
         Refresh(_focus.Status);
         Log.Info(_settings.Paused ? "paused by user" : "resumed by user");
         // The icon only changes colour, which is easy to miss: say what happened and how to undo it.
+        if (quiet) return;
         if (_settings.Paused)
             _icon.ShowBalloonTip(3000, "AutoLang is paused", "Nothing is corrected until you click the tray icon again.", ToolTipIcon.None);
         else
@@ -261,6 +327,7 @@ internal sealed class TrayApp : ApplicationContext
         _icon.Visible = false;
         _languagesForm?.Close();
         _logForm?.Close();
+        _welcome?.Close();
         _onExit();
         ExitThread();
     }

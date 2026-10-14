@@ -12,6 +12,12 @@ public sealed class Settings
 
     public bool Paused { get; set; }
 
+    /// <summary>The welcome card (<see cref="WelcomeCard"/>) has been shown once; a second launch still brings it back.</summary>
+    public bool WelcomeShown { get; set; }
+
+    /// <summary>The one-time "That was AutoLang" notice after the first automatic fix has been shown.</summary>
+    public bool FirstFixNoticeShown { get; set; }
+
     /// <summary>Skip borderless-fullscreen windows (games, video). PLAN.md §6 default exclusion.</summary>
     public bool SkipFullscreen { get; set; } = true;
 

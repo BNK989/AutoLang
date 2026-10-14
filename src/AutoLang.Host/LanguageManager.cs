@@ -73,6 +73,9 @@ internal sealed class LanguageManager : IDisposable
         DownloadMissing();
     }
 
+    /// <summary>Every installed keyboard, active or not and with or without a word list.</summary>
+    public IReadOnlyList<KeyboardLayoutTable> Installed => _tables;
+
     public IReadOnlyList<LanguageInfo> Languages
     {
         get

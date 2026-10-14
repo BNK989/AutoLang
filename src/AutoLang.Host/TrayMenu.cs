@@ -66,11 +66,17 @@ internal static class TrayMenu
 
     private static void ApplyFrame(ToolStripDropDown dd)
     {
-        if (!Win11 || dd.Renderer is not TrayMenuRenderer r) return;
+        if (dd.Renderer is TrayMenuRenderer r) ApplyFrame(dd.Handle, r.Theme);
+    }
+
+    /// <summary>Rounded corners and a theme border drawn by DWM (Windows 11; no-op before). Also used by <see cref="WelcomeCard"/>.</summary>
+    internal static void ApplyFrame(IntPtr hwnd, MenuTheme theme)
+    {
+        if (!Win11) return;
         int round = DWMWCP_ROUND;
-        DwmSetWindowAttribute(dd.Handle, DWMWA_WINDOW_CORNER_PREFERENCE, ref round, sizeof(int));
-        int border = ColorTranslator.ToWin32(r.Theme.Border);
-        DwmSetWindowAttribute(dd.Handle, DWMWA_BORDER_COLOR, ref border, sizeof(int));
+        DwmSetWindowAttribute(hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, ref round, sizeof(int));
+        int border = ColorTranslator.ToWin32(theme.Border);
+        DwmSetWindowAttribute(hwnd, DWMWA_BORDER_COLOR, ref border, sizeof(int));
     }
 
     /// <summary>Windows 11 draws the rounded frame and border; Windows 10 keeps square corners and our own border.</summary>

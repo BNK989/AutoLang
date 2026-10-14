@@ -9,6 +9,9 @@ internal static class Program
     /// <summary>Passed back to us by Windows when it restarts AutoLang after a crash or hang.</summary>
     private const string RestartedArg = "--restarted";
 
+    /// <summary>Set by a second launch to make the running instance show its welcome card.</summary>
+    private const string ShowEventName = @"Local\AutoLang.Host.Show";
+
     [STAThread]
     private static int Main(string[] args)
     {
@@ -17,9 +20,19 @@ internal static class Program
         if (!first)
         {
             if (restarted) return 2; // the user (or start at login) beat Windows to it: nothing to say
-            MessageBox.Show("AutoLang is already running (look for the icon in the tray).", "AutoLang", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            // Launching it again is how people look for an app with no window: answer with the card at the tray.
+            try
+            {
+                using var running = EventWaitHandle.OpenExisting(ShowEventName);
+                running.Set();
+            }
+            catch (Exception) // an older version without the event is running
+            {
+                MessageBox.Show("AutoLang is already running (look for the icon in the tray).", "AutoLang", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
             return 2;
         }
+        using var show = new EventWaitHandle(false, EventResetMode.AutoReset, ShowEventName);
 
         Log.Init();
         if (restarted) Log.Warn("restarted by Windows after a crash or hang");
@@ -105,7 +118,9 @@ internal static class Program
         controller.ExceptionsAdded += () => ThreadPool.QueueUserWorkItem(_ => SaveExceptions()); // raised on the hook thread: no disk I/O there
 
         using var tray = new TrayApp(settings, controller, focus, corrector, languages, onExit: () => Log.Info("exit by user"));
+        var showWait = ThreadPool.RegisterWaitForSingleObject(show, (_, _) => tray.RequestWelcome(), null, Timeout.Infinite, executeOnlyOnce: false);
         Application.Run(tray);
+        showWait.Unregister(null);
         return 0;
     }
 }
