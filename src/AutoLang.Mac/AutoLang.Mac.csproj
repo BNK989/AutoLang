@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- The macOS menu bar host. Same engine and session as the Windows tray host; only the OS edges differ:
+       a CGEventTap instead of the low-level hook, UCKeyTranslate instead of ToUnicodeEx, CGEventPost instead of
+       SendInput, TISSelectInputSource instead of WM_INPUTLANGCHANGEREQUEST, NSStatusItem instead of the tray icon.
+       Plain net8.0 with P/Invoke into the system frameworks, so it compiles anywhere; it only runs on macOS.
+       packaging/mac/build-app.sh publishes it and wraps it in AutoLang.app. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <RootNamespace>AutoLang.Mac</RootNamespace>
+    <AssemblyName>AutoLang</AssemblyName>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <Version>0.5.0</Version>
+    <RuntimeIdentifiers>osx-arm64;osx-x64</RuntimeIdentifiers>
+    <InvariantGlobalization>false</InvariantGlobalization>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AutoLang.Engine\AutoLang.Engine.csproj" />
+    <ProjectReference Include="..\AutoLang.Session\AutoLang.Session.csproj" />
+  </ItemGroup>
+
+  <!-- Bundled word lists, the same resources the Windows host embeds. -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\data\words\*.txt" LogicalName="words/%(Filename)%(Extension)" />
+  </ItemGroup>
+
+</Project>
