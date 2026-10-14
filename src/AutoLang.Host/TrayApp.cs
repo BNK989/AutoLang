@@ -19,6 +19,7 @@ internal sealed class TrayApp : ApplicationContext
     private LanguagesForm? _languagesForm;
     private LogViewerForm? _logForm;
     private WelcomeCard? _welcome;
+    private StatusFlyout? _status;
     private readonly TrayMenuHeader _header;
     private readonly TrayMenuItem _pause, _disableApp, _typing, _typingHint, _swap, _fullscreen, _autoStart;
     private readonly TrayMenuItem[] _typingItems;
@@ -106,15 +107,17 @@ internal sealed class TrayApp : ApplicationContext
 
     private void ShowWelcome(bool activate)
     {
-        if (_welcome is { IsDisposed: false })
+        _status?.Dismiss();
+        if (_welcome is { IsDisposed: false, IsClosing: false })
         {
             _welcome.Reload();
             if (activate) _welcome.Activate();
             return;
         }
-        _welcome = new WelcomeCard(WelcomeContent, WelcomeAction, activate);
-        _welcome.FormClosed += (_, _) => { _welcome?.Dispose(); _welcome = null; };
-        _welcome.Present();
+        var card = new WelcomeCard(WelcomeContent, WelcomeAction, activate);
+        card.FormClosed += (_, _) => { card.Dispose(); if (_welcome == card) _welcome = null; };
+        _welcome = card;
+        card.Present();
     }
 
     private void WelcomeAction()
@@ -172,6 +175,7 @@ internal sealed class TrayApp : ApplicationContext
         var tip = $"AutoLang: {state}{app}\n{_corrector.AppliedCount} corrections this session\nClick to {(_settings.Paused ? "resume" : "pause")}";
         _icon.Text = tip.Length > 127 ? tip[..127] : tip;
         _welcome?.Reload();
+        _status?.Reload();
     }
 
     private void RefreshMenu()
@@ -239,12 +243,29 @@ internal sealed class TrayApp : ApplicationContext
         _focus.Poke();
         Refresh(_focus.Status);
         Log.Info(_settings.Paused ? "paused by user" : "resumed by user");
-        // The icon only changes colour, which is easy to miss: say what happened and how to undo it.
-        if (quiet) return;
-        if (_settings.Paused)
-            _icon.ShowBalloonTip(3000, "AutoLang is paused", "Nothing is corrected until you click the tray icon again.", ToolTipIcon.None);
-        else
-            _icon.ShowBalloonTip(3000, "AutoLang is on", "Fixing words typed in the wrong layout again.", ToolTipIcon.None);
+        // The icon only changes colour, which is easy to miss: say what happened and how to undo it. The welcome card,
+        // when it is up, already says so itself.
+        if (quiet || _welcome is not null) return;
+        ShowStatus();
+    }
+
+    private void ShowStatus()
+    {
+        if (_status is { IsDisposed: false, IsClosing: false }) { _status.Restart(); return; }
+        var flyout = new StatusFlyout(StatusContent);
+        flyout.FormClosed += (_, _) => { flyout.Dispose(); if (_status == flyout) _status = null; };
+        _status = flyout;
+        flyout.Present();
+    }
+
+    private StatusModel StatusContent()
+    {
+        if (_settings.Paused) return new("AutoLang is paused", "Click the tray icon to resume", IconArt.Paused);
+        if (!_controller.CanCorrect)
+            return _languages.Languages.Any(l => l.Active && l.State == WordListState.Downloading)
+                ? new("AutoLang is getting ready", "Downloading word lists…", IconArt.Paused)
+                : new("AutoLang is idle", "Needs word lists for two alphabets", IconArt.Paused);
+        return new("AutoLang is on", "Fixing words typed in the wrong layout", IconArt.Brand);
     }
 
     private string PauseText() => _settings.Paused ? "Resume AutoLang" : "Pause AutoLang";
@@ -328,6 +349,7 @@ internal sealed class TrayApp : ApplicationContext
         _languagesForm?.Close();
         _logForm?.Close();
         _welcome?.Close();
+        _status?.Close();
         _onExit();
         ExitThread();
     }

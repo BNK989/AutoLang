@@ -1,9 +1,7 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using AutoLang.Engine;
-using Microsoft.Win32;
 
 namespace AutoLang.Host;
 
@@ -12,50 +10,33 @@ internal sealed record WelcomeModel(string Title, string Subtitle, string Body, 
 
 /// <summary>
 /// The first-run card, also shown when AutoLang is launched while it is already running. AutoLang has no window, so
-/// without it nothing says that it started, what it does, or where it went. A small Windows 11-style flyout at the
-/// notification area: an example built from the user's own keyboards, the two things worth knowing (Shift twice, click
-/// to pause) and where Windows hides new tray icons. Painted by hand in the tray menu's colors; only the two buttons
-/// are controls, for focus, keyboard and screen readers.
+/// without it nothing says that it started, what it does, or where it went: an example built from the user's own
+/// keyboards, the two things worth knowing (Shift twice, click to pause) and where Windows hides new tray icons.
+/// Painted by hand; only the two buttons are controls, for focus, keyboard and screen readers.
 /// </summary>
-internal sealed class WelcomeCard : Form
+internal sealed class WelcomeCard : TrayFlyout
 {
     private readonly Func<WelcomeModel> _model;
     private readonly Action _primary;
     private readonly bool _activate;
     private readonly CardButton _action, _close;
-    private readonly System.Windows.Forms.Timer _timer = new() { Interval = 10 };
     private WelcomeModel _m;
-    private MenuTheme _theme = MenuTheme.Current();
-    private CardFonts? _f;
+    private long _actionChanged = long.MinValue / 2;
 
     // Layout in client pixels at the current DPI (Relayout).
     private Rectangle _markBox, _titleBox, _subtitleBox, _bodyBox, _panel, _tipUndo, _tipPause, _tipHidden, _footer;
 
-    // Placement and the open / close animation.
-    private Rectangle _workArea;
-    private bool _right = true, _bottom = true;
-    private long _animStart;
-    private bool _closing;
-
-    private const int OpenMs = 220, CloseMs = 120;
     private const TextFormatFlags Line = TextFormatFlags.NoPrefix | TextFormatFlags.SingleLine | TextFormatFlags.EndEllipsis | TextFormatFlags.VerticalCenter;
     private const TextFormatFlags Wrap = TextFormatFlags.NoPrefix | TextFormatFlags.WordBreak | TextFormatFlags.TextBoxControl;
     private const TextFormatFlags Run = TextFormatFlags.NoPrefix | TextFormatFlags.SingleLine | TextFormatFlags.NoPadding | TextFormatFlags.VerticalCenter;
 
-    public WelcomeCard(Func<WelcomeModel> model, Action primary, bool activate)
+    public WelcomeCard(Func<WelcomeModel> model, Action primary, bool activate) : base(activate)
     {
         _model = model;
         _primary = primary;
         _activate = activate;
         _m = model();
-        Text = "AutoLang";
-        FormBorderStyle = FormBorderStyle.None;
-        ShowInTaskbar = false;
-        StartPosition = FormStartPosition.Manual;
-        AutoScaleMode = AutoScaleMode.None;
         KeyPreview = true;
-        DoubleBuffered = true;
-        BackColor = _theme.Back;
 
         _action = new CardButton(this, accent: true);
         _action.Click += (_, _) => Primary();
@@ -63,85 +44,21 @@ internal sealed class WelcomeCard : Form
         _close.Click += (_, _) => Dismiss();
         Controls.Add(_action);
         Controls.Add(_close);
-
-        _timer.Tick += (_, _) => Animate();
-        SystemEvents.UserPreferenceChanged += OnUserPreferenceChanged;
-    }
-
-    internal MenuTheme Theme => _theme;
-    internal CardFonts Fonts => _f!;
-
-    /// <summary>A card that pops up by itself must not take the keyboard from whatever the user is typing in.</summary>
-    protected override bool ShowWithoutActivation => !_activate;
-
-    protected override CreateParams CreateParams
-    {
-        get
-        {
-            var cp = base.CreateParams;
-            cp.ClassStyle |= CS_DROPSHADOW;
-            cp.ExStyle |= WS_EX_TOOLWINDOW | WS_EX_TOPMOST; // no Alt+Tab entry; stays above the window the user works in
-            return cp;
-        }
-    }
-
-    /// <summary>Places the card at the notification area and slides it in.</summary>
-    public void Present()
-    {
-        FindTray();
-        Location = _workArea.Location; // create the window on the tray's monitor, so DeviceDpi is that monitor's
-        _ = Handle;
-        Relayout();
-        var rest = RestingPlace();
-        if (Animations())
-        {
-            Opacity = 0;
-            Location = rest with { Y = rest.Y + SlideOffset() };
-            _animStart = Environment.TickCount64;
-            _timer.Start();
-        }
-        else Location = rest;
-        Show();
-        if (_activate) { Activate(); _action.Focus(); }
     }
 
     /// <summary>Rereads the model (pause, word lists arriving) and keeps the card anchored at the tray.</summary>
     public void Reload()
     {
-        if (IsDisposed || _closing) return;
+        if (IsDisposed || IsClosing) return;
         _m = _model();
-        Relayout();
-        if (!_timer.Enabled) Location = RestingPlace();
-        Invalidate(true);
+        Reflow();
     }
 
-    /// <summary>Fades out and closes.</summary>
-    public void Dismiss()
+    protected override void OnShown(EventArgs e)
     {
-        if (_closing || IsDisposed) return;
-        _closing = true;
-        if (!Animations() || !Visible) { Close(); return; }
-        _animStart = Environment.TickCount64;
-        _timer.Start();
+        base.OnShown(e);
+        if (_activate) _action.Focus();
     }
-
-    private void Animate()
-    {
-        double t = Math.Min(1, (Environment.TickCount64 - _animStart) / (double)(_closing ? CloseMs : OpenMs));
-        if (_closing)
-        {
-            Opacity = 1 - t;
-            if (t >= 1) { _timer.Stop(); Close(); }
-            return;
-        }
-        double k = 1 - Math.Pow(1 - t, 3); // ease-out cubic
-        var rest = RestingPlace();
-        Location = rest with { Y = rest.Y + (int)Math.Round((1 - k) * SlideOffset()) };
-        Opacity = k;
-        if (t >= 1) { _timer.Stop(); Location = rest; Opacity = 1; }
-    }
-
-    private int SlideOffset() => _bottom ? S(12) : -S(12);
 
     /// <summary>
     /// "Resume" turns into "Got it" under the pointer: the second half of a double-click must not close the card the
@@ -153,57 +70,11 @@ internal sealed class WelcomeCard : Form
         _primary();
     }
 
-    private long _actionChanged = long.MinValue / 2;
-
-    // ---- placement ----
-
-    /// <summary>
-    /// Which corner of which screen the tray is in. The notification area is at the right end of a bottom taskbar
-    /// normally, at the left end with a right-to-left Windows language, and at the bottom of a side taskbar.
-    /// </summary>
-    private void FindTray()
-    {
-        Rectangle? tray = null;
-        var taskbar = Native.FindWindowW("Shell_TrayWnd", null);
-        if (taskbar != 0)
-        {
-            var notify = Native.FindWindowExW(taskbar, 0, "TrayNotifyWnd", null);
-            if (Native.GetWindowRect(notify != 0 ? notify : taskbar, out var r) && r.right > r.left)
-                tray = Rectangle.FromLTRB(r.left, r.top, r.right, r.bottom);
-        }
-        var screen = tray is { } t ? Screen.FromRectangle(t) : Screen.PrimaryScreen ?? Screen.AllScreens[0];
-        _workArea = screen.WorkingArea;
-        var b = screen.Bounds;
-        var c = tray is { } tr ? new Point(tr.Left + tr.Width / 2, tr.Top + tr.Height / 2) : new Point(b.Right, b.Bottom);
-        _right = c.X >= b.Left + b.Width / 2;
-        _bottom = c.Y >= b.Top + b.Height / 2;
-    }
-
-    private Point RestingPlace()
-    {
-        int m = S(12); // Windows 11 flyouts keep 12 px from the taskbar and the screen edge
-        return new Point(
-            _right ? _workArea.Right - Width - m : _workArea.Left + m,
-            _bottom ? _workArea.Bottom - Height - m : _workArea.Top + m);
-    }
-
-    protected override void OnDpiChanged(DpiChangedEventArgs e)
-    {
-        base.OnDpiChanged(e);
-        Relayout();
-        if (!_timer.Enabled) Location = RestingPlace();
-        Invalidate(true);
-    }
-
     // ---- layout and painting ----
 
-    private int S(int px) => TrayMenu.Scale(this, px);
-
-    private void Relayout()
+    protected override void Relayout()
     {
-        _f?.Dispose();
-        _f = new CardFonts(DeviceDpi);
-        var f = _f;
+        var f = Fonts;
         int w = S(368), pad = S(24);
 
         _markBox = new Rectangle(pad, pad, S(40), S(40));
@@ -239,13 +110,11 @@ internal sealed class WelcomeCard : Form
         AccessibleDescription = $"{_m.Subtitle}. {_m.Body}";
     }
 
-    private static int TextHeight(Font f) => TextRenderer.MeasureText("Ag", f, Size.Empty, TextFormatFlags.NoPadding).Height + 2;
-
     protected override void OnPaint(PaintEventArgs e)
     {
         var g = e.Graphics;
-        var f = _f!;
-        var t = _theme;
+        var f = Fonts;
+        var t = Theme;
         g.SmoothingMode = SmoothingMode.AntiAlias;
         g.PixelOffsetMode = PixelOffsetMode.HighQuality;
         bool dark = t == MenuTheme.Dark;
@@ -266,15 +135,14 @@ internal sealed class WelcomeCard : Form
             g.FillRectangle(band, _footer);
         using (var rule = new Pen(t.Separator)) g.DrawLine(rule, _footer.Left, _footer.Top, _footer.Right, _footer.Top);
 
-        if (!TrayMenu.FrameByDwm) // Windows 10: square corners and no DWM border
-            using (var border = new Pen(t.Border)) g.DrawRectangle(border, 0, 0, ClientSize.Width - 1, ClientSize.Height - 1);
+        PaintBorder(g);
     }
 
     /// <summary>"akuo → שלום": what the keys typed, and what AutoLang turns it into.</summary>
     private void PaintExample(Graphics g, string typed, string fixedText, bool dark)
     {
-        var f = _f!;
-        var t = _theme;
+        var f = Fonts;
+        var t = Theme;
         using (var path = Rounded(_panel, S(8)))
         using (var fill = new SolidBrush(dark ? Color.FromArgb(56, 56, 56) : Color.FromArgb(240, 240, 240)))
             g.FillPath(fill, path);
@@ -310,7 +178,7 @@ internal sealed class WelcomeCard : Form
     private void PaintTip(Graphics g, Rectangle row, string? icon, Font font, Color color, params object[] parts)
     {
         int iconSize = S(16), cy = row.Top + row.Height / 2;
-        if (icon is not null) MenuIcons.Draw(g, icon, new Rectangle(row.Left, cy - iconSize / 2, iconSize, iconSize), _theme.Secondary);
+        if (icon is not null) MenuIcons.Draw(g, icon, new Rectangle(row.Left, cy - iconSize / 2, iconSize, iconSize), Theme.Secondary);
         int x = row.Left + S(30), space = S(5);
         foreach (var part in parts)
         {
@@ -337,8 +205,9 @@ internal sealed class WelcomeCard : Form
     /// <summary>A key as Windows draws it in its own tips: a light cap with a heavier bottom edge. "^" is the hidden-icons chevron.</summary>
     private int PaintKeycap(Graphics g, string label, int x, int cy)
     {
-        var f = _f!;
-        bool dark = _theme == MenuTheme.Dark;
+        var f = Fonts;
+        var theme = Theme;
+        bool dark = theme == MenuTheme.Dark;
         bool chevron = label == "^";
         int h = S(24);
         int w = chevron ? S(28) : Math.Max(S(28), TextRenderer.MeasureText(g, label, f.Key, Size.Empty, Run).Width + S(16));
@@ -356,26 +225,14 @@ internal sealed class WelcomeCard : Form
         if (chevron)
         {
             float cx = r.Left + r.Width / 2f, my = r.Top + r.Height / 2f, a = S(8) / 2f;
-            using var pen = new Pen(_theme.Text, Math.Max(1.2f, S(3) / 2f)) { StartCap = LineCap.Round, EndCap = LineCap.Round, LineJoin = LineJoin.Round };
+            using var pen = new Pen(theme.Text, Math.Max(1.2f, S(3) / 2f)) { StartCap = LineCap.Round, EndCap = LineCap.Round, LineJoin = LineJoin.Round };
             g.DrawLines(pen, new[] { new PointF(cx - a, my + a / 2), new PointF(cx, my - a / 2), new PointF(cx + a, my + a / 2) });
         }
-        else TextRenderer.DrawText(g, label, f.Key, r, _theme.Text, Run | TextFormatFlags.HorizontalCenter);
+        else TextRenderer.DrawText(g, label, f.Key, r, theme.Text, Run | TextFormatFlags.HorizontalCenter);
         return w;
     }
 
-    internal static GraphicsPath Rounded(RectangleF r, float radius)
-    {
-        var p = new GraphicsPath();
-        float d = Math.Min(radius * 2, Math.Min(r.Width, r.Height));
-        p.AddArc(r.X, r.Y, d, d, 180, 90);
-        p.AddArc(r.Right - d, r.Y, d, d, 270, 90);
-        p.AddArc(r.Right - d, r.Bottom - d, d, d, 0, 90);
-        p.AddArc(r.X, r.Bottom - d, d, d, 90, 90);
-        p.CloseFigure();
-        return p;
-    }
-
-    // ---- input, theme, lifetime ----
+    // ---- input ----
 
     protected override bool ProcessDialogKey(Keys keyData)
     {
@@ -383,48 +240,6 @@ internal sealed class WelcomeCard : Form
         if (keyData == Keys.Enter) { Primary(); return true; }
         return base.ProcessDialogKey(keyData);
     }
-
-    protected override void OnHandleCreated(EventArgs e)
-    {
-        base.OnHandleCreated(e);
-        TrayMenu.ApplyFrame(Handle, _theme);
-    }
-
-    private void OnUserPreferenceChanged(object? sender, UserPreferenceChangedEventArgs e)
-    {
-        if (!IsHandleCreated || IsDisposed) return;
-        BeginInvoke(() =>
-        {
-            var theme = MenuTheme.Current();
-            if (theme == _theme || IsDisposed) return;
-            _theme = theme;
-            BackColor = theme.Back;
-            TrayMenu.ApplyFrame(Handle, theme);
-            Invalidate(true);
-        });
-    }
-
-    protected override void OnFormClosed(FormClosedEventArgs e)
-    {
-        SystemEvents.UserPreferenceChanged -= OnUserPreferenceChanged;
-        _timer.Stop();
-        base.OnFormClosed(e);
-    }
-
-    protected override void Dispose(bool disposing)
-    {
-        if (disposing) { _timer.Dispose(); _f?.Dispose(); }
-        base.Dispose(disposing);
-    }
-
-    /// <summary>Respects "Animation effects" in Windows settings.</summary>
-    private static bool Animations() => !SystemParametersInfoW(SPI_GETCLIENTAREAANIMATION, 0, out int on, 0) || on != 0;
-
-    private const int CS_DROPSHADOW = 0x20000, WS_EX_TOOLWINDOW = 0x80, WS_EX_TOPMOST = 0x8;
-    private const uint SPI_GETCLIENTAREAANIMATION = 0x1042;
-
-    [DllImport("user32.dll")]
-    private static extern bool SystemParametersInfoW(uint uiAction, uint uiParam, out int pvParam, uint fWinIni);
 
     // ---- the example ----
 
@@ -461,52 +276,16 @@ internal sealed class WelcomeCard : Form
     }
 }
 
-/// <summary>The card's type ramp (Windows 11: subtitle 20, body 14, caption 12), in pixels at the window's DPI.</summary>
-internal sealed class CardFonts : IDisposable
-{
-    public readonly Font Title, Body, Caption, Button, Key, ExampleTyped, ExampleFixed;
-
-    public CardFonts(int dpi)
-    {
-        float k = dpi / 96f;
-        Font F(string face, float px) => new(face, px * k, FontStyle.Regular, GraphicsUnit.Pixel);
-        Title = F(DisplaySemibold, 20);
-        Body = F(TextRegular, 14);
-        Caption = F(TextRegular, 12);
-        Button = F(TextSemibold, 14);
-        Key = F(TextSemibold, 12);
-        ExampleTyped = F(DisplayRegular, 22);
-        ExampleFixed = F(DisplaySemibold, 22);
-    }
-
-    // Segoe UI Variable is Windows 11's UI font; Windows 10 has only Segoe UI.
-    private static readonly string DisplaySemibold = Face("Segoe UI Variable Display Semib", "Segoe UI Semibold");
-    private static readonly string DisplayRegular = Face("Segoe UI Variable Display", "Segoe UI");
-    private static readonly string TextRegular = Face("Segoe UI Variable Text", "Segoe UI");
-    private static readonly string TextSemibold = Face("Segoe UI Variable Text Semibold", "Segoe UI Semibold");
-
-    private static string Face(string preferred, string fallback)
-    {
-        try { using var family = new FontFamily(preferred); return preferred; }
-        catch (ArgumentException) { return fallback; }
-    }
-
-    public void Dispose()
-    {
-        foreach (var f in new[] { Title, Body, Caption, Button, Key, ExampleTyped, ExampleFixed }) f.Dispose();
-    }
-}
-
 /// <summary>The card's two buttons: the accent action ("Got it", "Resume") and the close glyph.</summary>
 internal sealed class CardButton : Control
 {
-    private readonly WelcomeCard _card;
+    private readonly TrayFlyout _card;
     private readonly bool _accent;
     private bool _hover, _pressed;
 
     public string? Icon { get; init; }
 
-    public CardButton(WelcomeCard card, bool accent)
+    public CardButton(TrayFlyout card, bool accent)
     {
         _card = card;
         _accent = accent;
@@ -552,7 +331,7 @@ internal sealed class CardButton : Control
             // Parent is the card; the area around the face shows the footer band, so paint it first.
             using (var back = new SolidBrush(theme == MenuTheme.Dark ? Color.FromArgb(32, 32, 32) : Color.FromArgb(243, 243, 243)))
                 g.FillRectangle(back, ClientRectangle);
-            using (var path = WelcomeCard.Rounded(face, 4 * s))
+            using (var path = TrayFlyout.Rounded(face, 4 * s))
             using (var fill = new SolidBrush(_pressed ? AccentPressed : _hover ? AccentHover : Accent))
                 g.FillPath(fill, path);
             TextRenderer.DrawText(g, Text, Font, Rectangle.Round(face), _pressed ? Color.FromArgb(220, 255, 255, 255) : Color.White,
@@ -562,7 +341,7 @@ internal sealed class CardButton : Control
         {
             using (var back = new SolidBrush(theme.Back)) g.FillRectangle(back, ClientRectangle);
             if (_hover || _pressed)
-                using (var path = WelcomeCard.Rounded(face, 4 * s))
+                using (var path = TrayFlyout.Rounded(face, 4 * s))
                 using (var fill = new SolidBrush(_pressed ? theme.Separator : theme.Hover))
                     g.FillPath(fill, path);
             int icon = (int)Math.Round(12 * s);
@@ -571,7 +350,7 @@ internal sealed class CardButton : Control
         }
 
         if (Focused && ShowFocusCues) // Windows 11 focus visual: a 2 px ring in the text color around the face
-            using (var ring = WelcomeCard.Rounded(RectangleF.Inflate(face, 2 * s, 2 * s), 6 * s))
+            using (var ring = TrayFlyout.Rounded(RectangleF.Inflate(face, 2 * s, 2 * s), 6 * s))
             using (var pen = new Pen(theme.Text, 2 * s))
                 g.DrawPath(pen, ring);
     }
