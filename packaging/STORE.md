@@ -63,8 +63,8 @@ step). Website: https://bnk989.github.io/AutoLang/.
 
 **Everything else** (age rating answers, description, features, search terms, screenshots and captions, the
 `runFullTrust` note for certification): copy it from [`store/LISTING.md`](store/LISTING.md). The screenshots are
-`store/screenshot-1.png` .. `screenshot-4.png`, rendered from `store/screenshots.html` by
-`store/render-screenshots.ps1`.
+`store/screenshots/<code>/screenshot-1.png` .. `screenshot-4.png`, one folder per UI language, rendered from
+`store/screenshots.html` by `store/render-screenshots.ps1`.
 
 Certification takes from a few hours to a few days. Later updates: bump `<Version>`, rebuild with `-Store`,
 and upload it as a new submission.

@@ -3,8 +3,9 @@
 <head>
 <meta charset="utf-8">
 <title>AutoLang Store screenshots</title>
-<!-- Source of the Microsoft Store screenshots (1366x768). render-screenshots.ps1 opens this page once per slide
-     (#1 .. #4) in headless Edge. ui-*.png are AutoLang's own windows, drawn off-screen with Control.DrawToBitmap. -->
+<!-- Source of the Microsoft Store screenshots (1366x768). render-screenshots.ps1 opens this page once per language and
+     slide (?lang=xx#1 .. #4) in headless Edge. The words come from screenshot-strings.js; ui/<lang>-*.png are AutoLang's
+     own windows in that language, drawn off-screen by tools/AutoLang.Screens. -->
 <style>
   :root { --ink: #1b1d1a; --muted: #5d625a; --line: #e3e5de; --accent: #1f8a4c; --soft: #e4f3e9; --wrong: #b4442f; }
   * { box-sizing: border-box; }
@@ -26,7 +27,7 @@
   /* The window's own caption, as Windows 11 draws it (the off-screen capture has the client area only). */
   .shot.win { background: #f0f0f0; outline: 1px solid rgba(0,0,0,.12); }
   .caption { height: 32px; background: #fff; display: flex; align-items: center; justify-content: space-between; line-height: 1;
-    font: 12px "Segoe UI", sans-serif; color: #1b1b1b; padding-left: 12px; }
+    font: 12px "Segoe UI", sans-serif; color: #1b1b1b; padding-inline-start: 12px; }
   .caption .x { width: 46px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 11px; }
 
   /* slide 1: an editor before and after */
@@ -48,10 +49,16 @@
 
   /* slide 4: the privacy checklist */
   .checks { list-style: none; margin: 0; padding: 32px 36px; background: #fff; border-radius: 14px; width: 640px; box-shadow: 0 2px 6px rgba(20,24,18,.08), 0 24px 60px rgba(20,24,18,.12); }
-  .checks li { position: relative; padding: 13px 0 13px 40px; font-size: 21px; line-height: 1.4; border-bottom: 1px solid var(--line); }
+  .checks li { position: relative; padding: 13px 0; padding-inline-start: 40px; font-size: 21px; line-height: 1.4; border-bottom: 1px solid var(--line); }
   .checks li:last-child { border-bottom: 0; }
-  .checks li::before { content: ""; position: absolute; left: 0; top: 18px; width: 22px; height: 22px; border-radius: 50%; background: var(--soft); box-shadow: inset 0 0 0 7px var(--accent); }
+  .checks li::before { content: ""; position: absolute; inset-inline-start: 0; top: 18px; width: 22px; height: 22px; border-radius: 50%; background: var(--soft); box-shadow: inset 0 0 0 7px var(--accent); }
   .checks b { font-weight: 650; }
+
+  /* Arabic script joins letters, so no tracking; Hebrew and Arabic have no capitals to force. */
+  html[dir=rtl] h1, html[dir=rtl] .label { letter-spacing: 0; text-transform: none; }
+  /* The editor mock is a left-to-right strip of mixed scripts in every language. */
+  .editor { direction: ltr; }
+  .label span, .editor .bar span { unicode-bidi: plaintext; text-align: left; }
 </style>
 </head>
 <body>
@@ -59,15 +66,14 @@
 <section class="slide" id="s1">
   <div>
     <div class="brand"><img src="../../docs/icon.png" alt="">AutoLang</div>
-    <h1>Typed in the wrong layout? Already fixed.</h1>
-    <p class="sub">AutoLang notices a word typed with the wrong keyboard, retypes it in the right alphabet and switches
-      the keyboard for you, in any app.</p>
+    <h1 data-h="0"></h1>
+    <p class="sub" data-s="0"></p>
   </div>
   <div class="visual">
     <div class="editor">
-      <div class="bar"><span>Any app you type in</span><span class="pill">ENG ⇄ HEB</span></div>
+      <div class="bar"><span data-t="any"></span><span class="pill">ENG ⇄ HEB</span></div>
       <div class="rows">
-        <div class="label"><span>You typed</span><span></span><span>AutoLang wrote</span></div>
+        <div class="label"><span data-t="typed"></span><span></span><span data-t="wrote"></span></div>
         <div class="row"><span class="from">akuo</span><span class="arrow">→</span><span class="to" dir="rtl" style="text-align:left">שלום</span></div>
         <div class="row"><span class="from" dir="rtl" style="text-align:left">יקךךם</span><span class="arrow">→</span><span class="to">hello</span></div>
         <div class="row"><span class="from">ghbdtn</span><span class="arrow">→</span><span class="to">привет</span></div>
@@ -80,13 +86,12 @@
 <section class="slide" id="s2">
   <div>
     <div class="brand"><img src="../../docs/icon.png" alt="">AutoLang</div>
-    <h1>Lives in the tray, out of your way</h1>
-    <p class="sub">Pause it, turn it off for one app, or tap <kbd>Shift</kbd> twice to undo a fix, and AutoLang remembers
-      that word. The icon shows when it is watching.</p>
+    <h1 data-h="1"></h1>
+    <p class="sub" data-s="1"></p>
   </div>
   <div class="visual">
     <div class="tray">
-      <div class="shot menu"><img src="ui-tray-menu.png" alt="AutoLang tray menu"></div>
+      <div class="shot menu"><img data-ui="tray-menu" alt="AutoLang tray menu"></div>
       <div class="taskbar"><span>ENG</span><span>12:30</span><img src="../../docs/icon.png" alt=""></div>
     </div>
   </div>
@@ -95,14 +100,13 @@
 <section class="slide" id="s3">
   <div>
     <div class="brand"><img src="../../docs/icon.png" alt="">AutoLang</div>
-    <h1>Works with the keyboards you have</h1>
-    <p class="sub">Any two alphabets: Hebrew, Russian, Greek, Arabic and more, next to English. Choose which keyboards
-      it uses and which it may switch to.</p>
+    <h1 data-h="2"></h1>
+    <p class="sub" data-s="2"></p>
   </div>
   <div class="visual">
     <div class="shot win">
-      <div class="caption"><span>AutoLang — Languages</span><span class="x">✕</span></div>
-      <img src="ui-languages.png" alt="AutoLang Languages window">
+      <div class="caption"><span data-t="caption"></span><span class="x">✕</span></div>
+      <img data-ui="languages" alt="AutoLang Languages window">
     </div>
   </div>
 </section>
@@ -110,24 +114,35 @@
 <section class="slide" id="s4">
   <div>
     <div class="brand"><img src="../../docs/icon.png" alt="">AutoLang</div>
-    <h1>Nothing you type leaves your PC</h1>
-    <p class="sub">A tool that sees your keystrokes has to earn trust. These are design rules, and the source code is
-      public so anyone can check them.</p>
+    <h1 data-h="3"></h1>
+    <p class="sub" data-s="3"></p>
   </div>
   <div class="visual">
-    <ul class="checks">
-      <li><b>No account, no analytics, no telemetry.</b></li>
-      <li><b>Only the current line is kept</b>, in memory, and dropped on Enter, click or window switch.</li>
-      <li><b>Password fields are skipped</b>, along with terminals, remote desktops and VMs.</li>
-      <li><b>The log never contains text</b>, only counts and timings.</li>
-      <li><b>Free and open source.</b></li>
-    </ul>
+    <ul class="checks"></ul>
   </div>
 </section>
 
+<script src="screenshot-strings.js"></script>
 <script>
+  var lang = (location.search.match(/[?&]lang=([a-z]+)/) || [0, 'en'])[1];
+  var T = STRINGS[lang] || STRINGS.en;
   var n = (location.hash || '#1').slice(1);
-  document.getElementById('s' + n).classList.add('on');
+  var slide = document.getElementById('s' + n);
+  var q = function (sel) { return Array.prototype.slice.call(slide.querySelectorAll(sel)); };
+
+  document.documentElement.lang = lang;
+  document.documentElement.dir = T.dir;
+  q('[data-h]').forEach(function (e) { e.textContent = T.h[e.dataset.h]; });
+  q('[data-s]').forEach(function (e) { e.innerHTML = T.s[e.dataset.s]; });
+  q('[data-t]').forEach(function (e) { e.textContent = T[e.dataset.t]; });
+  q('[data-ui]').forEach(function (e) { e.src = 'ui/' + lang + '-' + e.dataset.ui + '.png'; });
+  q('.checks').forEach(function (ul) { ul.innerHTML = T.checks.map(function (c) { return '<li>' + c + '</li>'; }).join(''); });
+  slide.classList.add('on');
+
+  // Long translations: shrink the headline, then the sub line, until the text column fits the slide.
+  var col = slide.firstElementChild, h1 = col.querySelector('h1'), sub = col.querySelector('.sub');
+  for (var px = 50; px > 32 && h1.scrollHeight > px * 1.08 * 3.2; px -= 2) h1.style.fontSize = px + 'px';
+  for (var sp = 22; sp > 17 && col.scrollHeight > 640; sp -= 1) sub.style.fontSize = sp + 'px';
 </script>
 </body>
 </html>

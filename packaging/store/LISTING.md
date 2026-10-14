@@ -78,12 +78,20 @@ Nothing you type is stored or sent anywhere
 Free and open source
 ```
 
-**Screenshots** (Desktop; upload in this order, `packaging/store/screenshot-N.png`, 1366×768). Captions:
+**Screenshots** (Desktop; upload in this order, 1366×768). One set per UI language, in
+`packaging/store/screenshots/<code>/screenshot-1.png` .. `screenshot-4.png`, with `<code>` one of `en he ar fa ru uk bg el
+de es fr pt it`. In Partner Center add each language's listing (Store listings → Add/remove languages) and upload that
+language's folder to it; languages without their own listing show the English set. The slide headline is the caption;
+English captions:
 
 1. `Typed in the wrong layout? Already fixed.`
-2. `Lives in the tray, out of your way.`
-3. `Works with the keyboards you have.`
-4. `Nothing you type leaves your PC.`
+2. `Lives in the tray, out of your way`
+3. `Works with the keyboards you have`
+4. `Nothing you type leaves your PC`
+
+Each language folder also has a `captions.txt` with its four captions, one per line in upload order (UTF-8). The menu and window in each set are
+AutoLang's real UI in that language (right to left for he, ar, fa). The listing text itself is still English; the
+screenshots are the only localized part so far.
 
 **Store logos:** 1:1 app tile icon `packaging/store-300x300.png`. Box art and poster art: none.
 
@@ -132,7 +140,16 @@ Required for a low-level keyboard hook (WH_KEYBOARD_LL), SendInput and keyboard 
 
 ## Regenerating the screenshots
 
-`screenshots.html` is the source. `render-screenshots.ps1` renders each slide with headless Edge; nothing appears on
-screen. `ui-languages.png` (the Languages window, client area only; the page draws the title bar) and
-`ui-tray-menu.png` are AutoLang's own UI drawn off-screen with `Control.DrawToBitmap`. Redraw them by hand when that
-UI changes.
+```powershell
+.\packaging\store\render-screenshots.ps1                  # all 13 languages, 52 PNGs
+.\packaging\store\render-screenshots.ps1 -Languages he,ru # just those
+```
+
+For each language the script runs `tools/AutoLang.Screens`, which starts AutoLang's own tray menu and Languages window in
+that UI language (`AUTOLANG_UI`) and draws them off-screen with `Control.DrawToBitmap` into `ui/<code>-tray-menu.png`
+and `ui/<code>-languages.png` (client area only; the page draws the title bar). It then renders the four slides of
+`screenshots.html` with headless Edge into `screenshots/<code>/`. Nothing appears on screen, and a running AutoLang.exe
+does not get in the way (the tool builds into `%TEMP%`). The words on the slides come from `screenshot-strings.js`; a
+new UI language needs an entry there, and the script picks it up. Rerun after any change to the menu, the Languages
+window or the strings. The translations other than he, ar, ru, el and uk were written for this file and want a native
+reader.

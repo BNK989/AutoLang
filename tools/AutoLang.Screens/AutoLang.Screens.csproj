@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Draws the real tray menu and Languages window, in one UI language, off-screen into PNGs that
+       packaging/store/screenshots.html composes into the Store screenshots. It references the tray host (which lets
+       this assembly see its internals) and gives it the same two keyboards every time, so the pictures do not depend on
+       the PC they are made on.
+       Usage: AutoLang.Screens <ui-code> <output-dir>   (one process per language: UiText cannot be reset)
+       packaging/store/render-screenshots.ps1 runs it for every language. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWindowsForms>true</UseWindowsForms>
+    <RootNamespace>AutoLang.Screens</RootNamespace>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\AutoLang.Host\AutoLang.Host.csproj" />
+  </ItemGroup>
+
+</Project>

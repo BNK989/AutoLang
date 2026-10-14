@@ -37,6 +37,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- tools/AutoLang.Screens draws the tray menu and Languages window for the Store screenshots. -->
+    <InternalsVisibleTo Include="AutoLang.Screens" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\AutoLang.Engine\AutoLang.Engine.csproj" />
     <ProjectReference Include="..\AutoLang.Session\AutoLang.Session.csproj" />
   </ItemGroup>
