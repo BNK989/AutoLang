@@ -1,0 +1,173 @@
+<!doctype html>
+<!-- Unlisted page for Mac testers. Nothing links here and search engines are asked not to index it. Hand-written, not generated. -->
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>AutoLang for Mac: tester build</title>
+<link rel="icon" href="../icon.png">
+<link rel="stylesheet" href="../style.css">
+<style>
+  .cta { margin: 20px 0 6px; }
+  .cmd { position: relative; margin: 12px 0; }
+  .cmd pre {
+    margin: 0; padding: 14px 16px; padding-inline-end: 84px; overflow-x: auto;
+    background: var(--code-bg); border-radius: 10px;
+    font: 14px/1.6 ui-monospace, "Cascadia Mono", Consolas, monospace;
+  }
+  .cmd button {
+    position: absolute; top: 8px; inset-inline-end: 8px; font: inherit; font-size: 13px;
+    padding: 4px 10px; border-radius: 7px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  }
+  .prose ol li, .prose ul li { margin-bottom: 8px; }
+  .prose .tldr ul { margin: 8px 0 0; padding-inline-start: 20px; }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../"><img src="../icon.png" alt="">AutoLang</a>
+    <nav>
+      <a href="../privacy.html">Privacy</a>
+      <a class="hide-sm" href="https://github.com/BNK989/AutoLang">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main class="prose">
+  <div class="wrap narrow">
+    <h1>AutoLang for Mac: tester build</h1>
+    <p class="updated">Version 0.5.0 · early test build · 14 October 2026</p>
+
+    <p>AutoLang fixes text you typed in the wrong keyboard layout. Type <code>akuo</code> with the English layout active
+      and it becomes <code>שלום</code>, and macOS switches to Hebrew. It lives in the menu bar and has no Dock icon.</p>
+
+    <div class="tldr">
+      <p><strong>Thanks for testing.</strong> Before you start:</p>
+      <ul>
+        <li>This build is <strong>unsigned</strong>. macOS will not open it until you run one Terminal command, below.</li>
+        <li>It needs <strong>macOS 12 (Monterey) or later</strong>.</li>
+        <li>Setup takes about five minutes. Testing takes as long as you like.</li>
+      </ul>
+    </div>
+
+    <h2 id="download">1. Download the right zip</h2>
+    <p>Open the Apple menu → <strong>About This Mac</strong> and look at the second line:</p>
+    <ul>
+      <li><strong>Chip: Apple M1, M2, M3, M4…</strong> → the Apple silicon download.</li>
+      <li><strong>Processor: Intel…</strong> → the Intel download.</li>
+    </ul>
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/BNK989/AutoLang/releases/download/mac-v0.5.0-test/AutoLang-0.5.0-mac-arm64.zip">Download for Apple silicon</a>
+      <a class="btn" href="https://github.com/BNK989/AutoLang/releases/download/mac-v0.5.0-test/AutoLang-0.5.0-mac-x64.zip">Download for Intel</a>
+    </div>
+    <p class="fine">About 30 MB each. Safari may unzip it for you; if it does, you get <code>AutoLang.app</code> in
+      Downloads straight away.</p>
+
+    <h2 id="install">2. Install</h2>
+    <ol>
+      <li>Double-click the zip if it is still zipped. You get <code>AutoLang.app</code>.</li>
+      <li>Drag <code>AutoLang.app</code> into <strong>Applications</strong>.</li>
+      <li>Open <strong>Terminal</strong> (Applications → Utilities), paste these two lines, and press Return:
+        <div class="cmd"><pre><code>xattr -cr /Applications/AutoLang.app
+codesign --force --deep --sign - /Applications/AutoLang.app</code></pre><button type="button">Copy</button></div>
+        The first line removes the "downloaded from the internet" flag. The second signs the app for this Mac only,
+        because Apple silicon Macs refuse to run unsigned apps at all. Neither asks for a password, and both print
+        nothing when they work (the second may print <code>replacing existing signature</code>, which is fine).
+      </li>
+      <li>Open AutoLang from Applications. A keyboard icon appears in the menu bar, near the clock.</li>
+    </ol>
+    <p class="note">If macOS still says the app "is damaged" or "can't be opened", the two lines did not run on the
+      copy in Applications. Run them again and check that the path matches where you put the app.</p>
+
+    <h2 id="permission">3. Give it permission</h2>
+    <p>AutoLang has to see your keystrokes and retype words, so macOS asks for <strong>Accessibility</strong>
+      permission.</p>
+    <ol>
+      <li>On the prompt, click <strong>Open System Settings</strong>. You can also use the menu bar icon →
+        <strong>Grant Accessibility permission…</strong></li>
+      <li>Turn on <strong>AutoLang</strong> in Privacy &amp; Security → Accessibility.</li>
+      <li>Within a couple of seconds the menu bar icon changes from ⚠︎ to a keyboard. If it doesn't, quit AutoLang from
+        its menu and open it again.</li>
+    </ol>
+    <p>Some macOS versions also ask for <strong>Input Monitoring</strong>. If they do, allow that as well.</p>
+    <p class="note"><strong>When you install a newer build</strong>, macOS treats it as a different app. Before you open
+      it, go to Accessibility, select AutoLang, remove it with <strong>−</strong>, then add it again with
+      <strong>+</strong> (or let the prompt add it). Run the two Terminal lines again too.</p>
+
+    <h2 id="try">4. What to expect, and what to try</h2>
+    <p>You need both an <strong>English</strong> and a <strong>Hebrew</strong> keyboard in System Settings → Keyboard →
+      Input Sources. Use the plain "Hebrew" layout, not "Hebrew – QWERTY". The AutoLang menu shows
+      <code>English ⇄ עברית</code> when both are there.</p>
+    <ol>
+      <li>Open TextEdit or Notes.</li>
+      <li>With the <strong>English</strong> layout active, type <code>akuo</code> and then a space. It should become
+        <code>שלום </code> and the layout should switch to Hebrew.</li>
+      <li>With the <strong>Hebrew</strong> layout active, press the keys h-e-l-l-o and then a space
+        (<code>יקךךם</code>). It should become <code>hello </code>.</li>
+      <li>Right after a correction, <strong>tap Shift twice quickly</strong> to undo it. AutoLang remembers that word and
+        leaves it alone from then on.</li>
+      <li>To convert a word that was not corrected, tap Shift twice before you type the space.</li>
+    </ol>
+    <p>Then use it normally for a while. Good places to try:</p>
+    <ul>
+      <li>Chat apps: Messages, WhatsApp, Slack, Telegram.</li>
+      <li>A text field in Safari or Chrome, and a Google Doc.</li>
+      <li>Pressing Enter right after a mistyped word, instead of a space.</li>
+      <li>Typing fast, and mixing English and Hebrew in one sentence.</li>
+    </ul>
+    <p>AutoLang does nothing in password fields. Real words in the layout you are using are left alone, so most of the
+      time you should not notice it at all.</p>
+
+    <h2 id="report">5. Report back</h2>
+    <p>Please send:</p>
+    <ul>
+      <li>Your Mac model, chip, and macOS version.</li>
+      <li>What worked, what didn't, and in which apps. A word that was changed when it shouldn't have been (or the other
+        way round) is the most useful thing you can tell me.</li>
+      <li>The log: menu bar icon → <strong>Open log folder</strong>, then send <code>host.log</code>. It records timing
+        and which app was in front. It never records what you typed.</li>
+    </ul>
+    <p>You can send it however you like, or open an issue on
+      <a href="https://github.com/BNK989/AutoLang/issues">GitHub</a>.</p>
+
+    <h2 id="rough">Known rough edges</h2>
+    <ul>
+      <li>The menu is in English only. The Windows version follows the system language.</li>
+      <li>If the Mac is very busy, macOS may switch AutoLang's keyboard watcher off for a moment. AutoLang turns it
+        straight back on, but a word typed during that moment is not corrected. <code>host.log</code> then shows
+        "timed out".</li>
+      <li><strong>Start at login</strong> works on macOS 13 and later. macOS may ask you to approve it in System Settings
+        → General → Login Items.</li>
+    </ul>
+
+    <h2 id="uninstall">Uninstall</h2>
+    <p>Quit AutoLang from its menu, then drag it from Applications to the Trash and remove it from Privacy &amp; Security
+      → Accessibility. To remove its settings and logs too, delete these two folders:</p>
+    <div class="cmd"><pre><code>rm -rf ~/Library/Application\ Support/AutoLang ~/Library/Logs/AutoLang</code></pre><button type="button">Copy</button></div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>AutoLang · MIT licensed</span>
+    <span><a href="../">Home</a> · <a href="https://github.com/BNK989/AutoLang/issues">Report an issue</a> · <a href="https://github.com/BNK989/AutoLang">GitHub</a></span>
+  </div>
+</footer>
+<script>
+(function () {
+  // Copy buttons on the Terminal commands.
+  document.querySelectorAll('.cmd button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var text = b.parentNode.querySelector('code').textContent;
+      function done() { b.textContent = 'Copied'; setTimeout(function () { b.textContent = 'Copy'; }, 1500); }
+      if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, function () {});
+    });
+  });
+})();
+</script>
+</body>
+</html>
