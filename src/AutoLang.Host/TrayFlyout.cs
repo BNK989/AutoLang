@@ -165,6 +165,27 @@ internal abstract class TrayFlyout : Form
 
     protected static int TextHeight(Font f) => TextRenderer.MeasureText("Ag", f, Size.Empty, TextFormatFlags.NoPadding).Height + 2;
 
+    /// <summary>The width of one line of text as <see cref="TextRenderer"/> draws it, padding included.</summary>
+    protected static int Measure(string s, Font f) => TextRenderer.MeasureText(s, f, Size.Empty, TextFormatFlags.NoPrefix | TextFormatFlags.SingleLine).Width;
+
+    /// <summary>
+    /// The width both flyouts share: 368 px (at 96 DPI), as in English, or wider where the UI language's longest
+    /// title, subtitle or tip needs it, up to 480; past that the text ends in "…". The same in every state, so the
+    /// flyout never jumps when the state changes.
+    /// </summary>
+    protected int CardWidth()
+        => Math.Clamp(Math.Max(WelcomeCard.NeededWidth(Fonts, S), StatusFlyout.NeededWidth(Fonts, S)), S(368), S(480));
+
+    // ---- right to left (Hebrew, Arabic, Persian) ----
+
+    protected static bool Rtl => UiText.Current.RightToLeft;
+
+    /// <summary>Right-aligned, right-to-left reading order, in a right-to-left UI language.</summary>
+    protected static TextFormatFlags Dir => Rtl ? TextFormatFlags.RightToLeft | TextFormatFlags.Right : 0;
+
+    /// <summary>The content is laid out left to right; this mirrors a box in a flyout <paramref name="width"/> wide.</summary>
+    protected static Rectangle Mirror(Rectangle r, int width) => Rtl ? r with { X = width - r.Right } : r;
+
     /// <summary>Windows 10 has square corners and no DWM border: draw a hairline instead.</summary>
     protected void PaintBorder(Graphics g)
     {
@@ -239,14 +260,18 @@ internal sealed class CardFonts : IDisposable
     {
         float k = dpi / 96f;
         Font F(string face, float px) => new(face, px * k, FontStyle.Regular, GraphicsUnit.Pixel);
-        Title = F(DisplaySemibold, 20);
-        Body = F(TextRegular, 14);
-        Strong = F(TextSemibold, 14);
-        Caption = F(TextRegular, 12);
-        Button = F(TextSemibold, 14);
-        Key = F(TextSemibold, 12);
-        ExampleTyped = F(DisplayRegular, 22);
-        ExampleFixed = F(DisplaySemibold, 22);
+        // Segoe UI Variable has no Hebrew or Arabic letters; Segoe UI has both.
+        bool plain = UiText.Current.RightToLeft;
+        string displaySemibold = plain ? "Segoe UI Semibold" : DisplaySemibold, displayRegular = plain ? "Segoe UI" : DisplayRegular;
+        string textRegular = plain ? "Segoe UI" : TextRegular, textSemibold = plain ? "Segoe UI Semibold" : TextSemibold;
+        Title = F(displaySemibold, 20);
+        Body = F(textRegular, 14);
+        Strong = F(textSemibold, 14);
+        Caption = F(textRegular, 12);
+        Button = F(textSemibold, 14);
+        Key = F(textSemibold, 12);
+        ExampleTyped = F(displayRegular, 22);
+        ExampleFixed = F(displaySemibold, 22);
     }
 
     // Segoe UI Variable is Windows 11's UI font; Windows 10 has only Segoe UI.

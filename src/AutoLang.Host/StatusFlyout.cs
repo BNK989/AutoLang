@@ -38,7 +38,7 @@ internal sealed class StatusFlyout : TrayFlyout
         _m = model();
         _hold.Tick += (_, _) => { _hold.Stop(); Dismiss(); };
         _fade.Tick += (_, _) => Fade();
-        _close = new CardButton(this, accent: false) { Icon = "dismiss", AccessibleName = "Close", TabStop = false };
+        _close = new CardButton(this, accent: false) { Icon = "dismiss", AccessibleName = UiText.Current.Close, TabStop = false };
         _close.Click += (_, _) => Dismiss();
         _close.MouseLeave += (_, _) => HoldUnlessHovered();
         Controls.Add(_close);
@@ -109,16 +109,17 @@ internal sealed class StatusFlyout : TrayFlyout
     {
         var f = Fonts;
         // The welcome card's width, the same in every state: the flyout never jumps when the state changes.
-        int w = S(368), pad = S(16), mark = S(32), gap = S(12);
+        int w = CardWidth(), pad = S(16), mark = S(32), gap = S(12);
         int titleH = TextHeight(f.Strong), subH = TextHeight(f.Body);
         int h = pad + Math.Max(mark, titleH + subH) + pad;
 
-        _markBox = new Rectangle(pad, (h - mark) / 2, mark, mark);
-        int tx = _markBox.Right + gap, ty = (h - titleH - subH) / 2;
+        var markBox = new Rectangle(pad, (h - mark) / 2, mark, mark);
+        int tx = markBox.Right + gap, ty = (h - titleH - subH) / 2;
         int textRight = w - S(8) - S(32) - S(4); // clear of the close button
-        _titleBox = new Rectangle(tx, ty, textRight - tx, titleH);
-        _subtitleBox = new Rectangle(tx, ty + titleH, textRight - tx, subH);
-        _close.Bounds = new Rectangle(w - S(8) - S(32), S(8), S(32), S(32));
+        _markBox = Mirror(markBox, w);
+        _titleBox = Mirror(new Rectangle(tx, ty, textRight - tx, titleH), w);
+        _subtitleBox = Mirror(new Rectangle(tx, ty + titleH, textRight - tx, subH), w);
+        _close.Bounds = Mirror(new Rectangle(w - S(8) - S(32), S(8), S(32), S(32)), w);
 
         ClientSize = new Size(w, h);
         AccessibleName = _m.Title;
@@ -147,8 +148,18 @@ internal sealed class StatusFlyout : TrayFlyout
         g.SmoothingMode = SmoothingMode.AntiAlias;
         g.PixelOffsetMode = PixelOffsetMode.HighQuality;
         using (var bmp = IconArt.Render(_markBox.Width, m.Mark)) g.DrawImage(bmp, _markBox);
-        TextRenderer.DrawText(g, m.Title, f.Strong, _titleBox, t.Text, Line);
-        TextRenderer.DrawText(g, m.Subtitle, f.Body, _subtitleBox, t.Secondary, Line);
+        TextRenderer.DrawText(g, m.Title, f.Strong, _titleBox, t.Text, Line | Dir);
+        TextRenderer.DrawText(g, m.Subtitle, f.Body, _subtitleBox, t.Secondary, Line | Dir);
+    }
+
+    /// <summary>What the longest state needs in the UI language (see <see cref="TrayFlyout.CardWidth"/>).</summary>
+    internal static int NeededWidth(CardFonts f, Func<int, int> S)
+    {
+        var t = UiText.Current;
+        int text = Math.Max(
+            new[] { t.PausedTitle, t.ReadyingTitle, t.IdleTitle, t.OnTitle }.Max(s => Measure(s, f.Strong)),
+            new[] { t.PausedHowToResume, t.DownloadingWordLists, t.NeedsTwoAlphabets, t.OnWhatItDoes }.Max(s => Measure(s, f.Body)));
+        return S(16) + S(32) + S(12) + text + S(4) + S(32) + S(8);
     }
 
     protected override void OnMouseEnter(EventArgs e) { _hold.Stop(); base.OnMouseEnter(e); }

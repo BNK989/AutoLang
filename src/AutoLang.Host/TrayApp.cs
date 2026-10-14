@@ -28,6 +28,8 @@ internal sealed class TrayApp : ApplicationContext
     private readonly SynchronizationContext _ui;
     private readonly Action _onExit;
 
+    private static UiText T => UiText.Current;
+
     public TrayApp(Settings settings, SessionController controller, FocusMonitor focus, Corrector corrector, LanguageManager languages, Action onExit)
     {
         _settings = settings;
@@ -43,44 +45,42 @@ internal sealed class TrayApp : ApplicationContext
         _orange = Draw(IconArt.Blocked);
 
         var menu = TrayMenu.Create();
-        _header = new TrayMenuHeader { Title = "Starting…", Subtitle = LayoutSummary() };
+        _header = new TrayMenuHeader { Title = T.Starting, Subtitle = LayoutSummary() };
         // ToolStrip draws a "\t" in the text as nothing; the shortcut column only shows ShortcutKeyDisplayString.
-        _pause = new TrayMenuItem(PauseText(), PauseIcon(), TogglePause) { ShortcutKeyDisplayString = "Click tray icon" };
-        _disableApp = new TrayMenuItem("Disable for this app", "prohibited", ToggleDisableApp) { Toggle = true };
+        _pause = new TrayMenuItem(PauseText(), PauseIcon(), TogglePause) { ShortcutKeyDisplayString = T.ClickTrayIcon };
+        _disableApp = new TrayMenuItem(T.DisableForThisApp, "prohibited", ToggleDisableApp) { Toggle = true };
         _typingItems = new[]
         {
-            TypingItem("Standard", "Recommended", TypingMethod.Unicode),
-            TypingItem("Key presses", "For games and remote desktops", TypingMethod.Keys),
-            TypingItem("Paste", "Uses the clipboard for a moment", TypingMethod.Paste),
+            TypingItem(T.TypingStandard, T.TypingStandardNote, TypingMethod.Unicode),
+            TypingItem(T.TypingKeys, T.TypingKeysNote, TypingMethod.Keys),
+            TypingItem(T.TypingPaste, T.TypingPasteNote, TypingMethod.Paste),
         };
         // Named for the problem it solves: the method only matters when an app mangles the default typing.
-        _typing = new TrayMenuItem("Compatibility for this app", "keyboard");
+        _typing = new TrayMenuItem(T.CompatibilityForThisApp, "keyboard");
         TrayMenu.Style((ToolStripDropDownMenu)_typing.DropDown);
         _typing.DropDownItems.AddRange(_typingItems);
         _typing.DropDownItems.Add(new TrayMenuSeparator());
         _typingHint = new TrayMenuItem("") { Enabled = false };
         _typing.DropDownItems.Add(_typingHint);
         // One item for both hotkey jobs: double-tapping Shift undoes a fresh correction or else converts (KeyboardHook.ShiftKey).
-        _swap = new TrayMenuItem("Switch what you just typed", "arrow_swap", () => HotkeyFromMenu(
-            "Tap Shift twice in the text field, right after typing, to switch the text to the other layout. " +
-            "Right after AutoLang fixes a word, it undoes the fix. (The Pause key also undoes, and Shift+Pause converts.)"))
-            { ShortcutKeyDisplayString = "Shift twice" };
-        _fullscreen = new TrayMenuItem("Skip fullscreen windows", "full_screen_maximize", ToggleFullscreen) { Toggle = true, Checked = settings.SkipFullscreen };
+        _swap = new TrayMenuItem(T.SwitchTyped, "arrow_swap", () => HotkeyFromMenu(T.SwitchTypedHow))
+            { ShortcutKeyDisplayString = T.ShiftTwice };
+        _fullscreen = new TrayMenuItem(T.SkipFullscreen, "full_screen_maximize", ToggleFullscreen) { Toggle = true, Checked = settings.SkipFullscreen };
         // Packaged, the start-at-login entry is the manifest's StartupTask, switched in Windows Settings (PLAN.md §5, M4).
         _autoStart = Native.IsPackaged
-            ? new TrayMenuItem("Start with Windows…", "rocket", OpenStartupSettings)
-            : new TrayMenuItem("Start with Windows", "rocket", ToggleAutoStart) { Toggle = true, Checked = StartupRegistration.IsEnabled() };
+            ? new TrayMenuItem(T.StartWithWindowsSettings, "rocket", OpenStartupSettings)
+            : new TrayMenuItem(T.StartWithWindows, "rocket", ToggleAutoStart) { Toggle = true, Checked = StartupRegistration.IsEnabled() };
         menu.Items.AddRange(new ToolStripItem[]
         {
             _header, new TrayMenuSeparator(),
             _pause, _disableApp, _typing, new TrayMenuSeparator(),
             _swap, new TrayMenuSeparator(),
-            new TrayMenuItem("Languages…", "local_language", ShowLanguages),
+            new TrayMenuItem(T.LanguagesMenu, "local_language", ShowLanguages),
             _fullscreen,
             _autoStart,
-            new TrayMenuItem(Native.IsPackaged ? "Show log" : "Open log file", "document_text", OpenLog),
+            new TrayMenuItem(Native.IsPackaged ? T.ShowLog : T.OpenLogFile, "document_text", OpenLog),
             new TrayMenuSeparator(),
-            new TrayMenuItem("Exit", "dismiss", Exit),
+            new TrayMenuItem(T.Exit, "dismiss", Exit),
         });
         menu.Opening += (_, _) => RefreshMenu();
 
@@ -130,19 +130,17 @@ internal sealed class TrayApp : ApplicationContext
     {
         var active = _languages.Languages.Where(l => l.Active).Select(l => l.LangId).ToHashSet();
         var example = WelcomeCard.Example(_languages.Installed.Where(t => active.Contains(t.LangId)));
-        string what = "Typed in the wrong keyboard layout? AutoLang fixes the word and switches the layout for you" +
-                      (example is null ? "." : ":");
+        string what = example is null ? T.WelcomeWhat : T.WelcomeWhatExample;
         if (_settings.Paused)
-            return new("AutoLang is paused", "Nothing is corrected until you resume", what, IconArt.Paused, "Resume", example);
+            return new(T.PausedTitle, T.WelcomePausedSubtitle, what, IconArt.Paused, T.Resume, example);
         if (!_controller.CanCorrect)
         {
             bool downloading = _languages.Languages.Any(l => l.Active && l.State == WordListState.Downloading);
             return downloading
-                ? new("AutoLang is getting ready", "Downloading word lists…", what, IconArt.Paused, "Got it", example)
-                : new("AutoLang is idle", "Needs word lists for two alphabets",
-                    "Open Languages… from the tray menu to choose which keyboards AutoLang works with.", IconArt.Paused, "Got it", null);
+                ? new(T.ReadyingTitle, T.DownloadingWordLists, what, IconArt.Paused, T.GotIt, example)
+                : new(T.IdleTitle, T.NeedsTwoAlphabets, T.WelcomeIdleBody, IconArt.Paused, T.GotIt, null);
         }
-        return new("AutoLang is on", "Running in the background", what, IconArt.Brand, "Got it", example);
+        return new(T.OnTitle, T.WelcomeOnSubtitle, what, IconArt.Brand, T.GotIt, example);
     }
 
     /// <summary>
@@ -153,8 +151,7 @@ internal sealed class TrayApp : ApplicationContext
     {
         if (_settings.FirstFixNoticeShown) return;
         lock (_settings) { _settings.FirstFixNoticeShown = true; _settings.Save(); }
-        _icon.ShowBalloonTip(6000, "That was AutoLang",
-            "It fixed a word typed in the wrong keyboard layout. To undo, tap Shift twice right away.", ToolTipIcon.None);
+        _icon.ShowBalloonTip(6000, T.FirstFixTitle, T.FirstFixBody, ToolTipIcon.None);
     }
 
     private void Refresh(FocusStatus s)
@@ -163,16 +160,18 @@ internal sealed class TrayApp : ApplicationContext
         {
             // Once per session: the orange icon alone does not say why nothing gets corrected here.
             _adminNoticeShown = true;
-            _icon.ShowBalloonTip(6000, "AutoLang can't help in this window",
-                $"{AppName(s.Process)} is running as administrator, and Windows does not let ordinary apps read or type into it. " +
-                "AutoLang keeps working everywhere else.", ToolTipIcon.Info);
+            _icon.ShowBalloonTip(6000, T.AdminTitle, UiText.F(T.AdminBody, AppName(s.Process)), ToolTipIcon.Info);
         }
-        string state = _settings.Paused ? "Paused" : !_controller.CanCorrect ? "Idle: needs two alphabets" : s.Blocked ? $"Blocked: {s.Reason}" : "Watching";
+        string state = _settings.Paused ? T.StatePaused
+            : !_controller.CanCorrect ? T.StateIdle
+            : s.Blocked ? UiText.F(T.StateBlocked, T.Reason(s.Reason))
+            : T.StateWatching;
         string app = string.IsNullOrEmpty(s.Process) ? "" : $" — {AppName(s.Process)}";
         _header.Title = state + app;
         _header.Mark = _settings.Paused || !_controller.CanCorrect ? IconArt.Paused : s.Blocked ? IconArt.Blocked : IconArt.Brand;
         _icon.Icon = _settings.Paused || !_controller.CanCorrect ? _grey : s.Blocked ? _orange : _green;
-        var tip = $"AutoLang: {state}{app}\n{_corrector.AppliedCount} corrections this session\nClick to {(_settings.Paused ? "resume" : "pause")}";
+        var tip = $"AutoLang: {state}{app}\n{UiText.F(T.CorrectionsThisSession, _corrector.AppliedCount)}\n" +
+                  (_settings.Paused ? T.ClickToResume : T.ClickToPause);
         _icon.Text = tip.Length > 127 ? tip[..127] : tip;
         _welcome?.Reload();
         _status?.Reload();
@@ -183,11 +182,11 @@ internal sealed class TrayApp : ApplicationContext
         var p = _focus.Status.Process;
         bool hasApp = !string.IsNullOrEmpty(p) && !p.StartsWith("pid ") && !_settings.IsExcluded(p);
         _disableApp.Enabled = hasApp;
-        _disableApp.Text = hasApp ? $"Disable for {AppName(p)}" : "Disable for this app";
+        _disableApp.Text = hasApp ? UiText.F(T.DisableFor, AppName(p)) : T.DisableForThisApp;
         _disableApp.Checked = hasApp && _settings.IsDisabled(p);
         _typing.Enabled = hasApp;
-        _typing.Text = hasApp ? $"Compatibility for {AppName(p)}" : "Compatibility for this app";
-        _typingHint.Text = $"Try another option if fixes come out garbled in {(hasApp ? AppName(p) : "this app")}.";
+        _typing.Text = hasApp ? UiText.F(T.CompatibilityFor, AppName(p)) : T.CompatibilityForThisApp;
+        _typingHint.Text = hasApp ? UiText.F(T.TypingHintFor, AppName(p)) : T.TypingHintThisApp;
         TypingMethod current;
         lock (_settings) current = hasApp ? _settings.TypingMethodFor(p) : TypingMethod.Unicode;
         foreach (var item in _typingItems) item.Checked = (TypingMethod)item.Tag! == current;
@@ -212,9 +211,7 @@ internal sealed class TrayApp : ApplicationContext
         }
         Log.Info($"{p}: typing method {method.ToString().ToLowerInvariant()}");
         if (method == TypingMethod.Paste)
-            _icon.ShowBalloonTip(6000, "AutoLang",
-                $"Corrections in {AppName(p)} now go through the clipboard. Your copied content is put back right after each one " +
-                "and is never kept or sent anywhere.", ToolTipIcon.Info);
+            _icon.ShowBalloonTip(6000, "AutoLang", UiText.F(T.PasteNotice, AppName(p)), ToolTipIcon.Info);
     }
 
     /// <summary>Active languages grouped by alphabet, with any word list still on its way.</summary>
@@ -222,7 +219,7 @@ internal sealed class TrayApp : ApplicationContext
     {
         var summary = _languages.Summary();
         int downloading = _languages.Languages.Count(l => l.Active && l.State == WordListState.Downloading);
-        return downloading > 0 ? $"{summary}  (downloading {downloading} word list{(downloading == 1 ? "" : "s")})" : summary;
+        return downloading > 0 ? $"{summary}  ({UiText.F(T.WordListsDownloading, downloading)})" : summary;
     }
 
     private void ShowLanguages()
@@ -260,15 +257,15 @@ internal sealed class TrayApp : ApplicationContext
 
     private StatusModel StatusContent()
     {
-        if (_settings.Paused) return new("AutoLang is paused", "Click the tray icon to resume", IconArt.Paused);
+        if (_settings.Paused) return new(T.PausedTitle, T.PausedHowToResume, IconArt.Paused);
         if (!_controller.CanCorrect)
             return _languages.Languages.Any(l => l.Active && l.State == WordListState.Downloading)
-                ? new("AutoLang is getting ready", "Downloading word lists…", IconArt.Paused)
-                : new("AutoLang is idle", "Needs word lists for two alphabets", IconArt.Paused);
-        return new("AutoLang is on", "Fixing words typed in the wrong layout", IconArt.Brand);
+                ? new(T.ReadyingTitle, T.DownloadingWordLists, IconArt.Paused)
+                : new(T.IdleTitle, T.NeedsTwoAlphabets, IconArt.Paused);
+        return new(T.OnTitle, T.OnWhatItDoes, IconArt.Brand);
     }
 
-    private string PauseText() => _settings.Paused ? "Resume AutoLang" : "Pause AutoLang";
+    private string PauseText() => _settings.Paused ? T.ResumeAutoLang : T.PauseAutoLang;
 
     private string PauseIcon() => _settings.Paused ? "play" : "pause";
 
@@ -299,14 +296,14 @@ internal sealed class TrayApp : ApplicationContext
     {
         try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("ms-settings:startupapps") { UseShellExecute = true })?.Dispose(); }
         catch (Exception ex) { Log.Warn($"open startup settings: {ex.Message}"); return; }
-        _icon.ShowBalloonTip(5000, "AutoLang", "Turn AutoLang on or off in the list of startup apps.", ToolTipIcon.Info);
+        _icon.ShowBalloonTip(5000, "AutoLang", T.StartupAppsNotice, ToolTipIcon.Info);
     }
 
     private void ToggleAutoStart()
     {
         bool want = !StartupRegistration.IsEnabled();
         if (!StartupRegistration.SetEnabled(want))
-            _icon.ShowBalloonTip(4000, "AutoLang", "Could not change the startup setting.", ToolTipIcon.Warning);
+            _icon.ShowBalloonTip(4000, "AutoLang", T.StartupChangeFailed, ToolTipIcon.Warning);
         _autoStart.Checked = StartupRegistration.IsEnabled();
     }
 

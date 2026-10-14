@@ -16,11 +16,14 @@ internal sealed class LanguagesForm : Form
     private readonly SynchronizationContext _ui;
     private readonly Font _bold;
 
+    private static UiText T => UiText.Current;
+
     public LanguagesForm(LanguageManager languages)
     {
         _languages = languages;
         _ui = SynchronizationContext.Current ?? new WindowsFormsSynchronizationContext();
-        Text = "AutoLang — Languages";
+        Text = T.LanguagesTitle;
+        if (T.RightToLeft) { RightToLeft = RightToLeft.Yes; RightToLeftLayout = true; }
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = MinimizeBox = false;
         StartPosition = FormStartPosition.CenterScreen;
@@ -34,9 +37,7 @@ internal sealed class LanguagesForm : Form
         root.Controls.Add(new Label
         {
             AutoSize = true, MaximumSize = new Size(560, 0), Margin = new Padding(0, 0, 0, 10),
-            Text = "AutoLang fixes words typed in the wrong alphabet and switches the keyboard for you. Keyboards that share an " +
-                   "alphabet (English and German, say) are never switched between automatically; when a word belongs to that " +
-                   "alphabet, AutoLang picks the one you used last.",
+            Text = T.LanguagesIntro,
         });
 
         _grid = new TableLayoutPanel { AutoSize = true, ColumnCount = 5, Margin = new Padding(0, 0, 0, 8), CellBorderStyle = TableLayoutPanelCellBorderStyle.None };
@@ -46,14 +47,14 @@ internal sealed class LanguagesForm : Form
         _warning = new Label { AutoSize = true, MaximumSize = new Size(560, 0), ForeColor = Color.FromArgb(180, 90, 0), Margin = new Padding(0, 0, 0, 8) };
         root.Controls.Add(_warning);
 
-        _autoDownload = new CheckBox { AutoSize = true, Text = "Download missing word lists automatically (the only thing AutoLang ever fetches)" };
+        _autoDownload = new CheckBox { AutoSize = true, Text = T.AutoDownload, MaximumSize = new Size(560, 0) };
         root.Controls.Add(_autoDownload);
 
-        var attribution = new LinkLabel { AutoSize = true, Text = WordLists.Attribution, Margin = new Padding(0, 10, 0, 0) };
+        var attribution = new LinkLabel { AutoSize = true, Text = UiText.F(T.WordListsCredit, WordLists.Credit), Margin = new Padding(0, 10, 0, 0) };
         attribution.LinkClicked += (_, _) => OpenUrl(WordLists.AttributionUrl);
         root.Controls.Add(attribution);
 
-        var close = new Button { Text = "Close", AutoSize = true, Anchor = AnchorStyles.Right, Margin = new Padding(0, 12, 0, 0) };
+        var close = new Button { Text = T.Close, AutoSize = true, Anchor = AnchorStyles.Right, Margin = new Padding(0, 12, 0, 0) };
         close.Click += (_, _) => Close();
         root.Controls.Add(close);
         CancelButton = close;
@@ -73,7 +74,7 @@ internal sealed class LanguagesForm : Form
         _grid.RowStyles.Clear();
         _grid.RowCount = 0;
 
-        AddRow(Header("Keyboard"), Header("Alphabet"), Header("Word list"), Header("Use"), Header("Switch to it"));
+        AddRow(Header(T.ColumnKeyboard), Header(T.ColumnAlphabet), Header(T.ColumnWordList), Header(T.ColumnUse), Header(T.ColumnSwitchTo));
         foreach (var l in langs)
         {
             var use = new CheckBox { Checked = l.Active, AutoSize = true, Anchor = AnchorStyles.None };
@@ -81,7 +82,7 @@ internal sealed class LanguagesForm : Form
             var id = l.LangId;
             use.CheckedChanged += (_, _) => _languages.SetActive(id, use.Checked);
             to.CheckedChanged += (_, _) => _languages.SetNeverSwitchTo(id, !to.Checked);
-            AddRow(Cell(l.Name), Cell(l.Script), Status(l), use, to);
+            AddRow(Cell(l.Name), Cell(T.ScriptName(l.Script)), Status(l), use, to);
         }
         _grid.ResumeLayout();
 
@@ -94,8 +95,8 @@ internal sealed class LanguagesForm : Form
         int scripts = ready.Select(l => l.Script).Distinct().Count();
         int targets = ready.Where(l => !l.NeverSwitchTo).Select(l => l.Script).Distinct().Count();
         _warning.Text =
-            scripts < 2 ? "AutoLang is idle: it needs at least two different alphabets in use, each with a word list." :
-            targets == 0 ? "AutoLang is idle: every language is set to never switch to it." :
+            scripts < 2 ? T.WarnTwoAlphabets :
+            targets == 0 ? T.WarnNoTargets :
             "";
         _warning.Visible = _warning.Text.Length > 0;
     }
@@ -106,13 +107,13 @@ internal sealed class LanguagesForm : Form
     {
         string text = l.State switch
         {
-            WordListState.Ready => l.Downloaded ? "Ready (downloaded)" : "Ready",
-            WordListState.Downloading => "Downloading…",
-            WordListState.Unavailable => "Not available",
-            _ => l.Error ?? "Missing",
+            WordListState.Ready => l.Downloaded ? T.ListReadyDownloaded : T.ListReady,
+            WordListState.Downloading => T.ListDownloading,
+            WordListState.Unavailable => T.ListUnavailable,
+            _ => l.Error ?? T.ListMissing,
         };
         if (l.State != WordListState.Missing) return Cell(text);
-        var link = new LinkLabel { AutoSize = true, Text = $"{text} — download", Margin = new Padding(3, 6, 12, 3) };
+        var link = new LinkLabel { AutoSize = true, Text = UiText.F(T.ListDownloadLink, text), Margin = new Padding(3, 6, 12, 3) };
         link.LinkClicked += (_, _) => _languages.Download(l.LangId);
         return link;
     }

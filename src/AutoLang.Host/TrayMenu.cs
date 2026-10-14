@@ -39,6 +39,8 @@ internal static class TrayMenu
     public static ContextMenuStrip Create()
     {
         var menu = new ContextMenuStrip { ShowCheckMargin = false, ShowImageMargin = true, DropShadowEnabled = true };
+        // Hebrew, Arabic, Persian: icons on the right, switches and arrows on the left. Submenus inherit it.
+        if (UiText.Current.RightToLeft) menu.RightToLeft = RightToLeft.Yes;
         Style(menu);
         menu.Opening += (_, _) => ApplyTheme(menu, MenuTheme.Current());
         return menu;
@@ -167,16 +169,20 @@ internal sealed class TrayMenuHeader : ToolStripMenuItem
     {
         var theme = (Owner?.Renderer as TrayMenuRenderer)?.Theme ?? MenuTheme.Light;
         var g = e.Graphics;
+        bool rtl = RightToLeft == RightToLeft.Yes;
+        // Laid out left to right, then mirrored for a right-to-left menu.
+        Rectangle M(Rectangle r) => rtl ? r with { X = Width - r.Right } : r;
         int mark = S(28);
         using (var bmp = IconArt.Render(mark, _mark))
-            g.DrawImage(bmp, S(12), (Height - mark) / 2, mark, mark);
+            g.DrawImage(bmp, M(new Rectangle(S(12), (Height - mark) / 2, mark, mark)));
         int x = S(12) + mark + S(12);
         using var bold = TitleFont();
         int line = TextRenderer.MeasureText("Ag", bold).Height;
         int y = (Height - 2 * line) / 2;
-        const TextFormatFlags flags = TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis | TextFormatFlags.SingleLine;
-        TextRenderer.DrawText(g, _title, bold, new Rectangle(x, y, Width - x - S(8), line), theme.Text, flags);
-        TextRenderer.DrawText(g, _subtitle, Font, new Rectangle(x, y + line, Width - x - S(8), line), theme.Secondary, flags);
+        var flags = TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis | TextFormatFlags.SingleLine |
+                    (rtl ? TextFormatFlags.RightToLeft | TextFormatFlags.Right : 0);
+        TextRenderer.DrawText(g, _title, bold, M(new Rectangle(x, y, Width - x - S(8), line)), theme.Text, flags);
+        TextRenderer.DrawText(g, _subtitle, Font, M(new Rectangle(x, y + line, Width - x - S(8), line)), theme.Secondary, flags);
     }
 }
 
@@ -217,7 +223,9 @@ internal sealed class TrayMenuRenderer(MenuTheme theme) : ToolStripRenderer
     private void DrawSwitch(Graphics g, TrayMenuItem item, ToolStrip? ts)
     {
         int w = S(ts, 36), h = S(ts, 18);
-        var r = new RectangleF(item.Width - S(ts, 16) - w, (item.Height - h) / 2f, w, h);
+        // On the right, or on the left in a right-to-left menu. The switch itself is not mirrored: on is still to the right.
+        float left = item.RightToLeft == RightToLeft.Yes ? S(ts, 16) : item.Width - S(ts, 16) - w;
+        var r = new RectangleF(left, (item.Height - h) / 2f, w, h);
         g.SmoothingMode = SmoothingMode.AntiAlias;
         using var track = Rounded(r, h / 2f);
         if (item.Checked)
@@ -273,7 +281,8 @@ internal sealed class TrayMenuRenderer(MenuTheme theme) : ToolStripRenderer
         using var pen = new Pen(e.Item?.Enabled == false ? Theme.Disabled : Theme.Secondary, Math.Max(1, S(e.Item?.Owner, 1)))
             { StartCap = LineCap.Round, EndCap = LineCap.Round, LineJoin = LineJoin.Round };
         e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-        e.Graphics.DrawLines(pen, new[] { new PointF(cx - s / 2, cy - s), new PointF(cx + s / 2, cy), new PointF(cx - s / 2, cy + s) });
+        float dir = e.Item?.RightToLeft == RightToLeft.Yes ? -1 : 1; // submenus open to the left in a right-to-left menu
+        e.Graphics.DrawLines(pen, new[] { new PointF(cx - dir * s / 2, cy - s), new PointF(cx + dir * s / 2, cy), new PointF(cx - dir * s / 2, cy + s) });
     }
 
     protected override void OnRenderSeparator(ToolStripSeparatorRenderEventArgs e)

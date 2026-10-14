@@ -126,7 +126,7 @@ internal sealed class LanguageManager : IDisposable
     public string Summary()
     {
         var (_, tables, _) = Build();
-        if (tables.Length == 0) return "No languages ready";
+        if (tables.Length == 0) return UiText.Current.NoLanguagesReady;
         return string.Join("  ⇄  ", tables.GroupBy(t => t.Script).Select(g => string.Join(", ", g.Select(t => t.Name))));
     }
 
@@ -214,7 +214,7 @@ internal sealed class LanguageManager : IDisposable
             {
                 // Message only: an exception here describes the network or the file, never anything typed.
                 Log.Warn($"word list {code}: download failed: {ex.Message}");
-                lock (_sync) _errors[code] = ex is HttpRequestException or TaskCanceledException ? "download failed (offline?)" : "download was not a valid word list";
+                lock (_sync) _errors[code] = ex is HttpRequestException or TaskCanceledException ? UiText.Current.ListErrorOffline : UiText.Current.ListErrorInvalid;
             }
             finally
             {
@@ -242,7 +242,7 @@ internal sealed class LanguageManager : IDisposable
         catch (Exception ex)
         {
             Log.Warn($"word list {code}: unreadable: {ex.Message}");
-            lock (_sync) _errors[code] = "word list unreadable";
+            lock (_sync) _errors[code] = UiText.Current.ListErrorUnreadable;
         }
     }
 

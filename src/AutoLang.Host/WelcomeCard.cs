@@ -40,7 +40,7 @@ internal sealed class WelcomeCard : TrayFlyout
 
         _action = new CardButton(this, accent: true);
         _action.Click += (_, _) => Primary();
-        _close = new CardButton(this, accent: false) { Icon = "dismiss", AccessibleName = "Close" };
+        _close = new CardButton(this, accent: false) { Icon = "dismiss", AccessibleName = UiText.Current.Close };
         _close.Click += (_, _) => Dismiss();
         Controls.Add(_action);
         Controls.Add(_close);
@@ -75,18 +75,20 @@ internal sealed class WelcomeCard : TrayFlyout
     protected override void Relayout()
     {
         var f = Fonts;
-        int w = S(368), pad = S(24);
+        // Laid out left to right; the boxes off the center line are mirrored for a right-to-left language.
+        int w = CardWidth(), pad = S(24);
 
-        _markBox = new Rectangle(pad, pad, S(40), S(40));
-        int tx = _markBox.Right + S(14);
+        var markBox = new Rectangle(pad, pad, S(40), S(40));
+        int tx = markBox.Right + S(14);
         int titleH = TextHeight(f.Title), subH = TextHeight(f.Body);
-        int ty = _markBox.Top + (_markBox.Height - titleH - subH) / 2;
-        _titleBox = new Rectangle(tx, ty, w - tx - S(48), titleH);
-        _subtitleBox = new Rectangle(tx, ty + titleH, w - tx - pad, subH);
-        int y = _markBox.Bottom + S(18);
+        int ty = markBox.Top + (markBox.Height - titleH - subH) / 2;
+        _markBox = Mirror(markBox, w);
+        _titleBox = Mirror(new Rectangle(tx, ty, w - tx - S(48), titleH), w);
+        _subtitleBox = Mirror(new Rectangle(tx, ty + titleH, w - tx - pad, subH), w);
+        int y = markBox.Bottom + S(18);
 
         int inner = w - 2 * pad;
-        _bodyBox = new Rectangle(pad, y, inner, TextRenderer.MeasureText(_m.Body, f.Body, new Size(inner, int.MaxValue), Wrap).Height);
+        _bodyBox = new Rectangle(pad, y, inner, TextRenderer.MeasureText(_m.Body, f.Body, new Size(inner, int.MaxValue), Wrap | Dir).Height);
         y = _bodyBox.Bottom + S(14);
         if (_m.Example is not null) { _panel = new Rectangle(pad, y, inner, S(68)); y = _panel.Bottom + S(16); }
         else { _panel = Rectangle.Empty; y += S(2); }
@@ -102,8 +104,8 @@ internal sealed class WelcomeCard : TrayFlyout
         int bw = Math.Max(S(104), TextRenderer.MeasureText(_m.Action, f.Button).Width + S(48));
         _footer = new Rectangle(0, y, w, S(68));
         // The button's bounds include a 3 px rim for the keyboard focus ring.
-        _action.Bounds = new Rectangle(w - pad - bw - S(3), _footer.Top + (_footer.Height - S(38)) / 2, bw + S(6), S(38));
-        _close.Bounds = new Rectangle(w - S(12) - S(32), S(12), S(32), S(32));
+        _action.Bounds = Mirror(new Rectangle(w - pad - bw - S(3), _footer.Top + (_footer.Height - S(38)) / 2, bw + S(6), S(38)), w);
+        _close.Bounds = Mirror(new Rectangle(w - S(12) - S(32), S(12), S(32), S(32)), w);
 
         ClientSize = new Size(w, _footer.Bottom);
         AccessibleName = _m.Title;
@@ -120,15 +122,15 @@ internal sealed class WelcomeCard : TrayFlyout
         bool dark = t == MenuTheme.Dark;
 
         using (var bmp = IconArt.Render(_markBox.Width, _m.Mark)) g.DrawImage(bmp, _markBox);
-        TextRenderer.DrawText(g, _m.Title, f.Title, _titleBox, t.Text, Line);
-        TextRenderer.DrawText(g, _m.Subtitle, f.Body, _subtitleBox, t.Secondary, Line);
-        TextRenderer.DrawText(g, _m.Body, f.Body, _bodyBox, t.Text, Wrap);
+        TextRenderer.DrawText(g, _m.Title, f.Title, _titleBox, t.Text, Line | Dir);
+        TextRenderer.DrawText(g, _m.Subtitle, f.Body, _subtitleBox, t.Secondary, Line | Dir);
+        TextRenderer.DrawText(g, _m.Body, f.Body, _bodyBox, t.Text, Wrap | Dir);
 
         if (_m.Example is { } ex) PaintExample(g, ex.Typed, ex.Fixed, dark);
 
-        PaintTip(g, _tipUndo, "arrow_undo", f.Body, t.Text, "Tap", new Keycap("Shift"), "twice to undo a fix");
-        PaintTip(g, _tipPause, "pause", f.Body, t.Text, "Click", new TrayMark(), "in the tray to pause");
-        PaintTip(g, _tipHidden, null, f.Caption, t.Secondary, "Icon hidden? Look under", new Keycap("^"), "next to the clock.");
+        PaintTip(g, _tipUndo, "arrow_undo", f.Body, t.Text, UndoTip);
+        PaintTip(g, _tipPause, "pause", f.Body, t.Text, PauseTip);
+        PaintTip(g, _tipHidden, null, f.Caption, t.Secondary, HiddenTip);
 
         // Footer band, as in Windows 11 dialogs.
         using (var band = new SolidBrush(dark ? Color.FromArgb(32, 32, 32) : Color.FromArgb(243, 243, 243)))
@@ -147,7 +149,9 @@ internal sealed class WelcomeCard : TrayFlyout
         using (var fill = new SolidBrush(dark ? Color.FromArgb(56, 56, 56) : Color.FromArgb(240, 240, 240)))
             g.FillPath(fill, path);
 
-        const string arrow = "→";
+        string arrow = Rtl ? "←" : "→";
+        // Laid out left to right, then mirrored in the panel: the typed word comes first in reading order.
+        Rectangle M(Rectangle r) => Rtl ? r with { X = _panel.Left + _panel.Right - r.Right } : r;
         int gap = S(14), check = S(18);
         int wTyped = TextRenderer.MeasureText(g, typed, f.ExampleTyped, Size.Empty, Run).Width;
         int wArrow = TextRenderer.MeasureText(g, arrow, f.ExampleTyped, Size.Empty, Run).Width;
@@ -155,7 +159,7 @@ internal sealed class WelcomeCard : TrayFlyout
         int total = wTyped + gap + wArrow + gap + wFixed + S(8) + check;
         int x = _panel.Left + (_panel.Width - total) / 2;
         int h = _panel.Height;
-        var typedBox = new Rectangle(x, _panel.Top, wTyped, h);
+        var typedBox = M(new Rectangle(x, _panel.Top, wTyped, h));
         TextRenderer.DrawText(g, typed, f.ExampleTyped, typedBox, t.Secondary, Run);
         // Struck through: these are the letters that came out wrong.
         using (var strike = new Pen(Color.FromArgb(150, t.Secondary), Math.Max(1f, S(3) / 2f)))
@@ -164,54 +168,89 @@ internal sealed class WelcomeCard : TrayFlyout
             g.DrawLine(strike, typedBox.Left - S(2), sy, typedBox.Right + S(2), sy);
         }
         x += wTyped + gap;
-        TextRenderer.DrawText(g, arrow, f.ExampleTyped, new Rectangle(x, _panel.Top, wArrow, h), t.Secondary, Run);
+        TextRenderer.DrawText(g, arrow, f.ExampleTyped, M(new Rectangle(x, _panel.Top, wArrow, h)), t.Secondary, Run);
         x += wArrow + gap;
-        TextRenderer.DrawText(g, fixedText, f.ExampleFixed, new Rectangle(x, _panel.Top, wFixed, h), t.Text, Run);
+        TextRenderer.DrawText(g, fixedText, f.ExampleFixed, M(new Rectangle(x, _panel.Top, wFixed, h)), t.Text, Run);
         x += wFixed + S(8);
-        MenuIcons.Draw(g, "checkmark", new Rectangle(x, _panel.Top + (h - check) / 2, check, check), IconArt.Brand);
+        MenuIcons.Draw(g, "checkmark", M(new Rectangle(x, _panel.Top + (h - check) / 2, check, check)), IconArt.Brand);
     }
 
     private sealed record Keycap(string Label);
     private sealed record TrayMark;
 
-    /// <summary>One line of text with inline keycaps and the tray mark, after an optional icon.</summary>
-    private void PaintTip(Graphics g, Rectangle row, string? icon, Font font, Color color, params object[] parts)
+    private static object[] UndoTip => Tip(UiText.Current.TipUndo, new Keycap(UiText.Current.ShiftKey));
+    private static object[] PauseTip => Tip(UiText.Current.TipPause, new TrayMark());
+    private static object[] HiddenTip => Tip(UiText.Current.TipHidden, new Keycap("^"));
+
+    /// <summary>A tip's sentence split around its "{0}", which is drawn as a keycap or the tray mark.</summary>
+    private static object[] Tip(string format, object mark)
     {
+        int i = format.IndexOf("{0}", StringComparison.Ordinal);
+        if (i < 0) return new object[] { format };
+        var parts = new List<object>();
+        if (format[..i].Trim() is { Length: > 0 } before) parts.Add(before);
+        parts.Add(mark);
+        if (format[(i + 3)..].Trim() is { Length: > 0 } after) parts.Add(after);
+        return parts.ToArray();
+    }
+
+    private static int PartWidth(object part, Font font, CardFonts f, Func<int, int> S) => part switch
+    {
+        string s => TextRenderer.MeasureText(s, font, Size.Empty, Run).Width,
+        Keycap k => k.Label == "^" ? S(28) : Math.Max(S(28), TextRenderer.MeasureText(k.Label, f.Key, Size.Empty, Run).Width + S(16)),
+        _ => S(18),
+    };
+
+    /// <summary>The icon column, then the parts with a space between.</summary>
+    private static int TipWidth(object[] parts, Font font, CardFonts f, Func<int, int> S)
+        => S(30) + parts.Sum(p => PartWidth(p, font, f, S)) + S(5) * (parts.Length - 1);
+
+    /// <summary>What the longest title, subtitle and tip need in the UI language (see <see cref="TrayFlyout.CardWidth"/>).</summary>
+    internal static int NeededWidth(CardFonts f, Func<int, int> S)
+    {
+        var t = UiText.Current;
+        int pad = S(24), tx = pad + S(40) + S(14);
+        int need = new[] { t.PausedTitle, t.ReadyingTitle, t.IdleTitle, t.OnTitle }.Max(s => tx + Measure(s, f.Title) + S(48));
+        need = Math.Max(need, new[] { t.WelcomePausedSubtitle, t.DownloadingWordLists, t.NeedsTwoAlphabets, t.WelcomeOnSubtitle }
+            .Max(s => tx + Measure(s, f.Body) + pad));
+        need = Math.Max(need, 2 * pad + TipWidth(UndoTip, f.Body, f, S));
+        need = Math.Max(need, 2 * pad + TipWidth(PauseTip, f.Body, f, S));
+        return Math.Max(need, 2 * pad + TipWidth(HiddenTip, f.Caption, f, S));
+    }
+
+    /// <summary>One line of text with inline keycaps and the tray mark, after an optional icon; mirrored right to left.</summary>
+    private void PaintTip(Graphics g, Rectangle row, string? icon, Font font, Color color, object[] parts)
+    {
+        Rectangle M(Rectangle r) => Rtl ? r with { X = row.Left + row.Right - r.Right } : r;
         int iconSize = S(16), cy = row.Top + row.Height / 2;
-        if (icon is not null) MenuIcons.Draw(g, icon, new Rectangle(row.Left, cy - iconSize / 2, iconSize, iconSize), Theme.Secondary);
+        if (icon is not null) MenuIcons.Draw(g, icon, M(new Rectangle(row.Left, cy - iconSize / 2, iconSize, iconSize)), Theme.Secondary);
         int x = row.Left + S(30), space = S(5);
         foreach (var part in parts)
         {
+            int w = PartWidth(part, font, Fonts, S);
             switch (part)
             {
                 case string s:
-                    int w = TextRenderer.MeasureText(g, s, font, Size.Empty, Run).Width;
-                    TextRenderer.DrawText(g, s, font, new Rectangle(x, row.Top, w + S(2), row.Height), color, Run);
-                    x += w;
+                    TextRenderer.DrawText(g, s, font, M(new Rectangle(x, row.Top, w + S(2), row.Height)), color, Run | Dir);
                     break;
                 case Keycap k:
-                    x += PaintKeycap(g, k.Label, x, cy);
+                    PaintKeycap(g, k.Label, M(new Rectangle(x, cy - S(12), w, S(24))));
                     break;
                 case TrayMark:
-                    int m = S(18);
-                    using (var bmp = IconArt.Render(m, IconArt.Brand)) g.DrawImage(bmp, x, cy - m / 2, m, m);
-                    x += m;
+                    using (var bmp = IconArt.Render(w, IconArt.Brand)) g.DrawImage(bmp, M(new Rectangle(x, cy - w / 2, w, w)));
                     break;
             }
-            x += space;
+            x += w + space;
         }
     }
 
     /// <summary>A key as Windows draws it in its own tips: a light cap with a heavier bottom edge. "^" is the hidden-icons chevron.</summary>
-    private int PaintKeycap(Graphics g, string label, int x, int cy)
+    private void PaintKeycap(Graphics g, string label, Rectangle r)
     {
         var f = Fonts;
         var theme = Theme;
         bool dark = theme == MenuTheme.Dark;
         bool chevron = label == "^";
-        int h = S(24);
-        int w = chevron ? S(28) : Math.Max(S(28), TextRenderer.MeasureText(g, label, f.Key, Size.Empty, Run).Width + S(16));
-        var r = new Rectangle(x, cy - h / 2, w, h);
         using (var edge = Rounded(r with { Y = r.Y + 1 }, S(5)))
         using (var edgeBrush = new SolidBrush(dark ? Color.FromArgb(30, 30, 30) : Color.FromArgb(200, 200, 200)))
             g.FillPath(edgeBrush, edge);
@@ -229,7 +268,6 @@ internal sealed class WelcomeCard : TrayFlyout
             g.DrawLines(pen, new[] { new PointF(cx - a, my + a / 2), new PointF(cx, my - a / 2), new PointF(cx + a, my + a / 2) });
         }
         else TextRenderer.DrawText(g, label, f.Key, r, theme.Text, Run | TextFormatFlags.HorizontalCenter);
-        return w;
     }
 
     // ---- input ----

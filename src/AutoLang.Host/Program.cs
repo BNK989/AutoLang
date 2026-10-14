@@ -15,6 +15,7 @@ internal static class Program
     [STAThread]
     private static int Main(string[] args)
     {
+        UiText.Init();
         bool restarted = args.Contains(RestartedArg);
         using var single = new Mutex(true, @"Local\AutoLang.Host", out bool first);
         if (!first)
@@ -28,13 +29,14 @@ internal static class Program
             }
             catch (Exception) // an older version without the event is running
             {
-                MessageBox.Show("AutoLang is already running (look for the icon in the tray).", "AutoLang", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Message(UiText.Current.AlreadyRunning, MessageBoxIcon.Information);
             }
             return 2;
         }
         using var show = new EventWaitHandle(false, EventResetMode.AutoReset, ShowEventName);
 
         Log.Init();
+        Log.Info($"ui language: {UiText.Current.Code}");
         if (restarted) Log.Warn("restarted by Windows after a crash or hang");
         // Crash resilience (PLAN.md §5, M4): Windows Error Reporting restarts us if we crash or hang after the first
         // 60 s. Not on reboot or update: start at login covers that.
@@ -55,10 +57,10 @@ internal static class Program
         //    (English + German, say) there is nothing for AutoLang to do.
         if (installed.Select(l => l.Table.Script).Where(s => s != Scripts.Unknown).Distinct().Count() < 2)
         {
-            MessageBox.Show("AutoLang corrects text typed in the wrong alphabet, so it needs keyboards for at least two different alphabets " +
-                            "(for example English and Hebrew, or English and Greek).\n\n" +
-                            "Installed: " + string.Join(", ", installed.Select(l => $"{l.Table.Name} ({l.Table.Script})").Distinct()),
-                "AutoLang", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            var t = UiText.Current;
+            Message(t.NeedsTwoAlphabetsLong + "\n\n" +
+                    UiText.F(t.InstalledKeyboards, string.Join(", ", installed.Select(l => $"{l.Table.Name} ({t.ScriptName(l.Table.Script)})").Distinct())),
+                MessageBoxIcon.Warning);
             return 1;
         }
 
@@ -99,7 +101,7 @@ internal static class Program
         catch (Exception ex)
         {
             Log.Warn(ex.Message);
-            MessageBox.Show("AutoLang could not install its keyboard hook.\n" + ex.Message, "AutoLang", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            Message(UiText.Current.HookFailed + "\n" + ex.Message, MessageBoxIcon.Error);
             return 1;
         }
 
@@ -122,5 +124,12 @@ internal static class Program
         Application.Run(tray);
         showWait.Unregister(null);
         return 0;
+    }
+
+    /// <summary>A message box in the UI language, mirrored for a right-to-left one.</summary>
+    internal static void Message(string text, MessageBoxIcon icon)
+    {
+        var rtl = UiText.Current.RightToLeft ? MessageBoxOptions.RtlReading | MessageBoxOptions.RightAlign : 0;
+        MessageBox.Show(text, "AutoLang", MessageBoxButtons.OK, icon, MessageBoxDefaultButton.Button1, rtl);
     }
 }

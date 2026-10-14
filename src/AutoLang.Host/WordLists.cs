@@ -15,7 +15,8 @@ internal static class WordLists
 {
     /// <summary>Pinned so a later upstream change can never alter what users get without a new release of AutoLang.</summary>
     public const string Commit = "525f9b560de45753a5ea01069454e72e9aa541c6";
-    public const string Attribution = "Word lists: FrequencyWords by Hermit Dave (OpenSubtitles 2018), CC BY-SA 4.0";
+    public const string Credit = "FrequencyWords by Hermit Dave (OpenSubtitles 2018), CC BY-SA 4.0";
+    public const string Attribution = "Word lists: " + Credit;
     public const string AttributionUrl = "https://github.com/hermitdave/FrequencyWords";
 
     private const long MaxBytes = 8L * 1024 * 1024; // the 50k lists are 0.5–1.5 MB
