@@ -53,6 +53,13 @@ Requires keyboards for at least two different alphabets (Settings → Time & lan
 ```
 
 **What's new in this version:** leave empty for the first submission. For later ones, a short list of changes.
+The latest, for 0.5.0:
+
+```
+• Menus and windows now follow your Windows display language: English, Hebrew, Arabic, Persian, Russian, Ukrainian, Bulgarian, Greek, German, Spanish, French, Portuguese and Italian.
+• A welcome card on first run shows how to undo a fix and how to pause. Launch AutoLang again to bring it back.
+• Clicking the tray icon to pause or resume shows a small card by the tray instead of a notification.
+```
 
 **Product features** (one per box):
 
@@ -64,6 +71,7 @@ Tap Shift twice to undo a correction, and the word is never corrected again
 Tap Shift twice to convert text by hand
 Supports Hebrew, Arabic, Russian, Ukrainian, Greek and more, next to English
 Lives in the tray; the icon shows when it is watching or paused
+Menus and windows in 13 languages, following your Windows display language
 Turn it off for any app, or change how it retypes there
 Skips password fields, terminals, remote desktops and fullscreen games
 Nothing you type is stored or sent anywhere
