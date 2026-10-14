@@ -82,6 +82,9 @@ AutoLang works with the keyboards you already have installed. It switches betwee
 @alpha_fine
 English and Hebrew word lists ship with the app. For another keyboard language, AutoLang
       downloads its public word list once (you can turn this off).
+@alpha_ui
+Menus and windows follow your Windows display language: English, Hebrew, Arabic, Persian, Russian, Ukrainian,
+      Bulgarian, Greek, German, Spanish, French, Portuguese and Italian.
 
 @trust_h2
 Built to stay out of the way
@@ -131,8 +134,11 @@ Trust the test certificate once: double-click the <code>.cer</code> → <strong>
         <strong>Local Machine</strong> → <strong>Place all certificates in the following store</strong> → <strong>Trusted People</strong> → Finish.
 @msix_3
 Double-click the <code>.msix</code> → <strong>Install</strong>. AutoLang starts with Windows and uninstalls cleanly from Settings → Apps.
-@install_store
-A Microsoft Store version is on the way. It will need no certificate and update itself.
+@store_h3
+Microsoft Store (recommended)
+@store_p
+Get <a href="https://apps.microsoft.com/detail/9MXFXW2WS66B">AutoLang from the Microsoft Store</a>. No certificate, no SmartScreen warning, and it updates itself.
+      The downloads below are the same app, for PCs without the Store.
 
 @faq_h2
 Questions

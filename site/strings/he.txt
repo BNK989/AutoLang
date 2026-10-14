@@ -82,6 +82,9 @@ AutoLang עובדת עם המקלדות שכבר מותקנות אצלך. היא
 @alpha_fine
 רשימות המילים לאנגלית ולעברית מגיעות עם האפליקציה. לכל שפת מקלדת אחרת, AutoLang
       מורידה פעם אחת את רשימת המילים הציבורית שלה (אפשר לכבות את זה).
+@alpha_ui
+התפריטים והחלונות מוצגים בשפת התצוגה של Windows: אנגלית, עברית, ערבית, פרסית, רוסית, אוקראינית,
+      בולגרית, יוונית, גרמנית, ספרדית, צרפתית, פורטוגזית ואיטלקית.
 
 @trust_h2
 בנויה כדי לא להפריע
@@ -131,8 +134,11 @@ Windows 10 (גרסה 1809 ומעלה) או Windows 11, בגרסת 64 סיביו�
         <span dir="ltr"><strong>Install Certificate…</strong> → <strong>Local Machine</strong> → <strong>Place all certificates in the following store</strong> → <strong>Trusted People</strong> → Finish</span>.
 @msix_3
 ללחוץ פעמיים על הקובץ <span dir="ltr"><code>.msix</code></span> ואז על <strong>התקן</strong>. AutoLang תופעל עם Windows, ואפשר להסיר אותה בצורה נקייה דרך הגדרות ← אפליקציות.
-@install_store
-גרסה ל-Microsoft Store בדרך. היא לא תצטרך אישור ותתעדכן לבד.
+@store_h3
+Microsoft Store (מומלץ)
+@store_p
+מתקינים את <a href="https://apps.microsoft.com/detail/9MXFXW2WS66B">AutoLang מ-Microsoft Store</a>. בלי אישור, בלי אזהרת SmartScreen, והיא מתעדכנת לבד.
+      ההורדות שלמטה הן אותה אפליקציה, למחשבים בלי Store.
 
 @faq_h2
 שאלות

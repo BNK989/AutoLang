@@ -81,6 +81,9 @@ AutoLang працює з розкладками, які у вас уже вст�
 @alpha_fine
 Списки слів для англійської та івриту постачаються разом із програмою. Для іншої мови клавіатури AutoLang
       один раз завантажує її загальнодоступний список слів (це можна вимкнути).
+@alpha_ui
+Меню та вікна відображаються мовою інтерфейсу Windows: англійська, іврит, арабська, перська, російська, українська,
+      болгарська, грецька, німецька, іспанська, французька, португальська та італійська.
 
 @trust_h2
 Створено, щоб не заважати
@@ -130,8 +133,11 @@ Windows 10 (1809 або новіша) чи Windows 11, 64-розрядна, з �
         <strong>Local Machine</strong> → <strong>Place all certificates in the following store</strong> → <strong>Trusted People</strong> → Finish.
 @msix_3
 Двічі клацніть файл <code>.msix</code> → <strong>Install</strong>. AutoLang запускається разом із Windows і повністю видаляється через Настройки → Програми.
-@install_store
-Версія для Microsoft Store уже на підході. Їй не знадобиться сертифікат, і вона оновлюватиметься сама.
+@store_h3
+Microsoft Store (рекомендовано)
+@store_p
+Установіть <a href="https://apps.microsoft.com/detail/9MXFXW2WS66B">AutoLang з Microsoft Store</a>. Без сертифіката й попередження SmartScreen, оновлюється автоматично.
+      Завантаження нижче — та сама програма для комп’ютерів без Store.
 
 @faq_h2
 Запитання
