@@ -48,6 +48,9 @@ internal sealed partial record UiText
             "اضغط Shift مرتين في حقل النص، مباشرةً بعد الكتابة، لتحويل النص إلى التخطيط الآخر. " +
             "وإذا ضغطته مباشرةً بعد أن يصحح AutoLang كلمة، فإنه يتراجع عن التصحيح. (يتراجع مفتاح Pause أيضاً، ويقوم Shift+Pause بالتحويل.)",
         LanguagesMenu = "اللغات…",
+        LearntWordsMenu = "الكلمات المتعلَّمة",
+        LearntWordsHint = "انقر على كلمة لتُصحَّح مجددًا.",
+        ClearAll = "مسح الكل",
         SkipFullscreen = "تخطي نوافذ ملء الشاشة",
         StartWithWindows = "بدء التشغيل مع Windows",
         StartWithWindowsSettings = "بدء التشغيل مع Windows…",

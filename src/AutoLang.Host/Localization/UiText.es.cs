@@ -48,6 +48,9 @@ internal sealed partial record UiText
             "Pulsa Mayús dos veces en el campo de texto, justo después de escribir, para pasar el texto a la otra distribución. " +
             "Justo después de que AutoLang corrija una palabra, deshace la corrección. (La tecla Pausa también deshace, y Mayús+Pausa convierte).",
         LanguagesMenu = "Idiomas…",
+        LearntWordsMenu = "Palabras aprendidas",
+        LearntWordsHint = "Haga clic en una palabra para que vuelva a corregirse.",
+        ClearAll = "Borrar todo",
         SkipFullscreen = "Omitir ventanas en pantalla completa",
         StartWithWindows = "Iniciar con Windows",
         StartWithWindowsSettings = "Iniciar con Windows…",

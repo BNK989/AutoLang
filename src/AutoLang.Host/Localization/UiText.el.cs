@@ -48,6 +48,9 @@ internal sealed partial record UiText
             "Πατήστε Shift δύο φορές στο πεδίο κειμένου, αμέσως μετά την πληκτρολόγηση, για να μετατρέψετε το κείμενο στην άλλη διάταξη. " +
             "Αμέσως μετά από μια διόρθωση του AutoLang, την αναιρεί. (Το πλήκτρο Pause επίσης αναιρεί και το Shift+Pause μετατρέπει.)",
         LanguagesMenu = "Γλώσσες…",
+        LearntWordsMenu = "Λέξεις που έμαθε",
+        LearntWordsHint = "Κάντε κλικ σε μια λέξη για να διορθώνεται ξανά.",
+        ClearAll = "Απαλοιφή όλων",
         SkipFullscreen = "Παράβλεψη παραθύρων πλήρους οθόνης",
         StartWithWindows = "Εκκίνηση με τα Windows",
         StartWithWindowsSettings = "Εκκίνηση με τα Windows…",

@@ -21,7 +21,7 @@ internal sealed class TrayApp : ApplicationContext
     private WelcomeCard? _welcome;
     private StatusFlyout? _status;
     private readonly TrayMenuHeader _header;
-    private readonly TrayMenuItem _pause, _disableApp, _typing, _typingHint, _swap, _fullscreen, _autoStart;
+    private readonly TrayMenuItem _pause, _disableApp, _typing, _typingHint, _swap, _learnt, _fullscreen, _autoStart;
     private readonly TrayMenuItem[] _typingItems;
     private bool _adminNoticeShown;
     private readonly Icon _green, _grey, _orange;
@@ -65,6 +65,9 @@ internal sealed class TrayApp : ApplicationContext
         // One item for both hotkey jobs: double-tapping Shift undoes a fresh correction or else converts (KeyboardHook.ShiftKey).
         _swap = new TrayMenuItem(T.SwitchTyped, "arrow_swap", () => HotkeyFromMenu(T.SwitchTypedHow))
             { ShortcutKeyDisplayString = T.ShiftTwice };
+        // Filled each time the menu opens, and hidden while there is nothing learnt: most users never need it.
+        _learnt = new TrayMenuItem(T.LearntWordsMenu, "text_bullet_list") { Visible = false };
+        TrayMenu.Style((ToolStripDropDownMenu)_learnt.DropDown);
         _fullscreen = new TrayMenuItem(T.SkipFullscreen, "full_screen_maximize", ToggleFullscreen) { Toggle = true, Checked = settings.SkipFullscreen };
         // Packaged, the start-at-login entry is the manifest's StartupTask, switched in Windows Settings (PLAN.md §5, M4).
         _autoStart = Native.IsPackaged
@@ -76,6 +79,7 @@ internal sealed class TrayApp : ApplicationContext
             _pause, _disableApp, _typing, new TrayMenuSeparator(),
             _swap, new TrayMenuSeparator(),
             new TrayMenuItem(T.LanguagesMenu, "local_language", ShowLanguages),
+            _learnt,
             _fullscreen,
             _autoStart,
             new TrayMenuItem(Native.IsPackaged ? T.ShowLog : T.OpenLogFile, "document_text", OpenLog),
@@ -89,7 +93,11 @@ internal sealed class TrayApp : ApplicationContext
         _icon.MouseClick += (_, e) => { if (e.Button == MouseButtons.Left) TogglePause(); };
 
         _focus.StatusChanged += s => _ui.Post(_ => Refresh(s), null);
-        _corrector.Applied += job => _ui.Post(_ => { Refresh(_focus.Status); if (job.Correction.Kind == CorrectionKind.Auto) FirstFixNotice(); }, null);
+        _corrector.Applied += job => _ui.Post(_ =>
+        {
+            Refresh(_focus.Status);
+            if (job.Correction.Kind == CorrectionKind.Auto) FirstFixNotice();
+        }, null);
         _languages.Changed += () => _ui.Post(_ => { _header.Subtitle = LayoutSummary(); Refresh(_focus.Status); }, null);
         Refresh(_focus.Status);
 
@@ -194,6 +202,20 @@ internal sealed class TrayApp : ApplicationContext
         _pause.Text = PauseText();
         _pause.Icon = PauseIcon();
         if (!Native.IsPackaged) _autoStart.Checked = StartupRegistration.IsEnabled();
+        RefreshLearntWords();
+    }
+
+    /// <summary>One row per learnt word: a click forgets it, so it is fixed again. No window to open or close.</summary>
+    private void RefreshLearntWords()
+    {
+        var words = _controller.Exceptions.Order(StringComparer.CurrentCultureIgnoreCase).ToList();
+        _learnt.Visible = words.Count > 0;
+        foreach (var old in _learnt.DropDownItems.Cast<ToolStripItem>().ToList()) old.Dispose();
+        if (words.Count == 0) return;
+        foreach (var w in words) _learnt.DropDownItems.Add(new TrayMenuItem(w, null, () => ForgetWords([w])));
+        _learnt.DropDownItems.Add(new TrayMenuSeparator());
+        _learnt.DropDownItems.Add(new TrayMenuItem(T.ClearAll, "dismiss", () => ForgetWords(words)));
+        _learnt.DropDownItems.Add(new TrayMenuItem(T.LearntWordsHint) { Enabled = false });
     }
 
     private TrayMenuItem TypingItem(string text, string note, TypingMethod method)
@@ -228,6 +250,19 @@ internal sealed class TrayApp : ApplicationContext
         _languagesForm = new LanguagesForm(_languages);
         _languagesForm.FormClosed += (_, _) => { _languagesForm?.Dispose(); _languagesForm = null; };
         _languagesForm.Show();
+    }
+
+    /// <summary>Forgets learnt words and persists the rest (Program saves the ones typing adds). Logs only the count.</summary>
+    private void ForgetWords(IReadOnlyCollection<string> words)
+    {
+        _controller.RemoveExceptions(words);
+        var left = _controller.Exceptions;
+        lock (_settings)
+        {
+            _settings.ExceptionWords = left.ToList();
+            _settings.Save();
+        }
+        Log.Info($"learnt words: {words.Count} forgotten by user, {left.Count} left");
     }
 
     private void TogglePause() => TogglePause(quiet: false);

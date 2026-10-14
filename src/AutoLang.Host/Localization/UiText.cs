@@ -118,6 +118,9 @@ internal sealed partial record UiText
         "Tap Shift twice in the text field, right after typing, to switch the text to the other layout. " +
         "Right after AutoLang fixes a word, it undoes the fix. (The Pause key also undoes, and Shift+Pause converts.)";
     public string LanguagesMenu { get; init; } = "Languages…";
+    public string LearntWordsMenu { get; init; } = "Learnt words";
+    public string LearntWordsHint { get; init; } = "Click a word to have it fixed again.";
+    public string ClearAll { get; init; } = "Clear all";
     public string SkipFullscreen { get; init; } = "Skip fullscreen windows";
     public string StartWithWindows { get; init; } = "Start with Windows";
     /// <summary>Packaged: opens the startup apps page in Windows Settings.</summary>

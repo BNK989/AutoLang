@@ -48,6 +48,9 @@ internal sealed partial record UiText
             "Drücken Sie direkt nach dem Tippen im Textfeld zweimal die Umschalttaste, um den Text in das andere Layout umzuwandeln. " +
             "Direkt nach einer Korrektur durch AutoLang wird diese damit rückgängig gemacht. (Auch die Pause-Taste macht rückgängig, und Umschalt+Pause wandelt um.)",
         LanguagesMenu = "Sprachen…",
+        LearntWordsMenu = "Gelernte Wörter",
+        LearntWordsHint = "Klicken Sie auf ein Wort, damit es wieder korrigiert wird.",
+        ClearAll = "Alle löschen",
         SkipFullscreen = "Vollbildfenster überspringen",
         StartWithWindows = "Mit Windows starten",
         StartWithWindowsSettings = "Mit Windows starten…",

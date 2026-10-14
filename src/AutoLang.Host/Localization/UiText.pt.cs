@@ -48,6 +48,9 @@ internal sealed partial record UiText
             "Pressione Shift duas vezes no campo de texto, logo após digitar, para passar o texto para o outro layout. " +
             "Logo depois que o AutoLang corrige uma palavra, isso desfaz a correção. (A tecla Pause também desfaz, e Shift+Pause converte.)",
         LanguagesMenu = "Idiomas…",
+        LearntWordsMenu = "Palavras aprendidas",
+        LearntWordsHint = "Clique em uma palavra para que ela volte a ser corrigida.",
+        ClearAll = "Limpar tudo",
         SkipFullscreen = "Ignorar janelas em tela cheia",
         StartWithWindows = "Iniciar com o Windows",
         StartWithWindowsSettings = "Iniciar com o Windows…",

@@ -82,7 +82,8 @@ public sealed class LanguageProfile
     public static LanguageProfile FromFrequencyLines(ushort langId, string name, IEnumerable<string> lines, ILanguageRules? rules = null,
         Func<string, string>? normalize = null, int order = 5, int maxEntries = int.MaxValue, Func<double, double>? lmWeight = null)
     {
-        var dict = WordDictionary.FromFrequencyLines(lines, normalize, maxEntries);
+        // Supplement first, so a maxEntries cut never drops it.
+        var dict = WordDictionary.FromFrequencyLines(WordSupplements.Lines(langId).Concat(lines), normalize, maxEntries);
         lmWeight ??= DefaultLmWeight;
         var lm = new CharNGramModel(order);
         foreach (var (w, c) in dict.Entries)

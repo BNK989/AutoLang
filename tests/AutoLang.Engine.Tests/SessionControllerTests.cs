@@ -67,10 +67,10 @@ public class SessionControllerTests
         var c = New();
         Assert.Null(Type(c, "to fi ", En));
         Assert.Equal(6, c.RunLength);
-        var corr = Type(c, "tbh ", En);
+        var corr = Type(c, "husg ", En);
         Assert.NotNull(corr);
-        Assert.Equal(9, corr!.Backspaces);
-        Assert.Equal("אם כן אני ", corr.Text);
+        Assert.Equal(10, corr!.Backspaces);
+        Assert.Equal("אם כן יודע ", corr.Text);
     }
 
     [DataFact]
@@ -207,10 +207,10 @@ public class SessionControllerTests
     {
         var c = New();
         Assert.Null(Type(c, "to fi ", En));
-        var corr = Type(c, "tbh ", En)!;
+        var corr = Type(c, "husg ", En)!;
         Assert.Equal(En, Erase(c, corr.Text.Length));
-        Assert.Null(Type(c, "to fi tbh ", En));
-        Assert.Equal(new[] { "fi", "tbh", "to" }, c.Exceptions.Order());
+        Assert.Null(Type(c, "to fi husg ", En));
+        Assert.Equal(new[] { "fi", "husg", "to" }, c.Exceptions.Order());
     }
 
     [DataFact]
@@ -252,6 +252,19 @@ public class SessionControllerTests
         Assert.Equal(En, Erase(c, 2 + corr.Text.Length));
         Assert.Null(Type(c, "akuo ", En));
         Assert.Contains("akuo", c.Exceptions);
+    }
+
+    [DataFact]
+    public void Removed_exception_is_corrected_again()
+    {
+        var c = New();
+        c.AddExceptions(new[] { "akuo", "to" });
+        Assert.Null(Type(c, "akuo ", En));
+        c.RemoveExceptions(new[] { "AKUO" });
+        Assert.Equal(new[] { "to" }, c.Exceptions);
+        Assert.NotNull(Type(c, "akuo ", En));
+        c.ClearExceptions();
+        Assert.Empty(c.Exceptions);
     }
 
     [DataFact]

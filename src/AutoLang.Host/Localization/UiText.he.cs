@@ -48,6 +48,9 @@ internal sealed partial record UiText
             "לחיצה פעמיים על Shift בשדה הטקסט, מיד אחרי ההקלדה, מעבירה את הטקסט לפריסה האחרת. " +
             "אם AutoLang תיקן מילה רגע לפני כן, היא מבטלת את התיקון. (גם מקש Pause מבטל, ו-Shift+Pause ממיר.)",
         LanguagesMenu = "שפות…",
+        LearntWordsMenu = "מילים שנלמדו",
+        LearntWordsHint = "לחיצה על מילה תחזיר את התיקון שלה.",
+        ClearAll = "ניקוי הכול",
         SkipFullscreen = "דילוג על חלונות במסך מלא",
         StartWithWindows = "הפעלה עם Windows",
         StartWithWindowsSettings = "הפעלה עם Windows…",

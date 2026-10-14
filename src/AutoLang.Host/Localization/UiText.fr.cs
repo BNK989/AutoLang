@@ -48,6 +48,9 @@ internal sealed partial record UiText
             "Appuyez deux fois sur Maj dans le champ de texte, juste après la saisie, pour passer le texte dans l'autre disposition. " +
             "Juste après une correction d'AutoLang, cela l'annule. (La touche Pause annule aussi, et Maj+Pause convertit.)",
         LanguagesMenu = "Langues…",
+        LearntWordsMenu = "Mots appris",
+        LearntWordsHint = "Cliquez sur un mot pour qu’il soit de nouveau corrigé.",
+        ClearAll = "Tout effacer",
         SkipFullscreen = "Ignorer les fenêtres en plein écran",
         StartWithWindows = "Démarrer avec Windows",
         StartWithWindowsSettings = "Démarrer avec Windows…",

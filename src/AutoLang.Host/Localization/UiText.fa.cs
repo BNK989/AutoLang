@@ -48,6 +48,9 @@ internal sealed partial record UiText
             "بلافاصله پس از تایپ، در کادر متن دو بار Shift را فشار دهید تا متن به طرح‌بندی دیگر تبدیل شود. " +
             "اگر بلافاصله پس از اصلاح یک واژه توسط AutoLang این کار را کنید، اصلاح لغو می‌شود. (کلید Pause هم لغو می‌کند و Shift+Pause تبدیل می‌کند.)",
         LanguagesMenu = "زبان‌ها…",
+        LearntWordsMenu = "واژه‌های آموخته",
+        LearntWordsHint = "روی یک کلمه کلیک کنید تا دوباره اصلاح شود.",
+        ClearAll = "پاک کردن همه",
         SkipFullscreen = "نادیده گرفتن پنجره‌های تمام‌صفحه",
         StartWithWindows = "اجرا همراه با Windows",
         StartWithWindowsSettings = "اجرا همراه با Windows…",

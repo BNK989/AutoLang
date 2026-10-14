@@ -48,6 +48,9 @@ internal sealed partial record UiText
             "Premi Maiusc due volte nel campo di testo, subito dopo aver digitato, per convertire il testo nell'altro layout. " +
             "Subito dopo una correzione di AutoLang, invece, la annulla. (Anche il tasto Pausa annulla, e Maiusc+Pausa converte.)",
         LanguagesMenu = "Lingue…",
+        LearntWordsMenu = "Parole apprese",
+        LearntWordsHint = "Fai clic su una parola perché venga di nuovo corretta.",
+        ClearAll = "Cancella tutto",
         SkipFullscreen = "Ignora le finestre a schermo intero",
         StartWithWindows = "Avvia con Windows",
         StartWithWindowsSettings = "Avvia con Windows…",

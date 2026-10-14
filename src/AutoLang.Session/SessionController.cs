@@ -145,6 +145,17 @@ public sealed class SessionController
         lock (_sync) foreach (var w in words) if (!string.IsNullOrWhiteSpace(w)) _exceptions.Add(Norm(w.Trim()));
     }
 
+    /// <summary>Forget exceptions the user removed from the list, so those words are corrected again.</summary>
+    public void RemoveExceptions(IEnumerable<string> words)
+    {
+        lock (_sync) foreach (var w in words) if (!string.IsNullOrWhiteSpace(w)) _exceptions.Remove(Norm(w.Trim()));
+    }
+
+    public void ClearExceptions()
+    {
+        lock (_sync) _exceptions.Clear();
+    }
+
     /// <summary>
     /// Raised (on the caller's thread, outside the lock) when the user rejected a correction by erasing it and typing the
     /// same keys again: those words joined <see cref="Exceptions"/>. Undo needs no event, the host sees its correction.

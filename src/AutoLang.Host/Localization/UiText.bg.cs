@@ -48,6 +48,9 @@ internal sealed partial record UiText
             "Натиснете Shift два пъти в текстовото поле веднага след въвеждане, за да превключите текста към другата подредба. " +
             "Веднага след като AutoLang поправи дума, това отменя поправката. (Клавишът Pause също отменя, а Shift+Pause преобразува.)",
         LanguagesMenu = "Езици…",
+        LearntWordsMenu = "Научени думи",
+        LearntWordsHint = "Щракнете върху дума, за да се коригира отново.",
+        ClearAll = "Изчисти всички",
         SkipFullscreen = "Пропускай прозорците на цял екран",
         StartWithWindows = "Стартирай с Windows",
         StartWithWindowsSettings = "Стартирай с Windows…",

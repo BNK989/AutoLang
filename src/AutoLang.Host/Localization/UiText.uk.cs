@@ -48,6 +48,9 @@ internal sealed partial record UiText
             "Двічі натисніть Shift у текстовому полі одразу після введення, щоб перевести текст в іншу розкладку. " +
             "Одразу після того, як AutoLang виправить слово, це скасовує виправлення. (Клавіша Pause теж скасовує, а Shift+Pause перетворює.)",
         LanguagesMenu = "Мови…",
+        LearntWordsMenu = "Вивчені слова",
+        LearntWordsHint = "Натисніть слово, щоб воно знову виправлялося.",
+        ClearAll = "Очистити все",
         SkipFullscreen = "Пропускати повноекранні вікна",
         StartWithWindows = "Запускати разом із Windows",
         StartWithWindowsSettings = "Запускати разом із Windows…",

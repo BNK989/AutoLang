@@ -64,18 +64,43 @@ public class PhraseDeciderTests
             Assert.NotEqual(DecisionKind.Correct, HebrewLayout(w).Kind);
     }
 
+    [DataTheory]
+    [InlineData("tbh")]
+    [InlineData("idk")]
+    [InlineData("imo")]
+    [InlineData("sth")]
+    [InlineData("ux")]
+    [InlineData("ngl")]
+    [InlineData("tbh i think so")]
+    [InlineData("idk what you mean")]
+    [InlineData("the ux is fine imo")]
+    public void English_shorthand_is_not_flipped(string typed)
+    {
+        // Missing from the subtitle-based list, so it comes from WordSupplements; "tbh" is אני on Hebrew keys.
+        Assert.NotEqual(DecisionKind.Correct, EnglishLayout(typed).Kind);
+    }
+
+    [DataFact]
+    public void Hebrew_typed_as_shorthand_is_still_corrected_in_a_phrase()
+    {
+        var d = EnglishLayout("tbh kt husg");
+        Assert.Equal(DecisionKind.Correct, d.Kind);
+        Assert.Equal("אני לא יודע", d.Replacement);
+    }
+
     [DataFact]
     public void Phrase_resolves_the_collision()
     {
         Assert.Equal(DecisionKind.Keep, EnglishLayout("to be").Kind);
         // "to fi" is two English dictionary words (sci-fi) as well as "אם כן": still ambiguous → must not Keep,
-        // and must not Correct the wrong way; the third word decides.
+        // and must not Correct the wrong way; a later word decides.
         var two = EnglishLayout("to fi");
         Assert.NotEqual(DecisionKind.Keep, two.Kind);
         if (two.Kind == DecisionKind.Correct) Assert.Equal("אם כן", two.Replacement);
-        var three = EnglishLayout("to fi tbh");
-        Assert.Equal(DecisionKind.Correct, three.Kind);
-        Assert.Equal("אם כן אני", three.Replacement);
+        // "tbh" (אני) is English shorthand too, so it doesn't decide alone; "husg" (יודע) does.
+        var more = EnglishLayout("to fi tbh husg");
+        Assert.Equal(DecisionKind.Correct, more.Kind);
+        Assert.Equal("אם כן אני יודע", more.Replacement);
     }
 
     [DataFact]
