@@ -88,9 +88,17 @@
     if (flash) { void pill.offsetWidth; pill.classList.add('flip'); }
   }
 
+  // An empty box has no text to take its direction from, so it follows the placeholder's language; with text in it,
+  // each line runs in the direction of its first letter.
+  function setDir() {
+    var dir = input.value ? 'auto' : L[pair].rtl ? 'rtl' : 'ltr';
+    if (input.dir !== dir) { input.dir = dir; backdrop.dir = dir; }
+  }
+
   // A copy of the text behind the textarea, so a fixed word can light up in place.
   function paint(from, to) {
     var v = input.value;
+    setDir();
     backdrop.textContent = '';
     if (from === undefined) { backdrop.textContent = v + '\n'; return; }
     var mark = document.createElement('mark');
@@ -388,7 +396,12 @@
 
   function setPair(id, lazy) {
     pair = id;
-    pairButtons.forEach(function (b) { b.setAttribute('aria-checked', String(b.getAttribute('data-pair') === id)); });
+    pairButtons.forEach(function (b) {
+      var on = b.getAttribute('data-pair') === id;
+      b.setAttribute('aria-checked', String(on));
+      if (on) input.placeholder = b.getAttribute('data-placeholder');
+    });
+    setDir();
     stopAuto();
     if (!inPair(sim)) setSim(os && inPair(os) ? os : 'en', false);
     last = null; rejected = null; prevLang = null; resetRun();

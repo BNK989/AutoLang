@@ -8,7 +8,8 @@ using System.Text.RegularExpressions;
 // from the templates site/index.html and site/privacy.html and the strings in site/strings/<lang>.txt.
 //
 // Template placeholders: {{key}} is a string, {{?key}} drops its whole line when the string is empty, and
-// {{@name}} is filled in here (@lang, @dir, @root, @head, @langmenu, @menuscript). Strings are HTML.
+// {{@name}} is filled in here (@lang, @dir, @root, @head, @langmenu, @menuscript). {{key.xx}} is the string in
+// language xx instead of the page's (the try-it box shows the placeholder of the language picked in it). Strings are HTML.
 // English decides which keys exist; every translation must have exactly the same ones.
 const string BaseUrl = "https://bnk989.github.io/AutoLang/";
 const string StorageKey = "autolang-lang";
@@ -23,7 +24,7 @@ if (root is null) { Console.Error.WriteLine("AutoLang.sln not found above " + Ap
 var site = Path.Combine(root, "site");
 var docs = Path.Combine(root, "docs");
 var errors = new List<string>();
-var placeholder = new Regex(@"\{\{([?@]?)([a-z0-9_]+)\}\}");
+var placeholder = new Regex(@"\{\{([?@]?)([a-z0-9_]+)(?:\.([a-z]{2}))?\}\}");
 
 var present = Directory.GetFiles(Path.Combine(site, "strings"), "*.txt").Select(f => Path.GetFileNameWithoutExtension(f)).ToHashSet();
 foreach (var extra in present.Except(langs)) errors.Add($"site/strings/{extra}.txt: not a site language (add it to the list in Program.cs)");
@@ -138,11 +139,15 @@ void CheckStrings(string lang, Dictionary<string, string> s)
 string Render(string template, string page, string lang)
 {
     var s = strings[lang];
+    foreach (Match m in placeholder.Matches(template))
+        if (m.Groups[3].Success && !strings.ContainsKey(m.Groups[3].Value))
+            errors.Add($"site/{page}: {m.Value} names a language the site doesn't have");
     var lines = template.Split('\n').Where(line => placeholder.Matches(line)
         .All(m => m.Groups[1].Value != "?" || s.GetValueOrDefault(m.Groups[2].Value, "").Length > 0));
     var html = placeholder.Replace(string.Join('\n', lines), m => m.Groups[1].Value switch
     {
         "@" => Special(m.Groups[2].Value, page, lang),
+        _ when m.Groups[3].Success => strings.TryGetValue(m.Groups[3].Value, out var o) ? o.GetValueOrDefault(m.Groups[2].Value, "") : "",
         _ => s.TryGetValue(m.Groups[2].Value, out var v) ? v : "",
     });
     var cut = html.IndexOf('\n') + 1;
