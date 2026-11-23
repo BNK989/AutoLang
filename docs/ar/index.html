@@ -23,6 +23,7 @@
   <div class="wrap">
     <a class="brand" href="./"><img src="../icon.png" alt="">AutoLang</a>
     <nav>
+      <a href="#try">جرّبه</a>
       <a class="hide-sm" href="#how">كيف يعمل</a>
       <a href="#install">التثبيت</a>
       <a href="privacy.html">الخصوصية</a>
@@ -69,6 +70,68 @@
     </div>
   </div>
 </div>
+
+<section id="try">
+  <div class="wrap">
+    <h2>جرّبه هنا مباشرةً</h2>
+    <p class="sub">اختر لغتك الأخرى، واكتب بها كلمة دون تبديل لوحة المفاتيح، ثم اضغط مسافة. يتصرّف هذا المربع كما سيتصرّف
+      حاسوبك بعد تثبيت AutoLang: تُصحَّح الكلمة، وتتبدّل لوحة المفاتيح، وتتابع أنت الكتابة.</p>
+
+    <div class="try-box" data-page-lang="ar" data-loading="جارٍ تحميل قوائم الكلمات…" data-ready="جاهز. اكتب بأيّ من اللغتين."
+         data-failed="تعذّر تحميل قوائم الكلمات. أعد تحميل الصفحة وحاول مجددًا." data-typing="جارٍ الكتابة…" data-fixed="صُحِّحت. تحوّلت لوحة المفاتيح إلى {kbd}."
+         data-converted="حُوِّلت. تحوّلت لوحة المفاتيح إلى {kbd}." data-undone="تم التراجع. لن تُصحَّح هذه الكلمة مرة أخرى." data-learnt="فهمت. لن تُصحَّح هذه الكلمة مرة أخرى.">
+      <div class="try-top">
+        <span class="try-label" id="try-pair-label">لغتك الأخرى</span>
+        <div class="try-pairs" role="radiogroup" aria-labelledby="try-pair-label">
+          <button type="button" role="radio" aria-checked="false" data-pair="he" lang="he">עברית</button>
+          <button type="button" role="radio" aria-checked="false" data-pair="ar" lang="ar">العربية</button>
+          <button type="button" role="radio" aria-checked="false" data-pair="ru" lang="ru">Русский</button>
+          <button type="button" role="radio" aria-checked="false" data-pair="uk" lang="uk">Українська</button>
+          <button type="button" role="radio" aria-checked="false" data-pair="el" lang="el">Ελληνικά</button>
+        </div>
+      </div>
+      <div class="try-field">
+        <div class="try-backdrop" aria-hidden="true" dir="auto"></div>
+        <textarea id="try-input" rows="4" maxlength="2000" dir="auto" spellcheck="false" autocomplete="off"
+                  autocorrect="off" autocapitalize="off" placeholder="اكتب هنا، بأيّ من اللغتين…"
+                  aria-label="جرّب AutoLang: اكتب هنا" aria-describedby="try-status"></textarea>
+      </div>
+      <div class="try-bar">
+        <span id="try-status" role="status" aria-live="polite">جاهز. اكتب بأيّ من اللغتين.</span>
+        <span class="layout-pill" id="try-pill" title="لغة لوحة المفاتيح في هذا المربع">ENG</span>
+      </div>
+    </div>
+
+    <div class="try-more">
+      <span class="try-label">لا توجد لوحة مفاتيح ثانية؟ دعه يكتب نيابةً عنك:</span>
+      <div class="try-chips" id="try-chips"></div>
+      <button type="button" class="try-clear">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        مسح
+      </button>
+    </div>
+    <p class="fine">صُحِّحت كلمة قصدتها كما هي؟ اضغط <kbd>Shift</kbd> مرتين للتراجع. فاتته كلمة؟ اضغط <kbd>Shift</kbd> مرتين بعدها مباشرةً.</p>
+    <p class="fine">يعمل هذا بالكامل داخل متصفحك. لا يُرسَل أي شيء تكتبه هنا إلى أي مكان.</p>
+
+    <div class="try-end" id="try-end" hidden>
+      <h3>والآن تخيّل هذا في كل تطبيق تستخدمه.</h3>
+      <p>كان ذلك مربعًا واحدًا في صفحة ويب واحدة. ثبّت AutoLang وسيعمل هكذا في كل مكان تكتب فيه على حاسوبك،
+      بهدوء، أثناء الكتابة. لا مزيد من Alt+Shift، ولا مزيد من التحديد ثم الحذف ثم إعادة الكتابة.</p>
+      <ul class="try-apps">
+        <li><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>البريد الإلكتروني</li>
+        <li><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>المحادثات</li>
+        <li><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>المستندات</li>
+        <li><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>المتصفح</li>
+        <li><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>بحث Windows</li>
+      </ul>
+      <div class="cta">
+        <a class="btn primary" href="https://apps.microsoft.com/detail/9MXFXW2WS66B">تنزيل لنظام Windows</a>
+        <a class="btn" href="#install">طرق تثبيت أخرى</a>
+      </div>
+      <p class="fine">مجاني ومفتوح المصدر · Windows 10 &amp; 11 · لا يغادر جهازك شيء مما تكتبه</p>
+    </div>
+  </div>
+</section>
 
 <section id="how">
   <div class="wrap">
@@ -245,6 +308,8 @@
   play();
 })();
 </script>
+<script src="../demo/engine.js"></script>
+<script src="../demo/demo.js"></script>
 <script>
 (function () {
   // The language menu: remember the pick for the next visit, and close on a click outside or Escape.

@@ -15,6 +15,7 @@
   <div class="wrap">
     <a class="brand" href="./"><img src="{{@root}}icon.png" alt="">AutoLang</a>
     <nav>
+      <a href="#try">{{nav_try}}</a>
       <a class="hide-sm" href="#how">{{nav_how}}</a>
       <a href="#install">{{nav_install}}</a>
       <a href="privacy.html">{{nav_privacy}}</a>
@@ -50,6 +51,66 @@
     </div>
   </div>
 </div>
+
+<section id="try">
+  <div class="wrap">
+    <h2>{{try_h2}}</h2>
+    <p class="sub">{{try_sub}}</p>
+
+    <div class="try-box" data-page-lang="{{@lang}}" data-loading="{{try_loading}}" data-ready="{{try_ready}}"
+         data-failed="{{try_failed}}" data-typing="{{demo_typing}}" data-fixed="{{try_fixed}}"
+         data-converted="{{try_converted}}" data-undone="{{try_undone}}" data-learnt="{{try_learnt}}">
+      <div class="try-top">
+        <span class="try-label" id="try-pair-label">{{try_pair}}</span>
+        <div class="try-pairs" role="radiogroup" aria-labelledby="try-pair-label">
+          <button type="button" role="radio" aria-checked="false" data-pair="he" lang="he">עברית</button>
+          <button type="button" role="radio" aria-checked="false" data-pair="ar" lang="ar">العربية</button>
+          <button type="button" role="radio" aria-checked="false" data-pair="ru" lang="ru">Русский</button>
+          <button type="button" role="radio" aria-checked="false" data-pair="uk" lang="uk">Українська</button>
+          <button type="button" role="radio" aria-checked="false" data-pair="el" lang="el">Ελληνικά</button>
+        </div>
+      </div>
+      <div class="try-field">
+        <div class="try-backdrop" aria-hidden="true" dir="auto"></div>
+        <textarea id="try-input" rows="4" maxlength="2000" dir="auto" spellcheck="false" autocomplete="off"
+                  autocorrect="off" autocapitalize="off" placeholder="{{try_placeholder}}"
+                  aria-label="{{try_input_label}}" aria-describedby="try-status"></textarea>
+      </div>
+      <div class="try-bar">
+        <span id="try-status" role="status" aria-live="polite">{{try_ready}}</span>
+        <span class="layout-pill" id="try-pill" title="{{try_kbd}}">ENG</span>
+      </div>
+    </div>
+
+    <div class="try-more">
+      <span class="try-label">{{try_examples}}</span>
+      <div class="try-chips" id="try-chips"></div>
+      <button type="button" class="try-clear">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        {{try_clear}}
+      </button>
+    </div>
+    <p class="fine">{{try_tip}}</p>
+    <p class="fine">{{try_private}}</p>
+
+    <div class="try-end" id="try-end" hidden>
+      <h3>{{try_end_h}}</h3>
+      <p>{{try_end_p}}</p>
+      <ul class="try-apps">
+        <li><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>{{try_app_mail}}</li>
+        <li><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>{{try_app_chat}}</li>
+        <li><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>{{try_app_docs}}</li>
+        <li><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>{{try_app_web}}</li>
+        <li><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>{{try_app_search}}</li>
+      </ul>
+      <div class="cta">
+        <a class="btn primary" href="https://apps.microsoft.com/detail/9MXFXW2WS66B">{{cta_download}}</a>
+        <a class="btn" href="#install">{{try_end_more}}</a>
+      </div>
+      <p class="fine">{{hero_fine}}</p>
+    </div>
+  </div>
+</section>
 
 <section id="how">
   <div class="wrap">
@@ -203,6 +264,8 @@
   play();
 })();
 </script>
+<script src="{{@root}}demo/engine.js"></script>
+<script src="{{@root}}demo/demo.js"></script>
 {{@menuscript}}
 </body>
 </html>

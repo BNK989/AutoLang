@@ -23,6 +23,7 @@
   <div class="wrap">
     <a class="brand" href="./"><img src="../icon.png" alt="">AutoLang</a>
     <nav>
+      <a href="#try">לנסות</a>
       <a class="hide-sm" href="#how">איך זה עובד</a>
       <a href="#install">התקנה</a>
       <a href="privacy.html">פרטיות</a>
@@ -69,6 +70,68 @@
     </div>
   </div>
 </div>
+
+<section id="try">
+  <div class="wrap">
+    <h2>אפשר לנסות את זה כאן</h2>
+    <p class="sub">בוחרים את השפה השנייה, מקלידים בה מילה בלי להחליף מקלדת ולוחצים רווח. התיבה הזו מתנהגת כמו המחשב שלך
+      אחרי התקנת AutoLang: המילה מתוקנת, המקלדת מתחלפת, וממשיכים להקליד.</p>
+
+    <div class="try-box" data-page-lang="he" data-loading="טוען רשימות מילים…" data-ready="מוכן. אפשר להקליד בכל אחת מהשפות."
+         data-failed="לא הצלחנו לטעון את רשימות המילים. רעננו את הדף ונסו שוב." data-typing="מקלידים…" data-fixed="תוקן. המקלדת עברה ל‑{kbd}."
+         data-converted="הומר. המקלדת עברה ל‑{kbd}." data-undone="בוטל. המילה הזו לא תתוקן שוב." data-learnt="הבנתי. המילה הזו לא תתוקן שוב.">
+      <div class="try-top">
+        <span class="try-label" id="try-pair-label">השפה השנייה שלך</span>
+        <div class="try-pairs" role="radiogroup" aria-labelledby="try-pair-label">
+          <button type="button" role="radio" aria-checked="false" data-pair="he" lang="he">עברית</button>
+          <button type="button" role="radio" aria-checked="false" data-pair="ar" lang="ar">العربية</button>
+          <button type="button" role="radio" aria-checked="false" data-pair="ru" lang="ru">Русский</button>
+          <button type="button" role="radio" aria-checked="false" data-pair="uk" lang="uk">Українська</button>
+          <button type="button" role="radio" aria-checked="false" data-pair="el" lang="el">Ελληνικά</button>
+        </div>
+      </div>
+      <div class="try-field">
+        <div class="try-backdrop" aria-hidden="true" dir="auto"></div>
+        <textarea id="try-input" rows="4" maxlength="2000" dir="auto" spellcheck="false" autocomplete="off"
+                  autocorrect="off" autocapitalize="off" placeholder="מקלידים כאן, בכל אחת מהשפות…"
+                  aria-label="לנסות את AutoLang: מקלידים כאן" aria-describedby="try-status"></textarea>
+      </div>
+      <div class="try-bar">
+        <span id="try-status" role="status" aria-live="polite">מוכן. אפשר להקליד בכל אחת מהשפות.</span>
+        <span class="layout-pill" id="try-pill" title="שפת המקלדת של התיבה">ENG</span>
+      </div>
+    </div>
+
+    <div class="try-more">
+      <span class="try-label">אין מקלדת שנייה? אפשר לתת לה להקליד בשבילך:</span>
+      <div class="try-chips" id="try-chips"></div>
+      <button type="button" class="try-clear">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        ניקוי
+      </button>
+    </div>
+    <p class="fine">תוקנה מילה שהתכוונת אליה? הקשה כפולה על <kbd>Shift</kbd> מבטלת את התיקון. מילה שפוספסה? הקשה כפולה על <kbd>Shift</kbd> מיד אחריה.</p>
+    <p class="fine">הכול רץ בדפדפן שלך. שום דבר ממה שמקלידים כאן לא נשלח לשום מקום.</p>
+
+    <div class="try-end" id="try-end" hidden>
+      <h3>ועכשיו, דמיינו את זה בכל אפליקציה.</h3>
+      <p>זו הייתה תיבה אחת בדף אינטרנט אחד. עם AutoLang מותקנת, זה עובד ככה בכל מקום שמקלידים בו במחשב,
+      בשקט, תוך כדי הקלדה. בלי Alt+Shift. בלי לסמן, למחוק ולהקליד מחדש.</p>
+      <ul class="try-apps">
+        <li><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>אימייל</li>
+        <li><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>צ׳אטים</li>
+        <li><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>מסמכים</li>
+        <li><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>הדפדפן</li>
+        <li><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>החיפוש של Windows</li>
+      </ul>
+      <div class="cta">
+        <a class="btn primary" href="https://apps.microsoft.com/detail/9MXFXW2WS66B">הורדה ל-Windows</a>
+        <a class="btn" href="#install">עוד דרכי התקנה</a>
+      </div>
+      <p class="fine">חינם וקוד פתוח · Windows 10 &amp; 11 · שום דבר ממה שמקלידים לא יוצא מהמחשב</p>
+    </div>
+  </div>
+</section>
 
 <section id="how">
   <div class="wrap">
@@ -246,6 +309,8 @@
   play();
 })();
 </script>
+<script src="../demo/engine.js"></script>
+<script src="../demo/demo.js"></script>
 <script>
 (function () {
   // The language menu: remember the pick for the next visit, and close on a click outside or Escape.

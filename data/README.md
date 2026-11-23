@@ -33,3 +33,11 @@ the keyboard's alphabet. This is the app's only network use; nothing about the u
 **Attribution.** Word lists: [FrequencyWords](https://github.com/hermitdave/FrequencyWords) by Hermit Dave, built from
 OpenSubtitles 2018, licensed [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Used unmodified. The
 same line is shown in the app's Languages window.
+
+## Website demo lists
+
+The try-it box on the website (`docs/demo/`) runs a JavaScript port of the engine in the browser. Its word lists,
+`docs/demo/words/<code>.txt` for en, he, ar, ru, uk and el, are the first 20,000 lines of the same pinned
+FrequencyWords lists (`head -n 20000`, CRLF stripped), under the same CC BY-SA 4.0 licence; the site footer credits
+them. 20,000 words score the same as 50,000 on the Tatoeba he/en sentences and keep each download near 110 KB gzipped.
+The page fetches only English and the selected language, and only when the box scrolls into view.

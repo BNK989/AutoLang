@@ -23,6 +23,7 @@
   <div class="wrap">
     <a class="brand" href="./"><img src="../icon.png" alt="">AutoLang</a>
     <nav>
+      <a href="#try">Спробувати</a>
       <a class="hide-sm" href="#how">Як це працює</a>
       <a href="#install">Встановлення</a>
       <a href="privacy.html">Конфіденційність</a>
@@ -69,6 +70,68 @@
     </div>
   </div>
 </div>
+
+<section id="try">
+  <div class="wrap">
+    <h2>Спробуйте просто тут</h2>
+    <p class="sub">Оберіть другу мову, наберіть нею слово, не перемикаючи клавіатуру, і натисніть пробіл. Це поле поводиться
+      так само, як ваш ПК з AutoLang: слово виправляється, клавіатура перемикається, а ви друкуєте далі.</p>
+
+    <div class="try-box" data-page-lang="uk" data-loading="Завантажуємо словники…" data-ready="Готово. Друкуйте будь-якою мовою."
+         data-failed="Не вдалося завантажити словники. Оновіть сторінку й спробуйте ще раз." data-typing="Набір…" data-fixed="Виправлено. Клавіатуру перемкнено на {kbd}."
+         data-converted="Перетворено. Клавіатуру перемкнено на {kbd}." data-undone="Скасовано. Це слово більше не виправлятиметься." data-learnt="Зрозуміло. Це слово більше не виправлятиметься.">
+      <div class="try-top">
+        <span class="try-label" id="try-pair-label">Ваша друга мова</span>
+        <div class="try-pairs" role="radiogroup" aria-labelledby="try-pair-label">
+          <button type="button" role="radio" aria-checked="false" data-pair="he" lang="he">עברית</button>
+          <button type="button" role="radio" aria-checked="false" data-pair="ar" lang="ar">العربية</button>
+          <button type="button" role="radio" aria-checked="false" data-pair="ru" lang="ru">Русский</button>
+          <button type="button" role="radio" aria-checked="false" data-pair="uk" lang="uk">Українська</button>
+          <button type="button" role="radio" aria-checked="false" data-pair="el" lang="el">Ελληνικά</button>
+        </div>
+      </div>
+      <div class="try-field">
+        <div class="try-backdrop" aria-hidden="true" dir="auto"></div>
+        <textarea id="try-input" rows="4" maxlength="2000" dir="auto" spellcheck="false" autocomplete="off"
+                  autocorrect="off" autocapitalize="off" placeholder="Друкуйте тут будь-якою з двох мов…"
+                  aria-label="Спробуйте AutoLang: друкуйте тут" aria-describedby="try-status"></textarea>
+      </div>
+      <div class="try-bar">
+        <span id="try-status" role="status" aria-live="polite">Готово. Друкуйте будь-якою мовою.</span>
+        <span class="layout-pill" id="try-pill" title="Мова клавіатури цього поля">ENG</span>
+      </div>
+    </div>
+
+    <div class="try-more">
+      <span class="try-label">Немає другої клавіатури? Нехай надрукує саме:</span>
+      <div class="try-chips" id="try-chips"></div>
+      <button type="button" class="try-clear">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        Очистити
+      </button>
+    </div>
+    <p class="fine">Виправилося слово, яке ви хотіли залишити? Двічі натисніть <kbd>Shift</kbd>, щоб скасувати. Слово пропущено? Двічі натисніть <kbd>Shift</kbd> одразу після нього.</p>
+    <p class="fine">Усе працює просто у вашому браузері. Ніщо з набраного тут нікуди не надсилається.</p>
+
+    <div class="try-end" id="try-end" hidden>
+      <h3>А тепер уявіть це в кожній програмі.</h3>
+      <p>Це було одне поле на одній вебсторінці. Встановіть AutoLang — і так буде скрізь, де ви друкуєте на ПК,
+      непомітно, просто під час набору. Більше жодних Alt+Shift. Жодних «виділити, стерти, набрати знову».</p>
+      <ul class="try-apps">
+        <li><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>Пошта</li>
+        <li><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>Чати</li>
+        <li><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>Документи</li>
+        <li><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>Браузер</li>
+        <li><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>Пошук Windows</li>
+      </ul>
+      <div class="cta">
+        <a class="btn primary" href="https://apps.microsoft.com/detail/9MXFXW2WS66B">Завантажити для Windows</a>
+        <a class="btn" href="#install">Інші способи встановлення</a>
+      </div>
+      <p class="fine">Безкоштовно й з відкритим кодом · Windows 10 &amp; 11 · Ніщо з набраного не залишає ваш ПК</p>
+    </div>
+  </div>
+</section>
 
 <section id="how">
   <div class="wrap">
@@ -245,6 +308,8 @@
   play();
 })();
 </script>
+<script src="../demo/engine.js"></script>
+<script src="../demo/demo.js"></script>
 <script>
 (function () {
   // The language menu: remember the pick for the next visit, and close on a click outside or Escape.

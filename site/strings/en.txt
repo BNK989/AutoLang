@@ -51,6 +51,62 @@ Fixed and switched to {to}
     { "from": "ENG", "to": "RUS", "typed": "ghbdtn", "fixed": "привет" }
   ]
 
+# The try-it box. {kbd} is the box's keyboard (ENG, HEB…). Strings that go into attributes can't contain " < or >.
+@nav_try
+Try it
+@try_h2
+Try it right here
+@try_sub
+Pick your other language, type a word in it without switching the keyboard, and press space. This box
+      behaves the way your PC will with AutoLang installed: the word is fixed, the keyboard switches, and you keep typing.
+@try_pair
+Your other language
+@try_placeholder
+Type here, in either language…
+@try_input_label
+Try AutoLang: type here
+@try_kbd
+This box's keyboard language
+@try_loading
+Loading word lists…
+@try_ready
+Ready. Type in either language.
+@try_failed
+Couldn't load the word lists. Reload the page to try again.
+@try_fixed
+Fixed. Keyboard switched to {kbd}.
+@try_converted
+Converted. Keyboard switched to {kbd}.
+@try_undone
+Undone. That word won't be fixed again.
+@try_learnt
+Got it. That word won't be fixed again.
+@try_examples
+No second keyboard? Let it type for you:
+@try_clear
+Clear
+@try_tip
+Fixed a word you meant? Tap <kbd>Shift</kbd> twice to undo it. Missed one? Tap <kbd>Shift</kbd> twice right after it.
+@try_private
+This runs entirely in your browser. Nothing you type here is sent anywhere.
+@try_end_h
+Now imagine this in every app you use.
+@try_end_p
+That was one box on one web page. Install AutoLang and it works like this everywhere you type on your PC,
+      quietly, as you type. No more Alt+Shift. No more select, delete, retype.
+@try_app_mail
+Email
+@try_app_chat
+Chats
+@try_app_docs
+Documents
+@try_app_web
+Your browser
+@try_app_search
+Windows search
+@try_end_more
+Other ways to install
+
 @how_h2
 How it works
 @how_sub

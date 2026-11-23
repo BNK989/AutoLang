@@ -39,6 +39,7 @@
   <div class="wrap">
     <a class="brand" href="./"><img src="icon.png" alt="">AutoLang</a>
     <nav>
+      <a href="#try">Try it</a>
       <a class="hide-sm" href="#how">How it works</a>
       <a href="#install">Install</a>
       <a href="privacy.html">Privacy</a>
@@ -85,6 +86,68 @@
     </div>
   </div>
 </div>
+
+<section id="try">
+  <div class="wrap">
+    <h2>Try it right here</h2>
+    <p class="sub">Pick your other language, type a word in it without switching the keyboard, and press space. This box
+      behaves the way your PC will with AutoLang installed: the word is fixed, the keyboard switches, and you keep typing.</p>
+
+    <div class="try-box" data-page-lang="en" data-loading="Loading word lists…" data-ready="Ready. Type in either language."
+         data-failed="Couldn't load the word lists. Reload the page to try again." data-typing="Typing…" data-fixed="Fixed. Keyboard switched to {kbd}."
+         data-converted="Converted. Keyboard switched to {kbd}." data-undone="Undone. That word won't be fixed again." data-learnt="Got it. That word won't be fixed again.">
+      <div class="try-top">
+        <span class="try-label" id="try-pair-label">Your other language</span>
+        <div class="try-pairs" role="radiogroup" aria-labelledby="try-pair-label">
+          <button type="button" role="radio" aria-checked="false" data-pair="he" lang="he">עברית</button>
+          <button type="button" role="radio" aria-checked="false" data-pair="ar" lang="ar">العربية</button>
+          <button type="button" role="radio" aria-checked="false" data-pair="ru" lang="ru">Русский</button>
+          <button type="button" role="radio" aria-checked="false" data-pair="uk" lang="uk">Українська</button>
+          <button type="button" role="radio" aria-checked="false" data-pair="el" lang="el">Ελληνικά</button>
+        </div>
+      </div>
+      <div class="try-field">
+        <div class="try-backdrop" aria-hidden="true" dir="auto"></div>
+        <textarea id="try-input" rows="4" maxlength="2000" dir="auto" spellcheck="false" autocomplete="off"
+                  autocorrect="off" autocapitalize="off" placeholder="Type here, in either language…"
+                  aria-label="Try AutoLang: type here" aria-describedby="try-status"></textarea>
+      </div>
+      <div class="try-bar">
+        <span id="try-status" role="status" aria-live="polite">Ready. Type in either language.</span>
+        <span class="layout-pill" id="try-pill" title="This box's keyboard language">ENG</span>
+      </div>
+    </div>
+
+    <div class="try-more">
+      <span class="try-label">No second keyboard? Let it type for you:</span>
+      <div class="try-chips" id="try-chips"></div>
+      <button type="button" class="try-clear">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        Clear
+      </button>
+    </div>
+    <p class="fine">Fixed a word you meant? Tap <kbd>Shift</kbd> twice to undo it. Missed one? Tap <kbd>Shift</kbd> twice right after it.</p>
+    <p class="fine">This runs entirely in your browser. Nothing you type here is sent anywhere.</p>
+
+    <div class="try-end" id="try-end" hidden>
+      <h3>Now imagine this in every app you use.</h3>
+      <p>That was one box on one web page. Install AutoLang and it works like this everywhere you type on your PC,
+      quietly, as you type. No more Alt+Shift. No more select, delete, retype.</p>
+      <ul class="try-apps">
+        <li><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>Email</li>
+        <li><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>Chats</li>
+        <li><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>Documents</li>
+        <li><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>Your browser</li>
+        <li><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>Windows search</li>
+      </ul>
+      <div class="cta">
+        <a class="btn primary" href="https://apps.microsoft.com/detail/9MXFXW2WS66B">Download for Windows</a>
+        <a class="btn" href="#install">Other ways to install</a>
+      </div>
+      <p class="fine">Free and open source · Windows 10 &amp; 11 · Nothing you type leaves your PC</p>
+    </div>
+  </div>
+</section>
 
 <section id="how">
   <div class="wrap">
@@ -262,6 +325,8 @@
   play();
 })();
 </script>
+<script src="demo/engine.js"></script>
+<script src="demo/demo.js"></script>
 <script>
 (function () {
   // The language menu: remember the pick for the next visit, and close on a click outside or Escape.
