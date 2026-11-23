@@ -118,6 +118,7 @@ internal static class Program
         }
         corrector.Applied += job => { if (job.Correction.Kind == CorrectionKind.Undo) SaveExceptions(); };
         controller.ExceptionsAdded += () => ThreadPool.QueueUserWorkItem(_ => SaveExceptions()); // raised on the hook thread: no disk I/O there
+        controller.Skipped += s => { var process = focus.Status.Process; ThreadPool.QueueUserWorkItem(_ => Log.Skip(s, process)); };
 
         using var tray = new TrayApp(settings, controller, focus, corrector, languages, onExit: () => Log.Info("exit by user"));
         var showWait = ThreadPool.RegisterWaitForSingleObject(show, (_, _) => tray.RequestWelcome(), null, Timeout.Infinite, executeOnlyOnce: false);

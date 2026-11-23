@@ -30,7 +30,7 @@ A Microsoft Store version is on the way; it will need neither step.
 
 - Just type. A word that is clearly in the wrong layout is replaced on the next space or Enter, and short
   ambiguous words are fixed once the phrase makes it clear.
-- **Tap Shift twice** to switch what you just typed to the other layout. Right after a correction it undoes it and remembers the word, so it is never corrected again; otherwise it converts the text you are typing by hand.
+- **Tap Shift twice** to switch what you just typed to the other layout. Right after a correction it undoes it and remembers the word, so it is never corrected again; otherwise it converts the text you are typing, or the last word if you already typed past it ("rkuubyh?" becomes "רלוונטי?"). Punctuation and spaces typed after a correction or word go along with it. It works until you move the caret, click, or press Enter. Shift held for a symbol (Shift+/ for "?") never counts as a tap.
 - Keyboards with a Pause key can also use **Pause** (undo) and **Shift+Pause** (convert). Deleting a whole correction and typing the word again also keeps it and remembers it.
 - Tray icon: green = watching, grey = paused, orange = this window is skipped (hover for why). Click it to pause or resume.
   Right-click it to pause, disable AutoLang for the current app, change the typing method for an app,

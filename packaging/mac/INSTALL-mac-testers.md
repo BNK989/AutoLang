@@ -53,8 +53,9 @@ You need both an **English** and a **Hebrew** keyboard in System Settings → Ke
    switch to Hebrew.
 3. With the **Hebrew** layout active, press the keys h-e-l-l-o and then a space (`יקךךם`). It should become `hello `.
 4. Right after a correction, **tap Shift twice quickly** to undo it. AutoLang remembers that word and leaves it alone
-   from then on.
-5. To convert a word that was not corrected, tap Shift twice before you type the space.
+   from then on. A space or "?" typed after the correction does not get in the way: it is undone along with it.
+5. To convert a word that was not corrected, tap Shift twice, before or after the space. It flips the last word, until
+   you move the cursor, click, or press Return.
 
 Also try a chat app (Messages, WhatsApp, Slack), a browser text field, and pressing Enter right after a mistyped
 word.

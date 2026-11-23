@@ -21,8 +21,6 @@ internal sealed class KeyboardHook : IDisposable
     private const uint WatchdogIntervalMs = 2000;
     /// <summary>A key reaching the callback this late means the thread stalled: Windows may have dropped the hook.</summary>
     private const uint LateDeliveryMs = 500;
-    /// <summary>Double-tapping Shift: each tap held at most this long, the second pressed at most this long after the first.</summary>
-    private const uint ShiftTapMs = 300, ShiftGapMs = 400;
 
     private readonly SessionController _controller;
     private readonly Corrector _corrector;
@@ -41,9 +39,8 @@ internal sealed class KeyboardHook : IDisposable
     private nint _kbHook, _mouseHook, _focusHook;
 
     private bool _caps;
-    // Double-tap Shift state, hook thread only. _shiftTapAt is when a clean tap (no other key during it) was released, 0 = none.
-    private bool _shiftHeld, _shiftAlone;
-    private uint _shiftDownAt, _shiftTapAt;
+    /// <summary>Double-tap Shift state, hook thread only.</summary>
+    private readonly DoubleShift _doubleShift = new();
     // Watchdog state, hook thread only (PLAN.md §7: a silently dropped hook must not leave AutoLang deaf).
     private uint _lastHookTick;
     private bool _late;
@@ -195,7 +192,7 @@ internal sealed class KeyboardHook : IDisposable
         int vk = (int)k.vkCode;
 
         if (vk is VK_SHIFT or VK_LSHIFT or VK_RSHIFT) { ShiftKey(down, k.time); return false; }
-        if (down) { _shiftAlone = false; _shiftTapAt = 0; } // any other key breaks a double tap
+        if (down) _doubleShift.OtherKey(); // any other key breaks a double tap
 
         if (vk == VK_CAPITAL) { if (down) _caps = !_caps; return false; }
         if (!down) return false;
@@ -249,31 +246,20 @@ internal sealed class KeyboardHook : IDisposable
 
     /// <summary>
     /// Double-tapping Shift, the hotkey every keyboard has (most laptops lack Pause): undoes the correction just made, or
-    /// else converts the current run, so either way it flips what was just typed to the other layout. Shift is never
-    /// swallowed; a lone Shift does nothing in apps, and keys injected while it is held are unaffected by it.
+    /// else converts the current run or the last word, so either way it flips what was just typed to the other layout.
+    /// It fires when the second tap is released (<see cref="DoubleShift"/>), after Shift is up, so the keys the
+    /// correction injects are unaffected by it. Shift is never swallowed; a lone Shift does nothing in apps.
     /// </summary>
     private void ShiftKey(bool down, uint time)
     {
         if (down)
         {
-            if (_shiftHeld) return; // auto-repeat, or the other Shift key
-            _shiftHeld = true;
-            if (_shiftTapAt != 0 && time - _shiftTapAt <= ShiftGapMs)
-            {
-                _shiftTapAt = 0;
-                _shiftAlone = false;
-                Hotkey(convert: !_controller.CanUndo);
-                return;
-            }
             // Shift with Ctrl, Alt or Win held is a layout switch (Alt+Shift, Ctrl+Shift) or a shortcut, not a tap.
             static bool Held(int vk) => (GetAsyncKeyState(vk) & 0x8000) != 0;
-            _shiftAlone = !(Held(VK_CONTROL) || Held(VK_MENU) || Held(VK_LWIN) || Held(VK_RWIN));
-            _shiftDownAt = time;
+            _doubleShift.Down(time, chord: Held(VK_CONTROL) || Held(VK_MENU) || Held(VK_LWIN) || Held(VK_RWIN));
             return;
         }
-        _shiftHeld = false;
-        _shiftTapAt = _shiftAlone && time - _shiftDownAt <= ShiftTapMs ? Math.Max(time, 1) : 0;
-        _shiftAlone = false;
+        if (_doubleShift.Up(time)) Hotkey(convert: !_controller.CanUndo);
     }
 
     private bool Hotkey(bool convert)

@@ -2,10 +2,24 @@ namespace AutoLang.Engine;
 
 public enum DecisionKind { Keep, Correct, Defer }
 
+/// <summary>Why the decider ruled as it did, as a code: <see cref="Score"/> means the margin decided; the rest are early exits.</summary>
+public enum DecisionCause { Score, Empty, Address, NoProfile, NoWords }
+
 /// <param name="Replacement">Full run text re-read under the other layout (only for Correct).</param>
 /// <param name="Margin">score(other) − score(typed): positive means the other layout reads better.</param>
 public sealed record Decision(DecisionKind Kind, KeyboardLayoutTable? TargetLayout, string? Replacement, double Margin, string Reason)
 {
+    // Diagnostics for the host's log: counts and scores only, never text.
+    public DecisionCause Cause { get; init; }
+    /// <summary>Letters that were scored (tokens that read the same under both layouts, or are no word anywhere, are not).</summary>
+    public int Letters { get; init; }
+    /// <summary>Scored words, and how many of them the typed / other reading's dictionary knows.</summary>
+    public int Words { get; init; }
+    public int TypedKnown { get; init; }
+    public int OtherKnown { get; init; }
+    /// <summary>The margin a correction needed (THigh, raised for short runs).</summary>
+    public double Threshold { get; init; }
+
     public static Decision Keep(double margin, string reason) => new(DecisionKind.Keep, null, null, margin, reason);
     public static Decision Defer(double margin, string reason) => new(DecisionKind.Defer, null, null, margin, reason);
 }
@@ -58,16 +72,16 @@ public sealed class PhraseDecider
     public Decision Decide(string typed, KeyboardLayoutTable typedLayout, KeyboardLayoutTable otherLayout, DecisionContext? ctx = null)
     {
         ctx ??= DecisionContext.None;
-        if (typed.Length == 0) return Decision.Keep(0, "empty");
-        if (typed.Contains('@') || typed.Contains("://")) return Decision.Keep(0, "address");
+        if (typed.Length == 0) return Decision.Keep(0, "empty") with { Cause = DecisionCause.Empty };
+        if (typed.Contains('@') || typed.Contains("://")) return Decision.Keep(0, "address") with { Cause = DecisionCause.Address };
         if (!_profiles.TryGetValue(typedLayout.LangId, out var typedProfile) || !_profiles.TryGetValue(otherLayout.LangId, out var otherProfile))
-            return Decision.Keep(0, "no profile");
+            return Decision.Keep(0, "no profile") with { Cause = DecisionCause.NoProfile };
 
         var tokens = Tokenizer.Split(typed, typedLayout, otherLayout);
-        if (tokens.Count == 0) return Decision.Keep(0, "no words");
+        if (tokens.Count == 0) return Decision.Keep(0, "no words") with { Cause = DecisionCause.NoWords };
 
         double typedScore = 0, otherScore = 0;
-        int letters = 0;
+        int letters = 0, words = 0, typedKnown = 0, otherKnown = 0;
         foreach (var t in tokens)
         {
             var remapped = typedLayout.TransliterateTo(otherLayout, t.Text);
@@ -78,9 +92,12 @@ public sealed class PhraseDecider
             // glued to digits (user names, codes: "bnk989"). Both readings score as gibberish, and whichever happens to
             // be a short dictionary word ("jj", "נמל") would win.
             if (IsRepeatedLetter(t.Text) || TouchesDigit(typed, t)) continue;
-            typedScore += ScoreWord(t.Text, typedProfile, typedLayout);
-            otherScore += ScoreWord(remapped, otherProfile, otherLayout);
+            typedScore += Score(t.Text, typedProfile, out bool tk);
+            otherScore += Score(remapped, otherProfile, out bool ok);
             letters += t.Text.Count(char.IsLetter);
+            words++;
+            if (tk) typedKnown++;
+            if (ok) otherKnown++;
         }
 
         double margin = otherScore - typedScore;
@@ -88,11 +105,12 @@ public sealed class PhraseDecider
         else if (ctx.PreviousConfirmedLangId == typedLayout.LangId) margin -= _opt.ContextPrior;
 
         double tHigh = _opt.THigh + _opt.ShortRunPerLetter * Math.Max(0, _opt.MinDecisiveLetters - letters);
-        if (margin > tHigh)
-            return new Decision(DecisionKind.Correct, otherLayout, typedLayout.TransliterateTo(otherLayout, typed), margin, $"margin {margin:F1} > {tHigh}");
-        if (letters < _opt.MinDecisiveLetters && Math.Abs(margin) < _opt.TLow)
-            return Decision.Defer(margin, $"short run, |margin| {Math.Abs(margin):F1} < {_opt.TLow}");
-        return Decision.Keep(margin, $"margin {margin:F1}");
+        var decision = margin > tHigh
+            ? new Decision(DecisionKind.Correct, otherLayout, typedLayout.TransliterateTo(otherLayout, typed), margin, $"margin {margin:F1} > {tHigh}")
+            : letters < _opt.MinDecisiveLetters && Math.Abs(margin) < _opt.TLow
+                ? Decision.Defer(margin, $"short run, |margin| {Math.Abs(margin):F1} < {_opt.TLow}")
+                : Decision.Keep(margin, $"margin {margin:F1}");
+        return decision with { Letters = letters, Words = words, TypedKnown = typedKnown, OtherKnown = otherKnown, Threshold = tHigh };
     }
 
     private static bool IsRepeatedLetter(string token)
@@ -107,8 +125,12 @@ public sealed class PhraseDecider
         => (t.Start > 0 && char.IsDigit(typed[t.Start - 1])) || (t.Start + t.Length < typed.Length && char.IsDigit(typed[t.Start + t.Length]));
 
     /// <summary>How much does <paramref name="word"/> look like a word of <paramref name="p"/>? Higher is better; in nats-ish units.</summary>
-    public double ScoreWord(string word, LanguageProfile p, KeyboardLayoutTable layout)
+    public double ScoreWord(string word, LanguageProfile p, KeyboardLayoutTable layout) => Score(word, p, out _);
+
+    /// <param name="known">True when the word is in <paramref name="p"/>'s dictionary.</param>
+    private double Score(string word, LanguageProfile p, out bool known)
     {
+        known = false;
         var w = p.Normalize(word);
         // Trailing punctuation is normal in any language ("hello," / "שלום,") — strip it; inner punctuation is suspicious.
         int end = w.Length;
@@ -129,6 +151,7 @@ public sealed class PhraseDecider
         s -= inner * _opt.InnerPunctPenalty;
         // A letter the layout can't type (Latin capital in a Hebrew reading comes from Shift; fine) — no extra rule for now.
         var dictKey = p.Dictionary.Contains(w) ? w : p.Dictionary.Contains(bare) ? bare : null;
+        known = dictKey is not null;
         if (dictKey is not null) s += _opt.DictBonus + _opt.DictFreqWeight * (p.Dictionary.LogFreq(dictKey) + 10); // +10 ≈ centre of ln(rel.freq) range
         return s;
     }

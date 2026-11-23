@@ -300,4 +300,72 @@ public class SessionControllerTests
         var c = New();
         Assert.Null(Type(c, "akuo@aortho ", En));
     }
+
+    private static List<SkippedRun> Skips(SessionController c)
+    {
+        var skips = new List<SkippedRun>();
+        c.Skipped += skips.Add;
+        return skips;
+    }
+
+    [DataFact]
+    public void A_kept_word_reports_why_with_counts_only()
+    {
+        var c = New();
+        var skips = Skips(c);
+        Type(c, "hello ", En);
+        var s = Assert.Single(skips);
+        Assert.Equal(SkipReason.Clear, s.Reason);
+        Assert.Equal(En, s.FromLangId);
+        Assert.Equal(He, s.TargetLangId);
+        Assert.Equal(5, s.Chars);
+        Assert.Equal(1, s.Words);
+        Assert.Equal(1, s.TypedKnown);
+        Assert.True(s.Margin <= -s.Threshold && s.Threshold > 0);
+    }
+
+    [DataFact]
+    public void A_correction_reports_no_skip()
+    {
+        var c = New();
+        var skips = Skips(c);
+        Assert.NotNull(Type(c, "akuo ", En));
+        Assert.Empty(skips);
+    }
+
+    [DataFact]
+    public void An_undone_word_reports_learnt()
+    {
+        var c = New();
+        Type(c, "akuo ", En);
+        c.Undo();
+        var skips = Skips(c);
+        Type(c, "akuo ", En);
+        Assert.Equal(SkipReason.Learnt, Assert.Single(skips).Reason);
+    }
+
+    [DataFact]
+    public void Layout_change_and_unmanaged_layouts_are_reported()
+    {
+        var c = New();
+        var skips = Skips(c);
+        Type(c, "aku", En);
+        c.OnChar('ש', He);
+        Assert.Equal(new SkippedRun(SkipReason.LayoutChanged, En, He, 3), Assert.Single(skips));
+        skips.Clear();
+        const ushort russian = 0x0419;
+        Type(c, "abc ", russian);
+        Assert.Equal(new SkippedRun(SkipReason.Unmanaged, russian, 0, 3), Assert.Single(skips));
+    }
+
+    [DataFact]
+    public void Blocked_reports_nothing()
+    {
+        var c = New();
+        var skips = Skips(c);
+        c.Blocked = true;
+        Type(c, "hello ", En);
+        Type(c, "abc ", 0x0419);
+        Assert.Empty(skips);
+    }
 }

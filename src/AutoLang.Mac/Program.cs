@@ -55,6 +55,7 @@ internal static class Program
         _controller = new SessionController(new PhraseDecider([]), []);
         _controller.AddExceptions(_settings.ExceptionWords);
         _controller.ExceptionsAdded += SaveExceptions;
+        _controller.Skipped += s => { var app = _appName; ThreadPool.QueueUserWorkItem(_ => Log.Skip(s, app)); }; // raised on the tap thread
 
         _corrector = new Corrector(langId => _sources.Select(langId));
         _corrector.Applied += job => { if (job.Correction.Kind == CorrectionKind.Undo) SaveExceptions(); };

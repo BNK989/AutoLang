@@ -14,6 +14,41 @@ public enum CorrectionKind { Auto, Force, Undo }
 public sealed record Correction(CorrectionKind Kind, int Backspaces, string Text, bool PressEnter,
     ushort FromLangId, ushort TargetLangId, double Margin, string Reason);
 
+/// <summary>Why a finished run was left as typed. Codes only, so a host can log "it didn't switch" without logging text.</summary>
+public enum SkipReason
+{
+    /// <summary>Judged and kept: the other reading did not beat the typed one by the margin a correction needs (it may
+    /// not beat it at all), and the typed one did not win clearly enough to confirm its language.</summary>
+    BelowThreshold,
+    /// <summary>The typed reading clearly wins: the typed language is confirmed. The common case.</summary>
+    Clear,
+    /// <summary>Too few letters and too close to call: kept in the run and judged again with the next word.</summary>
+    Short,
+    /// <summary>Every word is on the user's exception list (undone, or erased and retyped earlier).</summary>
+    Learnt,
+    /// <summary>The user erased our correction and is typing the same keys again; once complete they are learnt.</summary>
+    Retyping,
+    Retyped,
+    /// <summary>No layout of another alphabet to correct into (one script installed, or the rest excluded).</summary>
+    NoTarget,
+    /// <summary>Early exits of the decider: an e-mail or web address, nothing scorable, no word list loaded.</summary>
+    Address, NoWords, NoProfile,
+    /// <summary>The layout changed in the middle of the run, so it was dropped unjudged.</summary>
+    LayoutChanged,
+    /// <summary>Typed under a layout the controller was not given (no word list, or not an active language).</summary>
+    Unmanaged,
+}
+
+/// <summary>
+/// A run that reached a word boundary and was not corrected. Counts and scores only, never text: <see cref="Chars"/> is
+/// the run's length on screen, <see cref="Words"/> / <see cref="Letters"/> what the decider scored of it, and
+/// <see cref="TypedKnown"/> / <see cref="OtherKnown"/> how many of those words each language's dictionary knows.
+/// <see cref="Margin"/> is the best target's margin and <see cref="Threshold"/> the margin a correction needed.
+/// Those are zero where no decision was made, and <see cref="TargetLangId"/> too where no target was judged.
+/// </summary>
+public sealed record SkippedRun(SkipReason Reason, ushort FromLangId, ushort TargetLangId, int Chars,
+    int Words = 0, int Letters = 0, int TypedKnown = 0, int OtherKnown = 0, double Margin = 0, double Threshold = 0);
+
 /// <summary>Run = the text buffer; All = the buffer and the language context (new field, new window, mouse click).</summary>
 public enum ResetScope { Run, All }
 
@@ -64,6 +99,19 @@ public sealed class SessionController
     private ushort _runLang;
     private ushort? _confirmedLang;
     private Undoable? _undo;
+    /// <summary>
+    /// Separators typed after <see cref="_undo"/>'s correction ("?", a space): undo outlives them and takes them along. A
+    /// letter starts a new word and ends undo; from then on the hotkey flips that word instead.
+    /// </summary>
+    private int _undoTail;
+    /// <summary>
+    /// What is on screen just before the caret, as far back as we can vouch for it: every char that appeared since the
+    /// caret last jumped (any reset, Enter, a layout we do not handle), each with the layout it was typed in, and our own
+    /// corrections applied. The run is always its end. It lets the hotkey flip the last word after the run has moved on.
+    /// In memory only, like the run, and never logged.
+    /// </summary>
+    private readonly StringBuilder _screen = new();
+    private readonly List<ushort> _screenLang = new();
     /// <summary>The last correction while the user may still erase it: chars typed after it, and how much of it was erased.</summary>
     private Undoable? _fix;
     private int _afterFix, _fixDeleted;
@@ -71,12 +119,17 @@ public sealed class SessionController
     private (string Original, ushort Lang)? _rejected;
     /// <summary>Set when a retype added exceptions; the public entry point raises <see cref="ExceptionsAdded"/> outside the lock.</summary>
     private bool _learnt;
+    /// <summary>Set when a boundary left the run uncorrected; the public entry point raises <see cref="Skipped"/> outside the lock.</summary>
+    private SkippedRun? _skipped;
+    /// <summary>Letters typed in a row under a layout the controller does not manage. A count, not the letters.</summary>
+    private int _unmanaged;
     private readonly HashSet<string> _exceptions = new(StringComparer.Ordinal);
     private volatile bool _blocked;
 
     /// <param name="OnScreen">What our correction put on screen (replacement incl. the boundary char).</param>
     /// <param name="Original">What the user had typed (incl. the boundary char).</param>
-    private sealed record Undoable(string OnScreen, string Original, ushort OriginalLang, ushort TargetLang);
+    /// <param name="Kind">Auto, or Force for one the user asked for (undoing that teaches the engine nothing).</param>
+    private sealed record Undoable(string OnScreen, string Original, ushort OriginalLang, ushort TargetLang, CorrectionKind Kind);
 
     /// <param name="layouts">The active layouts, one per language id (later duplicates are ignored). Fewer than two
     /// scripts is allowed: the controller then never corrects, which is the right behaviour while word lists download.</param>
@@ -111,6 +164,7 @@ public sealed class SessionController
                 _sameScript[l.LangId] = others.Where(o => o.Script == l.Script && !never.Contains(o.LangId)).ToArray();
             }
             _run.Clear();
+            ScreenClear();
             _undo = null;
             _fix = null;
             _rejected = null;
@@ -130,7 +184,7 @@ public sealed class SessionController
     public bool Blocked
     {
         get => _blocked;
-        set { lock (_sync) { _blocked = value; if (value) { _run.Clear(); _undo = null; _fix = null; _rejected = null; } } }
+        set { lock (_sync) { _blocked = value; if (value) { _run.Clear(); ScreenClear(); _undo = null; _fix = null; _rejected = null; _unmanaged = 0; } } }
     }
 
     public int RunLength { get { lock (_sync) return _run.Length; } }
@@ -161,6 +215,13 @@ public sealed class SessionController
     /// same keys again: those words joined <see cref="Exceptions"/>. Undo needs no event, the host sees its correction.
     /// </summary>
     public event Action? ExceptionsAdded;
+
+    /// <summary>
+    /// Raised (on the caller's thread, outside the lock) when a word boundary left the run as typed, with why. For
+    /// diagnostics only: it carries counts and scores, never text. Not raised while <see cref="Blocked"/>.
+    /// </summary>
+    public event Action<SkippedRun>? Skipped;
+
     public ushort? ConfirmedLangId { get { lock (_sync) return _confirmedLang; } }
 
     /// <summary>
@@ -171,48 +232,83 @@ public sealed class SessionController
     /// </summary>
     public Correction? OnChar(char c, ushort langId)
     {
-        Correction? result = null;
+        Correction? result;
         bool learnt;
+        SkippedRun? skipped;
         lock (_sync)
         {
-            _undo = null;
-            if (_blocked || !_byLang.TryGetValue(langId, out var table)) { _run.Clear(); _fix = null; return null; }
-            // Typing after erasing part of the correction edits it (the user keeps it); otherwise the char sits after it.
-            if (_fix is not null && (_fixDeleted > 0 || ++_afterFix > _opt.MaxRunChars)) _fix = null;
-            if (_run.Length > 0 && langId != _runLang) _run.Clear(); // the layout changed under us: the screen is no longer one run
-            _runLang = langId;
-            _recentInScript[table.Script] = langId;
-
-            if (Tokenizer.IsWordChar(c, table, _others[langId])) { _run.Append(c); Trim(); return null; }
-            if (_run.Length == 0) return null; // a separator with nothing before it: nothing to judge, nothing to track
-
-            var (corr, resetRun) = DecideAt(c.ToString(), enter: false);
-            if (corr is not null) result = corr;
-            else if (resetRun) _run.Clear();
-            else { _run.Append(c); Trim(); }
+            result = OnCharLocked(c, langId);
             learnt = TakeLearnt();
+            skipped = TakeSkipped();
         }
         if (learnt) ExceptionsAdded?.Invoke();
+        if (skipped is not null) Skipped?.Invoke(skipped);
         return result;
+    }
+
+    private Correction? OnCharLocked(char c, ushort langId)
+    {
+        if (_blocked) { _run.Clear(); ScreenClear(); _undo = null; _fix = null; _unmanaged = 0; return null; }
+        if (!_byLang.TryGetValue(langId, out var table))
+        {
+            // We cannot read these keys under another layout, so nothing before the caret can be flipped any more.
+            _run.Clear(); ScreenClear(); _undo = null; _fix = null;
+            // Count the letters only, to say "typed in a layout AutoLang does not handle" once per word.
+            if (char.IsLetterOrDigit(c)) _unmanaged++;
+            else if (_unmanaged > 0) { _skipped = new SkippedRun(SkipReason.Unmanaged, langId, 0, _unmanaged); _unmanaged = 0; }
+            return null;
+        }
+        _unmanaged = 0;
+        // Typing after erasing part of the correction edits it (the user keeps it); otherwise the char sits after it.
+        if (_fix is not null && (_fixDeleted > 0 || ++_afterFix > _opt.MaxRunChars)) _fix = null;
+        if (_run.Length > 0 && langId != _runLang)
+        {
+            // The layout changed under us: the screen is no longer one run.
+            _skipped = new SkippedRun(SkipReason.LayoutChanged, _runLang, langId, _run.Length);
+            _run.Clear();
+        }
+        _runLang = langId;
+        _recentInScript[table.Script] = langId;
+
+        bool word = Tokenizer.IsWordChar(c, table, _others[langId]);
+        // Undo survives the separators typed after a correction (they go along with it), not the start of a new word.
+        if (_undo is not null && (word || ++_undoTail > _opt.MaxRunChars)) _undo = null;
+        if (word) { _run.Append(c); Trim(); ScreenAppend(c.ToString(), langId); return null; }
+        // A separator with nothing before it: nothing to judge, but it is on screen, after the last word.
+        if (_run.Length == 0) { ScreenAppend(c.ToString(), langId); return null; }
+
+        var (corr, resetRun) = DecideAt(c.ToString(), enter: false);
+        if (corr is not null) return corr; // DecideAt put the replacement, boundary included, on the screen copy
+        ScreenAppend(c.ToString(), langId);
+        if (resetRun) _run.Clear();
+        else { _run.Append(c); Trim(); }
+        return null;
     }
 
     /// <summary>Enter ends the run either way; if it corrects, the host presses Enter after the replacement. Not undoable.</summary>
     public Correction? OnEnter(ushort langId)
     {
-        Correction? corr;
+        Correction? corr = null;
         bool learnt;
+        SkippedRun? skipped;
         lock (_sync)
         {
             _undo = null;
-            if (_blocked || _run.Length == 0 || langId != _runLang) { _run.Clear(); _fix = null; _rejected = null; return null; }
-            (corr, _) = DecideAt("", enter: true);
+            if (!_blocked && _run.Length > 0 && langId != _runLang)
+                _skipped = new SkippedRun(SkipReason.LayoutChanged, _runLang, langId, _run.Length);
+            else if (!_blocked && _run.Length > 0)
+                (corr, _) = DecideAt("", enter: true);
             _run.Clear();
+            // A new line, or a sent message: the last word is out of reach of Backspace.
+            ScreenClear();
             _undo = null;
             _fix = null;
             _rejected = null;
             learnt = TakeLearnt();
+            skipped = TakeSkipped();
         }
         if (learnt) ExceptionsAdded?.Invoke();
+        if (skipped is not null) Skipped?.Invoke(skipped);
         return corr;
     }
 
@@ -224,8 +320,10 @@ public sealed class SessionController
     {
         lock (_sync)
         {
-            _undo = null;
+            // Erasing a separator typed after a correction keeps it undoable; erasing into the correction does not.
+            if (_undo is not null && _undoTail-- == 0) _undo = null;
             if (_run.Length > 0) _run.Length--;
+            ScreenErase(1);
             if (_fix is not { } f) return null;
             if (_afterFix > 0) { _afterFix--; return null; }
             if (++_fixDeleted < f.OnScreen.Length) return null;
@@ -243,6 +341,7 @@ public sealed class SessionController
         {
             int dropped = _run.Length;
             _run.Clear();
+            ScreenClear(); // the caret may have moved, or the text under it changed: we can no longer vouch for it
             _undo = null;
             // The correction being watched survives a Run reset: switching the layout back (Alt+Shift) is one, and so is
             // Ctrl+Backspace. After an arrow key the count of erased chars is only approximate, but nothing is learnt
@@ -257,27 +356,38 @@ public sealed class SessionController
     {
         lock (_sync)
         {
-            if (_undo is null) return null;
-            var u = _undo;
+            if (_undo is not { } u) return null;
             _undo = null;
             _fix = null;
-            var table = _byLang[u.OriginalLang];
-            foreach (var t in Tokenizer.Split(u.Original, table, _others[u.OriginalLang])) _exceptions.Add(Norm(t.Text));
+            if (!_byLang.TryGetValue(u.OriginalLang, out var table)) return null;
+            // An automatic correction the user took back is a word the engine must leave alone from now on. A conversion
+            // they asked for and then took back says nothing about the engine.
+            if (u.Kind == CorrectionKind.Auto)
+                foreach (var t in Tokenizer.Split(u.Original, table, _others[u.OriginalLang])) _exceptions.Add(Norm(t.Text));
+            // Separators typed after the correction go along with it, re-read under the layout it returns to.
+            var restored = u.Original + ReRead(_screen.Length - _undoTail, u.OriginalLang);
+            int erase = u.OnScreen.Length + _undoTail;
+            ScreenReplace(erase, restored, u.OriginalLang);
             // The restored text is not tracked any more: it must never be corrected again, and the user's next words are judged alone.
             _run.Clear();
             _runLang = u.OriginalLang;
             _confirmedLang = u.OriginalLang;
-            return new Correction(CorrectionKind.Undo, u.OnScreen.Length, u.Original, false, u.TargetLang, u.OriginalLang, 0, "undo");
+            return new Correction(CorrectionKind.Undo, erase, restored, false, u.TargetLang, u.OriginalLang, 0, "undo");
         }
     }
 
-    /// <summary>Convert the current run regardless of score (the manual fallback). Undoable.</summary>
+    /// <summary>
+    /// Convert the current run regardless of score (the manual fallback); with no run, the last word before the caret and
+    /// the separators after it (<see cref="FlipLastWord"/>). Undoable.
+    /// </summary>
     public Correction? Force(ushort langId)
     {
         lock (_sync)
         {
             _undo = null;
-            if (_blocked || _run.Length == 0 || langId != _runLang || !_byLang.TryGetValue(langId, out var typedTable)) { _run.Clear(); return null; }
+            if (_blocked) return null;
+            if (_run.Length == 0) return FlipLastWord();
+            if (langId != _runLang || !_byLang.TryGetValue(langId, out var typedTable)) { _run.Clear(); ScreenClear(); return null; }
             var onScreen = _run.ToString();
             // The manual hotkey converts across alphabets like the automatic path; only a user whose layouts all share
             // one alphabet (English + German) gets a same-script conversion, because they asked for it explicitly.
@@ -287,13 +397,100 @@ public sealed class SessionController
             var (target, best) = p;
             double bestMargin = best.Margin;
             var replacement = typedTable.TransliterateTo(target, onScreen);
-            _undo = new Undoable(replacement, onScreen, langId, target.LangId);
+            _undo = new Undoable(replacement, onScreen, langId, target.LangId, CorrectionKind.Force);
+            _undoTail = 0;
             _fix = null; // asked for explicitly: erasing it is not a rejection of ours
+            ScreenReplace(onScreen.Length, replacement, target.LangId);
             _run.Clear();
             _confirmedLang = target.LangId;
             _recentInScript[target.Script] = target.LangId;
             return new Correction(CorrectionKind.Force, onScreen.Length, replacement, false, langId, target.LangId, bestMargin, "force");
         }
+    }
+
+    /// <summary>
+    /// The hotkey with no run: the user noticed a wrong-layout word after typing past it ("rkuubyh?"). Converts the last
+    /// word before the caret, and re-reads the separators after it under the same target layout, since they were typed
+    /// in the same belief about the layout. Only as far back as <see cref="_screen"/> vouches for, so the backspaces
+    /// never reach text we did not see typed.
+    /// </summary>
+    private Correction? FlipLastWord()
+    {
+        int end = _screen.Length, i = end;
+        while (i > 0 && !IsWordAt(i - 1)) i--;
+        int wordEnd = i;
+        if (wordEnd == 0) return null;
+        ushort lang = _screenLang[wordEnd - 1];
+        while (i > 0 && _screenLang[i - 1] == lang && IsWordAt(i - 1)) i--;
+        if (!_byLang.TryGetValue(lang, out var typedTable)) return null;
+
+        var word = _screen.ToString(i, wordEnd - i);
+        var candidates = _targets[lang].Length > 0 ? _targets[lang] : _sameScript[lang];
+        var picked = Pick(candidates.Select(o => (o, _decider.Decide(word, typedTable, o))), byRank: false);
+        if (picked is not { } p) return null;
+        var (target, best) = p;
+
+        var original = _screen.ToString(i, end - i);
+        var replacement = typedTable.TransliterateTo(target, word) + ReRead(wordEnd, target.LangId);
+        _undo = new Undoable(replacement, original, lang, target.LangId, CorrectionKind.Force);
+        _undoTail = 0;
+        _fix = null; // asked for explicitly: erasing it is not a rejection of ours
+        ScreenReplace(original.Length, replacement, target.LangId);
+        _runLang = target.LangId;
+        _confirmedLang = target.LangId;
+        _recentInScript[target.Script] = target.LangId;
+        return new Correction(CorrectionKind.Force, original.Length, replacement, false, lang, target.LangId, best.Margin, "force last word");
+    }
+
+    private bool IsWordAt(int i)
+    {
+        ushort lang = _screenLang[i];
+        return _byLang.TryGetValue(lang, out var table) && Tokenizer.IsWordChar(_screen[i], table, _others[lang]);
+    }
+
+    /// <summary><see cref="_screen"/> from <paramref name="from"/> to its end, each char re-read from the layout it was typed in to <paramref name="toLang"/>.</summary>
+    private string ReRead(int from, ushort toLang)
+    {
+        if (from >= _screen.Length || !_byLang.TryGetValue(toLang, out var to)) return "";
+        var sb = new StringBuilder(_screen.Length - Math.Max(from, 0));
+        for (int i = Math.Max(from, 0); i < _screen.Length; i++)
+        {
+            ushort lang = _screenLang[i];
+            sb.Append(lang != toLang && _byLang.TryGetValue(lang, out var t) ? t.TransliterateTo(to, _screen[i].ToString()) : _screen[i].ToString());
+        }
+        return sb.ToString();
+    }
+
+    private void ScreenAppend(string text, ushort lang)
+    {
+        _screen.Append(text);
+        for (int i = 0; i < text.Length; i++) _screenLang.Add(lang);
+        // Keep twice the longest run: room for a run, a correction of it and the separators after it.
+        int over = _screen.Length - 2 * _opt.MaxRunChars;
+        if (over <= 0) return;
+        _screen.Remove(0, over);
+        _screenLang.RemoveRange(0, over);
+        if (_undo is { } u && _screen.Length < u.OnScreen.Length + _undoTail) _undo = null;
+    }
+
+    private void ScreenErase(int count)
+    {
+        count = Math.Min(count, _screen.Length);
+        _screen.Remove(_screen.Length - count, count);
+        _screenLang.RemoveRange(_screenLang.Count - count, count);
+    }
+
+    /// <summary>Mirror a correction: <paramref name="erase"/> backspaces, then <paramref name="text"/> typed in <paramref name="lang"/>.</summary>
+    private void ScreenReplace(int erase, string text, ushort lang)
+    {
+        ScreenErase(erase);
+        ScreenAppend(text, lang);
+    }
+
+    private void ScreenClear()
+    {
+        _screen.Clear();
+        _screenLang.Clear();
     }
 
     private (Correction? corr, bool resetRun) DecideAt(string boundary, bool enter)
@@ -307,41 +504,60 @@ public sealed class SessionController
         {
             if (rj.Lang == _runLang && Retypes(typed, typedTable, rj.Original) is { } complete)
             {
-                if (!complete) return (null, false); // the first words of it so far: wait for the rest
+                if (!complete) { Skip(SkipReason.Retyping); return (null, false); } // the first words of it so far: wait for the rest
                 foreach (var t in Tokenizer.Split(rj.Original, typedTable, _others[_runLang])) _exceptions.Add(Norm(t.Text));
                 _rejected = null;
                 _learnt = true;
                 _confirmedLang = _runLang;
+                Skip(SkipReason.Retyped);
                 return (null, true);
             }
             _rejected = null; // they typed something else
         }
         // Words the user insisted on stay as typed and confirm their language, so the next words are judged on their own
         // and cannot drag them into a correction.
-        if (IsException(typed, typedTable)) { _confirmedLang = _runLang; return (null, true); }
+        if (IsException(typed, typedTable)) { _confirmedLang = _runLang; Skip(SkipReason.Learnt); return (null, true); }
 
         var picked = Pick(_targets[_runLang].Select(o => (o, _decider.Decide(typed, typedTable, o, ctx))), byRank: true);
-        if (picked is not { } p) return (null, false);
+        if (picked is not { } p) { Skip(SkipReason.NoTarget); return (null, false); }
         var (target, best) = p;
 
         if (best.Kind == DecisionKind.Correct && best.Replacement is { } replacement)
         {
             var corr = new Correction(CorrectionKind.Auto, onScreen.Length, replacement, enter, _runLang, target.LangId, best.Margin, best.Reason);
-            _undo = enter ? null : new Undoable(replacement, typed, _runLang, target.LangId);
+            _undo = enter ? null : new Undoable(replacement, typed, _runLang, target.LangId, CorrectionKind.Auto);
+            _undoTail = 0;
             _fix = _undo;
             _afterFix = _fixDeleted = 0;
+            ScreenReplace(onScreen.Length, replacement, target.LangId);
             _run.Clear();
             _confirmedLang = target.LangId;
             _recentInScript[target.Script] = target.LangId;
             return (corr, true);
         }
-        if (best.Kind == DecisionKind.Keep && best.Margin <= -_confirm)
+        bool clear = best.Kind == DecisionKind.Keep && best.Margin <= -_confirm;
+        Skip(best.Cause switch
+        {
+            DecisionCause.Address => SkipReason.Address,
+            DecisionCause.NoProfile => SkipReason.NoProfile,
+            DecisionCause.Empty or DecisionCause.NoWords => SkipReason.NoWords,
+            _ when best.Kind == DecisionKind.Defer => SkipReason.Short,
+            _ => clear ? SkipReason.Clear : SkipReason.BelowThreshold,
+        }, target.LangId, best);
+        if (clear)
         {
             _confirmedLang = _runLang;
             return (null, true);
         }
         return (null, false);
     }
+
+    /// <summary>Note why the run at this boundary stays as typed. Lengths and scores only.</summary>
+    private void Skip(SkipReason reason, ushort target = 0, Decision? d = null) =>
+        _skipped = new SkippedRun(reason, _runLang, target, _run.Length, d?.Words ?? 0, d?.Letters ?? 0,
+            d?.TypedKnown ?? 0, d?.OtherKnown ?? 0, d?.Margin ?? 0, d?.Threshold ?? 0);
+
+    private SkippedRun? TakeSkipped() { var s = _skipped; _skipped = null; return s; }
 
     /// <summary>
     /// Choose the target among per-layout decisions. First one member per script: the most recently used member of

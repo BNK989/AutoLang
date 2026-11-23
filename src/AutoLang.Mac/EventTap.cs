@@ -14,8 +14,6 @@ namespace AutoLang.Mac;
 internal sealed unsafe class EventTap
 {
     private const double SlowCallbackMs = 5.0;
-    /// <summary>Double-tapping Shift: each tap held at most this long, the second pressed at most this long after the first.</summary>
-    private const long ShiftTapMs = 300, ShiftGapMs = 400;
 
     // Mac virtual key codes (HIToolbox Events.h).
     private const ushort KeyReturn = 0x24, KeyEnter = 0x4C, KeyTab = 0x30, KeyDelete = 0x33, KeyEscape = 0x35,
@@ -34,9 +32,8 @@ internal sealed unsafe class EventTap
     private readonly Func<string> _app;
     private nint _tap, _runLoopSource;
 
-    // Double-tap Shift state. _shiftTapAt is when a clean tap (no other key during it) was released, 0 = none.
-    private bool _shiftHeld, _shiftAlone;
-    private long _shiftDownAt, _shiftTapAt;
+    /// <summary>Double-tap Shift state.</summary>
+    private readonly DoubleShift _doubleShift = new();
 
     public EventTap(SessionController controller, Corrector corrector, InputSources sources, Func<string> app)
     {
@@ -112,7 +109,7 @@ internal sealed unsafe class EventTap
         if (type == kCGEventFlagsChanged) { ModifierChanged(keyCode, flags); return false; }
         if (type != kCGEventKeyDown) return false;
 
-        _shiftAlone = false; _shiftTapAt = 0; // any other key breaks a double tap
+        _doubleShift.OtherKey(); // any other key breaks a double tap
 
         if (_controller.Blocked) return false;
         if (IsSecureEventInputEnabled() != 0) { _controller.Reset(ResetScope.All); return false; } // a password field
@@ -144,14 +141,15 @@ internal sealed unsafe class EventTap
 
     /// <summary>
     /// Shift, Command, Control, Option, Caps Lock and fn arrive as flag changes, not key presses. Double-tapping Shift is
-    /// the hotkey (as on Windows): it undoes the correction just made, or else converts the current run. Shift is never
-    /// swallowed; a lone Shift does nothing in apps.
+    /// the hotkey (as on Windows): it undoes the correction just made, or else converts the current run or the last word.
+    /// It fires when the second tap is released (<see cref="DoubleShift"/>). Shift is never swallowed; a lone Shift does
+    /// nothing in apps.
     /// </summary>
     private void ModifierChanged(ushort keyCode, ulong flags)
     {
         if (keyCode is not (KeyLeftShift or KeyRightShift))
         {
-            _shiftAlone = false; _shiftTapAt = 0;
+            _doubleShift.OtherKey();
             if ((flags & CommandKeys) != 0) _controller.Reset(ResetScope.Run);
             return;
         }
@@ -159,24 +157,12 @@ internal sealed unsafe class EventTap
         long now = Environment.TickCount64;
         if (down)
         {
-            if (_shiftHeld) return; // the other Shift key
-            _shiftHeld = true;
-            if (_shiftTapAt != 0 && now - _shiftTapAt <= ShiftGapMs)
-            {
-                _shiftTapAt = 0;
-                _shiftAlone = false;
-                Hotkey(convert: !_controller.CanUndo);
-                return;
-            }
             // Shift with Command, Control or Option held is a shortcut, not a tap.
-            _shiftAlone = (flags & CommandKeys) == 0;
-            _shiftDownAt = now;
+            _doubleShift.Down(now, chord: (flags & CommandKeys) != 0);
             return;
         }
         if ((flags & (NX_DEVICELSHIFTKEYMASK | NX_DEVICERSHIFTKEYMASK)) != 0) return; // the other Shift is still down
-        _shiftHeld = false;
-        _shiftTapAt = _shiftAlone && now - _shiftDownAt <= ShiftTapMs ? Math.Max(now, 1) : 0;
-        _shiftAlone = false;
+        if (_doubleShift.Up(now)) Hotkey(convert: !_controller.CanUndo);
     }
 
     private void Hotkey(bool convert)

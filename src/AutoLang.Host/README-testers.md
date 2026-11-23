@@ -56,8 +56,9 @@ crashes, Windows restarts it by itself.
 
 - Just type. When a word is clearly in the wrong layout it is replaced on the next space or Enter.
 - **Tap Shift twice** = switch what you just typed to the other layout. Right after a correction it undoes it, and the
-  words you undid are remembered and never corrected again. Otherwise it converts the current text (when AutoLang did
-  not correct and you wanted it to).
+  words you undid are remembered and never corrected again. Otherwise it converts the current text, or the last word
+  if you already typed a space or "?" after it (when AutoLang did not correct and you wanted it to). This works until
+  you move the caret, click, or press Enter. Shift held to type a symbol never counts as a tap.
 - Have a Pause key? **Pause** = undo, **Shift+Pause** = convert.
 - Or delete the whole correction (AutoLang switches the layout back for you) and type the word again. AutoLang leaves
   it alone and remembers it, just like an undo.
