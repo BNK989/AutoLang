@@ -20,6 +20,7 @@ internal static class Program
     private static SessionController _controller = null!;
     private static Corrector _corrector = null!;
     private static EventTap _tap = null!;
+    private static SelectionReader _selection = null!;
     private static MenuBar _menu = null!;
     private static Timer? _watchdog;
 
@@ -61,7 +62,9 @@ internal static class Program
         _corrector.Applied += job => { if (job.Correction.Kind == CorrectionKind.Undo) SaveExceptions(); };
         _corrector.Start();
 
-        _tap = new EventTap(_controller, _corrector, _sources, () => _appName);
+        _selection = new SelectionReader(_controller, _corrector, () => _appName);
+        _selection.Start();
+        _tap = new EventTap(_controller, _corrector, _selection, _sources, () => _appName);
         _menu = new MenuBar(MenuState, OnCommand);
 
         ObjC.On("notified:", OnNotification);
@@ -272,6 +275,7 @@ internal static class Program
             case MenuBar.Command.Quit:
                 Log.Info("quit");
                 _watchdog?.Dispose();
+                _selection.Dispose();
                 _corrector.Dispose();
                 Send(Send(Class("NSApplication"), Sel("sharedApplication")), Sel("terminate:"), 0);
                 break;

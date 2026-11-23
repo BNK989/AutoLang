@@ -1,6 +1,6 @@
 # AutoLang privacy policy
 
-Last updated: 2026-10-13
+Last updated: 2026-11-23
 
 AutoLang is a Windows utility that notices when you type in the wrong keyboard layout, fixes the
 word, and switches the layout. To do that it has to see your keystrokes. This page says exactly
@@ -12,6 +12,7 @@ what it does with them.
 - **The active window**: its program name, whether it is fullscreen, whether it runs as administrator,
   and whether the focused field is a password field. This decides whether AutoLang works there at all.
 - **Your installed keyboard layouts**, to know which languages to consider.
+- **Text you select**, only when you tap Shift twice to convert it (see below).
 
 ## What AutoLang keeps
 
@@ -35,6 +36,15 @@ The only network request it makes is downloading a **word list** for a keyboard 
 not ship with it: a plain download of a public file from the FrequencyWords project on GitHub. The
 request names the language (for example `ru`) and contains nothing about you or your typing. GitHub
 sees your IP address, as with any download. You can switch this off in the tray menu → **Languages…**.
+
+## Selected text
+
+If you select text and tap Shift twice, AutoLang reads the selected text from the field you are in,
+through Windows UI Automation (the accessibility interface screen readers use), so it can retype it in
+the other layout. It reads only the selection, only at that moment, and never through the clipboard.
+The text is held in memory for the conversion and for an immediate undo, then dropped; it is never
+written anywhere, logged or sent. Where a field does not report its selection to Windows, AutoLang
+does nothing.
 
 ## The clipboard
 

@@ -3,7 +3,9 @@ using AutoLang.Engine;
 
 namespace AutoLang.Session;
 
-public enum CorrectionKind { Auto, Force, Undo }
+/// <summary>Auto: the engine's own. Force: the hotkey on a run or the last word. Undo: a correction taken back.
+/// Selection: the hotkey on text the user selected (no backspaces: the typed text replaces the selection).</summary>
+public enum CorrectionKind { Auto, Force, Undo, Selection }
 
 /// <summary>
 /// What the host must do to the focused control, in this order: delete <see cref="Backspaces"/> characters,
@@ -48,6 +50,28 @@ public enum SkipReason
 /// </summary>
 public sealed record SkippedRun(SkipReason Reason, ushort FromLangId, ushort TargetLangId, int Chars,
     int Words = 0, int Letters = 0, int TypedKnown = 0, int OtherKnown = 0, double Margin = 0, double Threshold = 0);
+
+/// <summary>Why the hotkey left a selection alone. Codes only: the host logs them, never the text.</summary>
+public enum SelectionRefusal
+{
+    None,
+    /// <summary>The selection is empty.</summary>
+    Empty,
+    /// <summary>Longer than <see cref="SessionController.MaxSelectionChars"/>.</summary>
+    TooLong,
+    /// <summary>It spans lines, or holds a tab or another control character: retyping those can send a message or move focus.</summary>
+    LineBreak,
+    /// <summary>No letter any active layout types.</summary>
+    NoLetters,
+    /// <summary>No layout to convert into.</summary>
+    NoTarget,
+    /// <summary>Converting changes nothing.</summary>
+    Unchanged,
+    /// <summary>Password field, excluded or paused app.</summary>
+    Blocked,
+    /// <summary>A key, click or focus change arrived after the hotkey: the selection may be gone.</summary>
+    Stale,
+}
 
 /// <summary>Run = the text buffer; All = the buffer and the language context (new field, new window, mouse click).</summary>
 public enum ResetScope { Run, All }
@@ -125,6 +149,11 @@ public sealed class SessionController
     private int _unmanaged;
     private readonly HashSet<string> _exceptions = new(StringComparer.Ordinal);
     private volatile bool _blocked;
+    /// <summary>Bumped by every input and state change; see <see cref="InputStamp"/>.</summary>
+    private long _stamp;
+
+    /// <summary>Longest selection the hotkey converts.</summary>
+    public const int MaxSelectionChars = 1000;
 
     /// <param name="OnScreen">What our correction put on screen (replacement incl. the boundary char).</param>
     /// <param name="Original">What the user had typed (incl. the boundary char).</param>
@@ -151,6 +180,7 @@ public sealed class SessionController
     {
         lock (_sync)
         {
+            _stamp++;
             _decider = decider;
             _confirm = _opt.ConfirmMargin ?? decider.Options.THigh;
             _byLang.Clear(); _others.Clear(); _targets.Clear(); _sameScript.Clear();
@@ -184,10 +214,16 @@ public sealed class SessionController
     public bool Blocked
     {
         get => _blocked;
-        set { lock (_sync) { _blocked = value; if (value) { _run.Clear(); ScreenClear(); _undo = null; _fix = null; _rejected = null; _unmanaged = 0; } } }
+        set { lock (_sync) { _blocked = value; if (value) { _stamp++; _run.Clear(); ScreenClear(); _undo = null; _fix = null; _rejected = null; _unmanaged = 0; } } }
     }
 
     public int RunLength { get { lock (_sync) return _run.Length; } }
+
+    /// <summary>
+    /// Changes with every key, click, focus change and correction the controller sees. The host reads it when the hotkey
+    /// fires and hands it back to <see cref="ConvertSelection"/>, which refuses if anything happened in between.
+    /// </summary>
+    public long InputStamp { get { lock (_sync) return _stamp; } }
     public bool CanUndo { get { lock (_sync) return _undo is not null; } }
     public int ExceptionCount { get { lock (_sync) return _exceptions.Count; } }
 
@@ -237,6 +273,7 @@ public sealed class SessionController
         SkippedRun? skipped;
         lock (_sync)
         {
+            _stamp++;
             result = OnCharLocked(c, langId);
             learnt = TakeLearnt();
             skipped = TakeSkipped();
@@ -293,6 +330,7 @@ public sealed class SessionController
         SkippedRun? skipped;
         lock (_sync)
         {
+            _stamp++;
             _undo = null;
             if (!_blocked && _run.Length > 0 && langId != _runLang)
                 _skipped = new SkippedRun(SkipReason.LayoutChanged, _runLang, langId, _run.Length);
@@ -320,6 +358,7 @@ public sealed class SessionController
     {
         lock (_sync)
         {
+            _stamp++;
             // Erasing a separator typed after a correction keeps it undoable; erasing into the correction does not.
             if (_undo is not null && _undoTail-- == 0) _undo = null;
             if (_run.Length > 0) _run.Length--;
@@ -339,6 +378,7 @@ public sealed class SessionController
     {
         lock (_sync)
         {
+            _stamp++;
             int dropped = _run.Length;
             _run.Clear();
             ScreenClear(); // the caret may have moved, or the text under it changed: we can no longer vouch for it
@@ -357,6 +397,7 @@ public sealed class SessionController
         lock (_sync)
         {
             if (_undo is not { } u) return null;
+            _stamp++;
             _undo = null;
             _fix = null;
             if (!_byLang.TryGetValue(u.OriginalLang, out var table)) return null;
@@ -386,7 +427,8 @@ public sealed class SessionController
         {
             _undo = null;
             if (_blocked) return null;
-            if (_run.Length == 0) return FlipLastWord();
+            if (_run.Length == 0) return FlipLastWord() is { } flip ? Bump(flip) : null;
+            _stamp++;
             if (langId != _runLang || !_byLang.TryGetValue(langId, out var typedTable)) { _run.Clear(); ScreenClear(); return null; }
             var onScreen = _run.ToString();
             // The manual hotkey converts across alphabets like the automatic path; only a user whose layouts all share
@@ -406,6 +448,82 @@ public sealed class SessionController
             _recentInScript[target.Script] = target.LangId;
             return new Correction(CorrectionKind.Force, onScreen.Length, replacement, false, langId, target.LangId, bestMargin, "force");
         }
+    }
+
+    private Correction Bump(Correction c) { _stamp++; return c; }
+
+    /// <summary>
+    /// The hotkey with nothing tracked and text selected in the focused control: re-read the selection under the other
+    /// layout. The host read <paramref name="text"/> from the control after the hotkey (never from the clipboard), and
+    /// <paramref name="stamp"/> is <see cref="InputStamp"/> as it was then; anything since makes this a no-op. The source
+    /// layout is one of the alphabet most of the letters belong to (the window's, else the one used last); the target is
+    /// chosen as <see cref="Force"/> chooses it. The whole selection is re-read, punctuation included: every key of it was
+    /// pressed under the wrong layout. The host types the result over the selection (no backspaces), and
+    /// <see cref="Undo"/> puts the original back while nothing else happens. Text is held in memory only.
+    /// </summary>
+    public Correction? ConvertSelection(string text, ushort windowLang, long stamp, out SelectionRefusal why)
+    {
+        lock (_sync)
+        {
+            why = Refuse(text, stamp);
+            if (why != SelectionRefusal.None) return null;
+            if (SelectionSource(text, windowLang) is not { } source) { why = SelectionRefusal.NoLetters; return null; }
+            var candidates = _targets[source.LangId].Length > 0 ? _targets[source.LangId] : _sameScript[source.LangId];
+            var picked = Pick(candidates.Select(o => (o, _decider.Decide(text, source, o))), byRank: false);
+            if (picked is not { } p) { why = SelectionRefusal.NoTarget; return null; }
+            var (target, best) = p;
+            var replacement = source.TransliterateTo(target, text);
+            if (replacement == text) { why = SelectionRefusal.Unchanged; return null; }
+
+            _stamp++;
+            _run.Clear();
+            ScreenClear();
+            // The converted text is all we can vouch for before the caret: typing it replaced the selection. Not trimmed
+            // like typing is, so undo reaches all of it.
+            _screen.Append(replacement);
+            for (int i = 0; i < replacement.Length; i++) _screenLang.Add(target.LangId);
+            _undo = new Undoable(replacement, text, source.LangId, target.LangId, CorrectionKind.Force);
+            _undoTail = 0;
+            _fix = null; // asked for explicitly: erasing it is not a rejection of ours
+            _rejected = null;
+            _runLang = target.LangId;
+            _confirmedLang = target.LangId;
+            _recentInScript[target.Script] = target.LangId;
+            return new Correction(CorrectionKind.Selection, 0, replacement, false, source.LangId, target.LangId, best.Margin, "selection");
+        }
+    }
+
+    private SelectionRefusal Refuse(string text, long stamp)
+    {
+        if (_blocked) return SelectionRefusal.Blocked;
+        if (stamp != _stamp) return SelectionRefusal.Stale;
+        if (text.Length == 0) return SelectionRefusal.Empty;
+        if (text.Length > MaxSelectionChars) return SelectionRefusal.TooLong;
+        foreach (var c in text)
+            if (char.IsControl(c) || c is '\u2028' or '\u2029') return SelectionRefusal.LineBreak;
+        return SelectionRefusal.None;
+    }
+
+    /// <summary>
+    /// The layout a selection was typed in: the alphabet most of its letters belong to, among the active layouts; within
+    /// it the window's layout, else the one the user typed in last, else the one that types most of the letters.
+    /// </summary>
+    private KeyboardLayoutTable? SelectionSource(string text, ushort windowLang)
+    {
+        var counts = new Dictionary<string, int>(StringComparer.Ordinal);
+        foreach (var c in text)
+        {
+            if (!char.IsLetter(c) || Scripts.Of(c) is not { } script) continue;
+            if (!_byLang.Values.Any(l => l.Script == script && l.Letters.Contains(c))) continue;
+            counts[script] = counts.GetValueOrDefault(script) + 1;
+        }
+        if (counts.Count == 0) return null;
+        _byLang.TryGetValue(windowLang, out var window);
+        // Most letters; on a tie, the window's alphabet.
+        var top = counts.OrderByDescending(kv => kv.Value).ThenByDescending(kv => kv.Key == window?.Script).First().Key;
+        if (window is not null && window.Script == top) return window;
+        if (_recentInScript.TryGetValue(top, out var recent) && _byLang.TryGetValue(recent, out var r)) return r;
+        return _byLang.Values.Where(l => l.Script == top).MaxBy(l => text.Count(l.Letters.Contains));
     }
 
     /// <summary>

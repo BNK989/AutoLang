@@ -89,13 +89,17 @@ internal static class Program
             return installed.FirstOrDefault(x => x.LangId == lang); // same language, variant layout (e.g. Hebrew Standard vs. legacy)
         }
 
-        // 4. Threads: corrector (injects), focus monitor (vets windows), hook (listens).
+        // 4. Threads: corrector (injects), focus monitor (vets windows), selection reader (the hotkey on selected text),
+        //    hook (listens).
         // The typing method is read on the corrector thread and changed from the tray: both lock the settings.
         using var corrector = new Corrector(process => { lock (settings) return settings.TypingMethodFor(process); });
         using var focus = new FocusMonitor(controller, settings);
-        using var hook = new KeyboardHook(controller, corrector, focus, LayoutOf, lang => hklByLang.TryGetValue(lang, out var h) ? h : 0);
+        nint HklOfLang(ushort lang) => hklByLang.TryGetValue(lang, out var h) ? h : 0;
+        using var selection = new SelectionReader(controller, corrector, HklOfLang);
+        using var hook = new KeyboardHook(controller, corrector, focus, selection, LayoutOf, HklOfLang);
         corrector.Start();
         focus.Start();
+        selection.Start();
         focus.Poke();
         try { hook.Start(); }
         catch (Exception ex)

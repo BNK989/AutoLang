@@ -218,6 +218,12 @@ timeout) — it only enqueues.
   current selection regardless of score — the manual fallback.
 - **Double-tap Shift** does both, for keyboards without Pause (most laptops):
   undo when a correction was just made, force convert otherwise.
+- **Selection**: with nothing tracked (the caret moved or the user clicked, which
+  is also how text gets selected), the force hotkey converts the focused
+  control's selection, read through UI Automation `TextPattern` on a worker
+  thread (`AXSelectedText` on the Mac), never via Ctrl+C or the clipboard. One
+  line, up to 1,000 chars, editable controls only; the result is typed over the
+  selection and the hotkey right after undoes it. No TextPattern, nothing happens.
 - **Pause/resume** from tray; **per-app disable** from tray menu.
 - Settings: aggressiveness (conservative / balanced / aggressive), excluded
   apps, exception words, start at login.

@@ -45,8 +45,8 @@ internal sealed partial record UiText
         SwitchTyped = "Cambiar lo que acabas de escribir",
         ShiftTwice = "Mayús dos veces",
         SwitchTypedHow =
-            "Pulsa Mayús dos veces en el campo de texto, justo después de escribir, para pasar el texto a la otra distribución. " +
-            "Justo después de que AutoLang corrija una palabra, deshace la corrección. (La tecla Pausa también deshace, y Mayús+Pausa convierte).",
+            "Pulsa Mayús dos veces justo después de escribir para pasar el texto a la otra distribución, o justo después de una corrección para deshacerla. " +
+            "Para texto anterior, selecciónalo primero. (Pausa también deshace; Mayús+Pausa convierte.)",
         LanguagesMenu = "Idiomas…",
         LearntWordsMenu = "Palabras aprendidas",
         LearntWordsHint = "Haga clic en una palabra para que vuelva a corregirse.",

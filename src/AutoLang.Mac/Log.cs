@@ -38,6 +38,10 @@ internal static class Log
     }
 
     public static void Info(string message) => Write("info", message);
+
+    /// <summary>The hotkey looked for selected text. Outcome code and length only, never the text.</summary>
+    public static void Selection(string app, string outcome, int chars, double ms)
+        => Write("sel ", $"{outcome} in {app}{(chars > 0 ? $", {chars} chars" : "")} ({ms.ToString("F0", CultureInfo.InvariantCulture)} ms)");
     public static void Warn(string message) => Write("WARN", message);
 
     /// <summary>A correction was injected. Sizes and timings only.</summary>

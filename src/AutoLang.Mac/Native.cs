@@ -70,6 +70,10 @@ internal static unsafe class Native
     [DllImport(ApplicationServices)] public static extern byte CGRequestListenEventAccess();
     [DllImport(ApplicationServices)] public static extern byte AXIsProcessTrusted();
     [DllImport(ApplicationServices)] public static extern byte AXIsProcessTrustedWithOptions(nint options);
+    [DllImport(ApplicationServices)] public static extern nint AXUIElementCreateSystemWide();
+    [DllImport(ApplicationServices)] public static extern int AXUIElementCopyAttributeValue(nint element, nint attribute, out nint value);
+    [DllImport(ApplicationServices)] public static extern int AXUIElementIsAttributeSettable(nint element, nint attribute, out byte settable);
+    [DllImport(ApplicationServices)] public static extern int AXUIElementSetMessagingTimeout(nint element, float timeoutInSeconds);
 
     // ---- Text Input Sources and key translation (via Carbon) ----
 

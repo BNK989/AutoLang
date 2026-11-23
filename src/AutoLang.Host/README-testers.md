@@ -59,6 +59,10 @@ crashes, Windows restarts it by itself.
   words you undid are remembered and never corrected again. Otherwise it converts the current text, or the last word
   if you already typed a space or "?" after it (when AutoLang did not correct and you wanted it to). This works until
   you move the caret, click, or press Enter. Shift held to type a symbol never counts as a tap.
+- **Select text and tap Shift twice** = retype the selection in the other layout, for text further back. Tap Shift
+  twice again right away to put it back. One line at a time. AutoLang reads the selection through Windows' accessibility
+  interface, never the clipboard; where a field does not report its selection (some code editors), nothing happens.
+  Please tell us which apps that is.
 - Have a Pause key? **Pause** = undo, **Shift+Pause** = convert.
 - Or delete the whole correction (AutoLang switches the layout back for you) and type the word again. AutoLang leaves
   it alone and remembers it, just like an undo.

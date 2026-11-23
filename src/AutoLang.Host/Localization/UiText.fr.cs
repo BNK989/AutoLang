@@ -45,8 +45,8 @@ internal sealed partial record UiText
         SwitchTyped = "Convertir ce que vous venez de taper",
         ShiftTwice = "Maj deux fois",
         SwitchTypedHow =
-            "Appuyez deux fois sur Maj dans le champ de texte, juste après la saisie, pour passer le texte dans l'autre disposition. " +
-            "Juste après une correction d'AutoLang, cela l'annule. (La touche Pause annule aussi, et Maj+Pause convertit.)",
+            "Appuyez deux fois sur Maj juste après la saisie pour passer le texte dans l'autre disposition, ou juste après une correction pour l'annuler. " +
+            "Pour un texte plus ancien, sélectionnez-le d'abord. (Pause annule aussi, Maj+Pause convertit.)",
         LanguagesMenu = "Langues…",
         LearntWordsMenu = "Mots appris",
         LearntWordsHint = "Cliquez sur un mot pour qu’il soit de nouveau corrigé.",

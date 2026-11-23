@@ -45,8 +45,8 @@ internal sealed partial record UiText
         SwitchTyped = "Converti ciò che hai appena digitato",
         ShiftTwice = "Maiusc due volte",
         SwitchTypedHow =
-            "Premi Maiusc due volte nel campo di testo, subito dopo aver digitato, per convertire il testo nell'altro layout. " +
-            "Subito dopo una correzione di AutoLang, invece, la annulla. (Anche il tasto Pausa annulla, e Maiusc+Pausa converte.)",
+            "Premi Maiusc due volte subito dopo aver digitato per convertire il testo nell'altro layout, o subito dopo una correzione per annullarla. " +
+            "Per un testo precedente, selezionalo prima. (Anche Pausa annulla; Maiusc+Pausa converte.)",
         LanguagesMenu = "Lingue…",
         LearntWordsMenu = "Parole apprese",
         LearntWordsHint = "Fai clic su una parola perché venga di nuovo corretta.",

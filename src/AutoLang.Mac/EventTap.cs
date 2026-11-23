@@ -28,6 +28,7 @@ internal sealed unsafe class EventTap
 
     private readonly SessionController _controller;
     private readonly Corrector _corrector;
+    private readonly SelectionReader _selection;
     private readonly InputSources _sources;
     private readonly Func<string> _app;
     private nint _tap, _runLoopSource;
@@ -35,10 +36,11 @@ internal sealed unsafe class EventTap
     /// <summary>Double-tap Shift state.</summary>
     private readonly DoubleShift _doubleShift = new();
 
-    public EventTap(SessionController controller, Corrector corrector, InputSources sources, Func<string> app)
+    public EventTap(SessionController controller, Corrector corrector, SelectionReader selection, InputSources sources, Func<string> app)
     {
         _controller = controller;
         _corrector = corrector;
+        _selection = selection;
         _sources = sources;
         _app = app;
     }
@@ -141,8 +143,8 @@ internal sealed unsafe class EventTap
 
     /// <summary>
     /// Shift, Command, Control, Option, Caps Lock and fn arrive as flag changes, not key presses. Double-tapping Shift is
-    /// the hotkey (as on Windows): it undoes the correction just made, or else converts the current run or the last word.
-    /// It fires when the second tap is released (<see cref="DoubleShift"/>). Shift is never swallowed; a lone Shift does
+    /// the hotkey (as on Windows): it undoes the correction just made, or else converts the current run or the last word,
+    /// or else the selected text (<see cref="SelectionReader"/>). It fires when the second tap is released (<see cref="DoubleShift"/>). Shift is never swallowed; a lone Shift does
     /// nothing in apps.
     /// </summary>
     private void ModifierChanged(ushort keyCode, ulong flags)
@@ -167,8 +169,12 @@ internal sealed unsafe class EventTap
 
     private void Hotkey(bool convert)
     {
-        Correction? c = convert ? _controller.Force(_sources.Current()?.LangId ?? 0) : _controller.Undo();
-        if (c is not null) Enqueue(c, shiftEnter: false);
+        ushort lang = _sources.Current()?.LangId ?? 0;
+        Correction? c = convert ? _controller.Force(lang) : _controller.Undo();
+        if (c is not null) { Enqueue(c, shiftEnter: false); return; }
+        // Nothing typed to flip: selecting text resets what is tracked, so this is where a selection can be.
+        if (convert && lang != 0 && !_controller.Blocked && IsSecureEventInputEnabled() == 0)
+            _selection.Look(new SelectionReader.Request(lang, _controller.InputStamp, _app()));
     }
 
     private bool Apply(Correction? c, ulong flags)

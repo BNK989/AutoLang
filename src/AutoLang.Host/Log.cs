@@ -42,6 +42,10 @@ internal static class Log
     public static void Correction(string kind, string process, TypingMethod method, int backspaces, int typed, double margin, double injectMs, uint sent, uint wanted)
         => Write("corr", $"{kind} in {process}{(method == TypingMethod.Unicode ? "" : $" ({method.ToString().ToLowerInvariant()})")}: -{backspaces} +{typed} chars, margin {margin.ToString("F1", CultureInfo.InvariantCulture)}, inject {injectMs.ToString("F2", CultureInfo.InvariantCulture)} ms, sent {sent}/{wanted}");
 
+    /// <summary>The hotkey looked for selected text. Outcome code and length only, never the text.</summary>
+    public static void Selection(string process, string outcome, int chars, double ms)
+        => Write("sel ", $"{outcome} in {process}{(chars > 0 ? $", {chars} chars" : "")} ({ms.ToString("F0", CultureInfo.InvariantCulture)} ms)");
+
     /// <summary>The focus worker resolved the foreground context.</summary>
     public static void Focus(string process, string control, bool blocked, string reason, double ms)
         => Write("focs", $"{process} [{control}] {(blocked ? "BLOCKED: " + reason : "active")} ({ms.ToString("F0", CultureInfo.InvariantCulture)} ms)");

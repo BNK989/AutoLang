@@ -45,8 +45,8 @@ internal sealed partial record UiText
         SwitchTyped = "Converter o que você acabou de digitar",
         ShiftTwice = "Shift duas vezes",
         SwitchTypedHow =
-            "Pressione Shift duas vezes no campo de texto, logo após digitar, para passar o texto para o outro layout. " +
-            "Logo depois que o AutoLang corrige uma palavra, isso desfaz a correção. (A tecla Pause também desfaz, e Shift+Pause converte.)",
+            "Pressione Shift duas vezes logo após digitar para passar o texto para o outro layout, ou logo após uma correção para desfazê-la. " +
+            "Para um texto anterior, selecione-o antes. (Pause também desfaz; Shift+Pause converte.)",
         LanguagesMenu = "Idiomas…",
         LearntWordsMenu = "Palavras aprendidas",
         LearntWordsHint = "Clique em uma palavra para que ela volte a ser corrigida.",

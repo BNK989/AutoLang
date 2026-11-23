@@ -99,7 +99,7 @@ A tool that sees your keystrokes has to earn trust. These are design rules, not 
 @trust_4
 <strong>The log never contains text</strong>, only counts and timings for troubleshooting.
 @trust_5
-<strong>Easy undo.</strong> Tap <kbd>Shift</kbd> twice to revert a correction, or to convert text it missed.
+<strong>Easy undo.</strong> Tap <kbd>Shift</kbd> twice to revert a correction, or to convert text it missed or text you select.
 @trust_6
 <strong>Always visible.</strong> The tray icon shows when it's watching, paused or skipping a window.
 @trust_7
@@ -183,7 +183,7 @@ What AutoLang reads, what it keeps, and what leaves your computer (nothing you t
 @p_h1
 AutoLang privacy policy
 @p_updated
-Last updated: 13 October 2026
+Last updated: 23 November 2026
 # Translations only: says the English policy is the one that counts, and links to it.
 @p_translation_note
 
@@ -203,6 +203,8 @@ What AutoLang reads
         and whether the focused field is a password field. This decides whether AutoLang works there at all.
 @p_reads_3
 <strong>Your installed keyboard layouts</strong>, to know which languages to consider.
+@p_reads_4
+<strong>Text you select</strong>, only when you tap <kbd>Shift</kbd> twice to convert it (see below).
 
 @p_keeps_h
 What AutoLang keeps
@@ -234,6 +236,15 @@ The only network request it makes is downloading a <strong>word list</strong> fo
       <a href="https://github.com/hermitdave/FrequencyWords">FrequencyWords</a> project on GitHub. The request names the
       language (for example <code>ru</code>) and contains nothing about you or your typing. GitHub sees your IP address,
       as with any download. You can switch this off in the tray menu → <strong>Languages…</strong>.
+
+@p_sel_h
+Selected text
+@p_sel
+If you select text and tap <kbd>Shift</kbd> twice, AutoLang reads the selected text from the field you are in,
+      through Windows UI Automation (the accessibility interface screen readers use), so it can retype it in the other
+      layout. It reads only the selection, only at that moment, and never through the clipboard. The text is held in
+      memory for the conversion and for an immediate undo, then dropped; it is never written anywhere, logged or sent.
+      Where a field does not report its selection to Windows, AutoLang does nothing.
 
 @p_clip_h
 The clipboard

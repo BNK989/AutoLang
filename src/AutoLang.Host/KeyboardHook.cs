@@ -25,6 +25,7 @@ internal sealed class KeyboardHook : IDisposable
     private readonly SessionController _controller;
     private readonly Corrector _corrector;
     private readonly FocusMonitor _focus;
+    private readonly SelectionReader _selection;
     private readonly Func<nint, InstalledLayout?> _layoutOf;
     private readonly Func<ushort, nint> _hklOfLang;
     /// <summary>Hook thread only: the layout variant the user last typed with per language, so a switch lands on it.</summary>
@@ -48,12 +49,13 @@ internal sealed class KeyboardHook : IDisposable
     private readonly byte[] _state = new byte[256];
     private readonly StringBuilder _sb = new(8);
 
-    public KeyboardHook(SessionController controller, Corrector corrector, FocusMonitor focus,
+    public KeyboardHook(SessionController controller, Corrector corrector, FocusMonitor focus, SelectionReader selection,
         Func<nint, InstalledLayout?> layoutOf, Func<ushort, nint> hklOfLang)
     {
         _controller = controller;
         _corrector = corrector;
         _focus = focus;
+        _selection = selection;
         _layoutOf = layoutOf;
         _hklOfLang = hklOfLang;
         _kbProc = KeyboardCallback;
@@ -247,6 +249,8 @@ internal sealed class KeyboardHook : IDisposable
     /// <summary>
     /// Double-tapping Shift, the hotkey every keyboard has (most laptops lack Pause): undoes the correction just made, or
     /// else converts the current run or the last word, so either way it flips what was just typed to the other layout.
+    /// With none of those (the user clicked or moved the caret, which is also how text gets selected), it converts the
+    /// selected text, if the control has any (<see cref="SelectionReader"/>).
     /// It fires when the second tap is released (<see cref="DoubleShift"/>), after Shift is up, so the keys the
     /// correction injects are unaffected by it. Shift is never swallowed; a lone Shift does nothing in apps.
     /// </summary>
@@ -265,8 +269,17 @@ internal sealed class KeyboardHook : IDisposable
     private bool Hotkey(bool convert)
     {
         var hwnd = GetForegroundWindow();
-        Correction? c = convert ? _controller.Force(LangOf(hwnd, out _)) : _controller.Undo();
-        if (c is null) return false;
+        var lang = LangOf(hwnd, out _);
+        Correction? c = convert ? _controller.Force(lang) : _controller.Undo();
+        if (c is null)
+        {
+            // Nothing typed to flip. Selecting text resets what is tracked, so this is where a selection can be. The
+            // reader answers later, on its own thread; the stamp makes it give up if anything happens meanwhile.
+            if (convert && lang != 0 && hwnd == _focus.Status.Hwnd && !_controller.Blocked)
+                _selection.Look(new SelectionReader.Request(hwnd, lang, _controller.InputStamp, _focus.Status.Process, _caps,
+                    new Dictionary<ushort, nint>(_lastHkl)));
+            return false;
+        }
         Enqueue(c, hwnd);
         return true; // the hotkey did something: do not let the app see the Pause key
     }

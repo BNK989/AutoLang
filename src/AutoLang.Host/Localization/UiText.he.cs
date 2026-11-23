@@ -45,8 +45,8 @@ internal sealed partial record UiText
         SwitchTyped = "החלפת מה שהוקלד זה עתה",
         ShiftTwice = "Shift פעמיים",
         SwitchTypedHow =
-            "לחיצה פעמיים על Shift בשדה הטקסט, מיד אחרי ההקלדה, מעבירה את הטקסט לפריסה האחרת. " +
-            "אם AutoLang תיקן מילה רגע לפני כן, היא מבטלת את התיקון. (גם מקש Pause מבטל, ו-Shift+Pause ממיר.)",
+            "לחיצה פעמיים על Shift בשדה הטקסט מיד אחרי ההקלדה מעבירה את הטקסט לפריסה האחרת, ומיד אחרי תיקון מבטלת אותו. " +
+            "כדי לתקן טקסט ישן יותר, מסמנים אותו קודם. (גם Pause מבטל, ו-Shift+Pause ממיר.)",
         LanguagesMenu = "שפות…",
         LearntWordsMenu = "מילים שנלמדו",
         LearntWordsHint = "לחיצה על מילה תחזיר את התיקון שלה.",

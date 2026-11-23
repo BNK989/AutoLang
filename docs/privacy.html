@@ -62,7 +62,7 @@
 <main class="prose">
   <div class="wrap narrow">
     <h1>AutoLang privacy policy</h1>
-    <p class="updated">Last updated: 13 October 2026</p>
+    <p class="updated">Last updated: 23 November 2026</p>
 
     <p>AutoLang is a Windows utility that notices when you type in the wrong keyboard layout, fixes the word, and
       switches the layout. To do that it has to see your keystrokes. This page says exactly what it does with them.</p>
@@ -78,6 +78,7 @@
       <li><strong>The active window</strong>: its program name, whether it is fullscreen, whether it runs as administrator,
         and whether the focused field is a password field. This decides whether AutoLang works there at all.</li>
       <li><strong>Your installed keyboard layouts</strong>, to know which languages to consider.</li>
+      <li><strong>Text you select</strong>, only when you tap <kbd>Shift</kbd> twice to convert it (see below).</li>
     </ul>
 
     <h2>What AutoLang keeps</h2>
@@ -104,6 +105,13 @@
       <a href="https://github.com/hermitdave/FrequencyWords">FrequencyWords</a> project on GitHub. The request names the
       language (for example <code>ru</code>) and contains nothing about you or your typing. GitHub sees your IP address,
       as with any download. You can switch this off in the tray menu → <strong>Languages…</strong>.</p>
+
+    <h2>Selected text</h2>
+    <p>If you select text and tap <kbd>Shift</kbd> twice, AutoLang reads the selected text from the field you are in,
+      through Windows UI Automation (the accessibility interface screen readers use), so it can retype it in the other
+      layout. It reads only the selection, only at that moment, and never through the clipboard. The text is held in
+      memory for the conversion and for an immediate undo, then dropped; it is never written anywhere, logged or sent.
+      Where a field does not report its selection to Windows, AutoLang does nothing.</p>
 
     <h2>The clipboard</h2>
     <p>By default AutoLang never touches the clipboard. If you switch a particular app to the
