@@ -7,7 +7,7 @@
 <meta name="description" content="{{description}}">
 {{@head}}
 <link rel="icon" href="{{@root}}icon.png">
-<link rel="stylesheet" href="{{@root}}style.css">
+<link rel="stylesheet" href="{{@root}}style.css?v={{@ver}}">
 </head>
 <body>
 
@@ -269,8 +269,8 @@
   play();
 })();
 </script>
-<script src="{{@root}}demo/engine.js"></script>
-<script src="{{@root}}demo/demo.js"></script>
+<script src="{{@root}}demo/engine.js?v={{@ver}}"></script>
+<script src="{{@root}}demo/demo.js?v={{@ver}}"></script>
 {{@menuscript}}
 </body>
 </html>

@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 // from the templates site/index.html and site/privacy.html and the strings in site/strings/<lang>.txt.
 //
 // Template placeholders: {{key}} is a string, {{?key}} drops its whole line when the string is empty, and
-// {{@name}} is filled in here (@lang, @dir, @root, @head, @langmenu, @menuscript). {{key.xx}} is the string in
+// {{@name}} is filled in here (@lang, @dir, @root, @head, @langmenu, @menuscript, @ver). {{key.xx}} is the string in
 // language xx instead of the page's (the try-it box shows the placeholder of the language picked in it). Strings are HTML.
 // English decides which keys exist; every translation must have exactly the same ones.
 const string BaseUrl = "https://bnk989.github.io/AutoLang/";
@@ -155,6 +155,20 @@ string Render(string template, string page, string lang)
     return html[..cut] + header + html[cut..];
 }
 
+// GitHub Pages lets browsers keep files for 10 minutes, so after a deploy a visitor can get the new page with the
+// old stylesheet or script. Linking them as "style.css?v=<hash of their contents>" makes every change a new URL.
+string AssetVersion()
+{
+    using var sha = System.Security.Cryptography.SHA256.Create();
+    foreach (var f in new[] { "style.css", "demo/engine.js", "demo/demo.js" })
+    {
+        var bytes = File.ReadAllBytes(Path.Combine(docs, f));
+        sha.TransformBlock(bytes, 0, bytes.Length, null, 0);
+    }
+    sha.TransformFinalBlock([], 0, 0);
+    return Convert.ToHexString(sha.Hash!)[..8].ToLowerInvariant();
+}
+
 string Special(string name, string page, string lang)
 {
     var file = page == "index.html" ? "" : page;
@@ -191,6 +205,7 @@ string Special(string name, string page, string lang)
             return menu.ToString();
         }
         case "menuscript": return MenuScript;
+        case "ver": return AssetVersion();
         default:
             errors.Add($"site/{page}: unknown placeholder {{{{@{name}}}}}");
             return "";
