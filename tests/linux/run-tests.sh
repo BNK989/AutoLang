@@ -1,23 +1,25 @@
 #!/bin/bash
-# Spike tests: types physical keys into a real app through IBus and the AutoLang engine, then reads the text back.
-#   run-tests.sh [app] [delete modes...]
-#   app: gtk-textview (default) | gtk-entry | chrome
-#   delete modes: surrounding forward auto (default: all three)
-# Needs an X display (WSLg gives one), xdotool, ibus, and the engine installed with install-dev.sh.
+# End-to-end tests for the Linux build: types physical keys into a real app through IBus and the installed AutoLang
+# engine, then reads the text back.
+#   run-tests.sh [app] [modes...]
+#   app:   gtk-textview (default) | gtk-entry | chrome | vscode
+#   modes: preedit (default; the shipped one) | surrounding | forward | auto
+# Needs an X display (WSLg gives one), xdotool, ibus, python3-gi, and the autolang package installed. Each mode runs
+# with a fresh settings folder in /tmp, so learnt words never leak between cases or into the user's own settings.
 set -u
 APP="${1:-gtk-textview}"; shift || true
-MODES=("$@"); [ ${#MODES[@]} -eq 0 ] && MODES=(surrounding forward auto)
+MODES=("$@"); [ ${#MODES[@]} -eq 0 ] && MODES=(preedit)
 HERE="$(cd "$(dirname "$0")" && pwd)"
 OUT=/tmp/autolang-test.txt
-CONF="${XDG_CONFIG_HOME:-$HOME/.config}/autolang"
-LOG="${XDG_STATE_HOME:-$HOME/.local/state}/autolang/spike.log"
-mkdir -p "$CONF"
+export XDG_CONFIG_HOME=/tmp/autolang-test-config XDG_STATE_HOME=/tmp/autolang-test-state
+LOG="$XDG_STATE_HOME/autolang/autolang.log"
 export GTK_IM_MODULE=ibus QT_IM_MODULE=ibus XMODIFIERS=@im=ibus GDK_BACKEND=x11
 
-start_ibus() { # $1 = delete mode
-    printf 'AUTOLANG_LAYOUTS=us,il\nAUTOLANG_DELETE=%s\nAUTOLANG_LOG_TEXT=1\nAUTOLANG_FORWARD_DELAY_MS=%s\nAUTOLANG_FOCUS_RESETS_LANG=1\n' "$1" "${FORWARD_DELAY_MS:-0}" > "$CONF/spike.env"
-    ibus exit >/dev/null 2>&1; pkill -f autolang-ibus; sleep 0.5
-    ibus-daemon -drx --panel=disable
+start_ibus() { # $1 = mode. The daemon passes its environment on to the engine it starts.
+    ibus exit >/dev/null 2>&1; pkill -x autolang; sleep 0.5
+    rm -rf "$XDG_CONFIG_HOME" "$XDG_STATE_HOME"
+    AUTOLANG_LAYOUTS=us,il AUTOLANG_DELETE="$1" AUTOLANG_LOG_TEXT=1 AUTOLANG_FOCUS_RESETS_LANG=1 \
+        AUTOLANG_FORWARD_DELAY_MS="${FORWARD_DELAY_MS:-0}" ibus-daemon -drx --panel=disable
     for _ in $(seq 50); do ibus engine >/dev/null 2>&1 && break; sleep 0.1; done
     ibus engine autolang 2>/dev/null
     [ "$(ibus engine 2>/dev/null)" = autolang ] || { echo "cannot select the autolang engine"; exit 1; }
@@ -96,6 +98,9 @@ for mode in "${MODES[@]}"; do
     run_case "backspace in word"    "שלום "             "t:akuoo" "k:BackSpace" "t: "
     run_case "arrow key mid word"   "hellxo"            "t:hello" "k:Left" "t:x"
     run_case "double shift undo"    "akuo "             "t:akuo " "s:2"
+    sleep 0.5
+    if grep -q '"akuo"' "$XDG_CONFIG_HOME/autolang/settings.json" 2>/dev/null; then echo "ok   undone word saved to settings"
+    else echo "FAIL undone word saved to settings"; FAILS=$((FAILS+1)); fi
     run_case "double shift convert" "הי"                "t:vh" "s:2"
 done
 echo "failures: $FAILS"

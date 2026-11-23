@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- The Linux host: an IBus input method. Same engine and session as Windows and Mac; only the OS edges differ:
+       IBus key events instead of a keyboard hook, libxkbcommon instead of ToUnicodeEx, CommitText / preedit instead of
+       SendInput, and no layout switching at all (AutoLang types every language itself). Plain net8.0 with P/Invoke, so
+       it compiles anywhere; it only runs on Linux. packaging/linux/build-deb.ps1 publishes it and wraps it in a .deb. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <RootNamespace>AutoLang.Linux</RootNamespace>
+    <AssemblyName>autolang</AssemblyName>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <Version>0.6.0</Version>
+    <RuntimeIdentifiers>linux-x64;linux-arm64</RuntimeIdentifiers>
+    <InvariantGlobalization>false</InvariantGlobalization>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Tmds.DBus.Protocol" Version="0.95.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AutoLang.Engine\AutoLang.Engine.csproj" />
+    <ProjectReference Include="..\AutoLang.Session\AutoLang.Session.csproj" />
+  </ItemGroup>
+
+  <!-- Bundled word lists, the same resources the Windows and Mac hosts embed. -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\data\words\*.txt" LogicalName="words/%(Filename)%(Extension)" />
+  </ItemGroup>
+
+</Project>

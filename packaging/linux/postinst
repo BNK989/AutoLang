@@ -1,0 +1,17 @@
+#!/bin/sh
+# Refresh IBus's system cache so the engine list includes AutoLang, then say the two steps left for the user.
+# Both are per-user (the running ibus-daemon and the GNOME input sources belong to the desktop session), so the
+# package cannot do them from here.
+set -e
+if [ "$1" = configure ]; then
+    ibus write-cache --system >/dev/null 2>&1 || true
+    cat <<'EOF'
+
+AutoLang is installed. As your own user (not root), run:
+    ibus restart
+    autolang enable
+Then type. "autolang doctor" checks the setup; "autolang disable" undoes "enable".
+
+EOF
+fi
+exit 0

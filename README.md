@@ -59,6 +59,7 @@ decisions and evaluation results: [PLAN.md](PLAN.md).
 | `src/AutoLang.Engine` | Layout tables, tokenizer, dictionaries, n-gram models, phrase decisions. No Windows dependencies. |
 | `src/AutoLang.Session` | The current run, corrections, undo and learned exceptions. |
 | `src/AutoLang.Host` | `AutoLang.exe`: tray app, hooks, focus checks, injection. |
+| `src/AutoLang.Linux` | Linux tester build: an IBus input method, packaged as a `.deb` (`packaging/linux`). |
 | `tests/AutoLang.Engine.Tests` | Unit tests. |
 | `tools/AutoLang.Eval` | Evaluation harness over a sentence corpus. |
 | `tools/AutoLang.Assets` | Generates the icons and Store logos. |

@@ -1,0 +1,213 @@
+<!doctype html>
+<!-- Unlisted page for Linux testers. Nothing links here and search engines are asked not to index it. Hand-written, not generated. -->
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>AutoLang for Linux: tester build</title>
+<link rel="icon" href="../icon.png">
+<link rel="stylesheet" href="../style.css">
+<style>
+  .cta { margin: 20px 0 6px; }
+  .cmd { position: relative; margin: 12px 0; }
+  .cmd pre {
+    margin: 0; padding: 14px 16px; padding-inline-end: 84px; overflow-x: auto;
+    background: var(--code-bg); border-radius: 10px;
+    font: 14px/1.6 ui-monospace, "Cascadia Mono", Consolas, monospace;
+  }
+  .cmd button {
+    position: absolute; top: 8px; inset-inline-end: 8px; font: inherit; font-size: 13px;
+    padding: 4px 10px; border-radius: 7px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  }
+  .out pre { padding-inline-end: 16px; color: var(--muted); }
+  .prose ol li, .prose ul li { margin-bottom: 8px; }
+  .prose .tldr ul { margin: 8px 0 0; padding-inline-start: 20px; }
+  .sum { font: 12px/1.5 ui-monospace, "Cascadia Mono", Consolas, monospace; word-break: break-all; }
+  table.files { border-collapse: collapse; width: 100%; font-size: 15px; }
+  table.files td { padding: 6px 8px; border-top: 1px solid var(--line); vertical-align: top; }
+  table.files td:first-child { white-space: nowrap; }
+  @media (max-width: 560px) { table.files td:first-child { white-space: normal; word-break: break-all; } }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../"><img src="../icon.png" alt="">AutoLang</a>
+    <nav>
+      <a href="../privacy.html">Privacy</a>
+      <a class="hide-sm" href="https://github.com/BNK989/AutoLang">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main class="prose">
+  <div class="wrap narrow">
+    <h1>AutoLang for Linux: tester build</h1>
+    <p class="updated">Version 0.6.0 · first Linux test build · 23 November 2026</p>
+
+    <p>AutoLang fixes text you typed in the wrong keyboard layout. Type <code>akuo</code> while you meant Hebrew and it
+      becomes <code>שלום</code>; carry on typing and you are in Hebrew. On Linux it is an <strong>IBus input
+      method</strong>, the same mechanism Chinese, Japanese and Korean input uses, so it needs no root process and no
+      special permissions.</p>
+
+    <div class="tldr">
+      <p><strong>Thanks for testing.</strong> Before you start:</p>
+      <ul>
+        <li>It is built for <strong>Ubuntu 24.04 or later</strong> with the standard GNOME desktop, Wayland or X11, on
+          64-bit Intel or AMD. Other GNOME distributions with IBus (Debian, Fedora) may work; tell me if you try.</li>
+        <li>It corrects between <strong>English and Hebrew</strong>. Other languages come later, see
+          <a href="#layouts">Other layouts</a>.</li>
+        <li>Setup takes three commands. Testing takes as long as you like.</li>
+      </ul>
+    </div>
+
+    <h2 id="download">1. Download</h2>
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/BNK989/AutoLang/releases/download/linux-v0.6.0-test1/autolang_0.6.0-tester1_amd64.deb">Download the .deb (amd64)</a>
+    </div>
+    <p class="fine">About 23 MB. SHA-256, if you want to check it (<code>sha256sum autolang_0.6.0-tester1_amd64.deb</code>):<br>
+      <span class="sum">7fca2914e79622c328816c00f9ee32f912a4d354038bd5d3ac8e6066c3c96daf</span></p>
+
+    <h2 id="install">2. Install</h2>
+    <p>In a terminal, from the folder you downloaded to:</p>
+    <div class="cmd"><pre><code>sudo apt install ./autolang_0.6.0-tester1_amd64.deb</code></pre><button type="button">Copy</button></div>
+    <p>Use <code>apt</code>, not <code>dpkg -i</code>, so the few libraries it needs come along. It installs exactly
+      this, and nothing runs until you select AutoLang as your keyboard:</p>
+    <table class="files">
+      <tr><td><code>/usr/lib/autolang/autolang</code></td><td>The program: engine and command line in one file, with .NET built in.</td></tr>
+      <tr><td><code>/usr/bin/autolang</code></td><td>A link to it, for the commands below.</td></tr>
+      <tr><td><code>/usr/share/ibus/component/autolang.xml</code></td><td>Tells IBus that AutoLang exists and how to start it.</td></tr>
+      <tr><td><code>/usr/share/autolang/</code>, <code>/usr/share/doc/autolang/</code></td><td>Icon and licence.</td></tr>
+    </table>
+    <p>No service, no root process, no <code>input</code> group, no udev rule, no network access. IBus starts AutoLang
+      as your own user when you pick it, and it stops with your session.</p>
+
+    <h2 id="enable">3. Turn it on</h2>
+    <p>As your own user (no <code>sudo</code>):</p>
+    <div class="cmd"><pre><code>ibus restart
+autolang enable
+autolang doctor</code></pre><button type="button">Copy</button></div>
+    <ol>
+      <li><code>ibus restart</code> makes IBus notice the new input method. Logging out and back in does the same.</li>
+      <li><code>autolang enable</code> adds AutoLang to <strong>Settings → Keyboard → Input Sources</strong> and selects
+        it. Your other layouts stay in the list. To do it by hand instead: <strong>+ Add Input Source</strong>, then
+        search for AutoLang (it is listed under <strong>Other</strong>).</li>
+      <li><code>autolang doctor</code> checks every step and prints what to fix. It should end with
+        <code>Everything looks right.</code></li>
+    </ol>
+    <div class="cmd out"><pre><code>  ok   ibus-daemon is running
+  ok   IBus knows the AutoLang engine
+  ok   AutoLang is a GNOME input source
+  ok   AutoLang is the current input source
+  ok   the AutoLang engine is running
+  ok   layout us: English (United States) [us], Latin, word list en
+  ok   layout il: עברית (ישראל) [il], Hebrew, word list he</code></pre></div>
+
+    <h2 id="how">How it behaves on Linux</h2>
+    <p>This is the one real difference from Windows and Mac. There, AutoLang watches your layouts and switches between
+      them. Here, <strong>AutoLang is the layout</strong>: you select it once, and it types both English and Hebrew
+      itself. The top bar shows <strong>EN</strong> or <strong>HE</strong> for the language it is typing in now.</p>
+    <ul>
+      <li>It switches language by itself when it corrects a word.</li>
+      <li>To switch by hand, <strong>tap Shift twice</strong> with nothing typed, or use <strong>Type in …</strong> in
+        the top-bar keyboard menu.</li>
+      <li><strong>Pause corrections</strong> in the same menu keeps typing in the current language with no corrections.</li>
+      <li><strong>Super+Space</strong> still switches to your ordinary layouts. AutoLang does nothing while one of them
+        is selected.</li>
+      <li>The word you are typing stays "in progress" until you finish it, which is how AutoLang can fix it without
+        deleting anything. Some apps may underline it while you type. Tell me where that looks wrong.</li>
+    </ul>
+
+    <h2 id="try">4. What to try</h2>
+    <ol>
+      <li>Open Text Editor. With the top bar showing <strong>EN</strong>, type <code>akuo</code> and a space. It should
+        become <code>שלום </code> and the top bar should show <strong>HE</strong>.</li>
+      <li>Now press the keys h-e-l-l-o and a space (<code>יקךךם</code>). It should become <code>hello </code>.</li>
+      <li>Right after a correction, <strong>tap Shift twice quickly</strong> to undo it. AutoLang remembers that word and
+        leaves it alone from then on.</li>
+      <li>To convert a word that was not corrected, tap Shift twice before you type the space.</li>
+    </ol>
+    <p>Then use it normally for a while. Good places to try:</p>
+    <ul>
+      <li>Firefox and Chrome: a search box, Gmail, a Google Doc, WhatsApp Web.</li>
+      <li>Electron apps: Slack, Discord, VS Code. Also Telegram and LibreOffice.</li>
+      <li>Pressing Enter right after a mistyped word, instead of a space. Fixing a typo with Backspace in the middle of a word.</li>
+      <li>Typing fast, and mixing English and Hebrew in one sentence.</li>
+    </ul>
+    <p>Password fields and terminals are typed in the current language but never corrected.</p>
+
+    <h2 id="report">5. Report back</h2>
+    <p>Please send:</p>
+    <ul>
+      <li>The output of <code>autolang doctor</code>. It includes your Ubuntu version and whether you are on Wayland or X11.</li>
+      <li>What worked, what didn't, and in which apps. A word changed when it shouldn't have been (or the other way
+        round) is the most useful thing you can tell me.</li>
+      <li>The log, <code>~/.local/state/autolang/autolang.log</code>. It records timing, corrections and the kind of
+        field (normal, password, terminal). It never records what you typed.</li>
+    </ul>
+    <p>You can send it however you like, or open an issue on
+      <a href="https://github.com/BNK989/AutoLang/issues">GitHub</a>.</p>
+
+    <h2 id="rough">Known rough edges</h2>
+    <ul>
+      <li>Converting <strong>selected</strong> text (select, tap Shift twice) is not in the Linux build yet.</li>
+      <li>There are no per-app exclusions yet, and the menu is in English only.</li>
+      <li>Keys AutoLang does not type itself (the keypad, AltGr characters) come out as on a US keyboard.</li>
+      <li>For a second or so after you log in, AutoLang types but does not correct, while it loads its word lists.</li>
+      <li>Apps that do not use IBus at all (some games, old Java apps) get plain US typing while AutoLang is selected.</li>
+    </ul>
+
+    <h2 id="layouts">Other layouts</h2>
+    <p>AutoLang's settings are a plain file, <code>~/.config/autolang/settings.json</code>. On first run it copies the
+      layouts you had in GNOME (or English and Hebrew if you had fewer than two). To change them, edit
+      <code>"layouts"</code> with XKB names, then run <code>ibus restart</code>:</p>
+    <div class="cmd"><pre><code>{
+  "layouts": ["us", "ru"],
+  "paused": false,
+  "exceptionWords": []
+}</code></pre><button type="button">Copy</button></div>
+    <p>This build ships word lists for <strong>English and Hebrew only</strong>. Other layouts are typed but not
+      corrected yet (the Windows version downloads their lists; the Linux build cannot yet). <code>autolang layouts</code> shows what each key types on each layout, and <code>autolang try "akuo "</code>
+      runs keys through the engine without IBus, which is handy for reporting a wrong decision.
+      <code>exceptionWords</code> lists the words you undid; delete one to let AutoLang correct it again.</p>
+
+    <h2 id="source">Under the hood</h2>
+    <p>The engine and the decisions are the same code as on Windows and Mac: word frequency lists and character
+      statistics, all local, no AI service. The Linux part talks to IBus over D-Bus and reads your layouts with
+      libxkbcommon. It is all MIT licensed, in
+      <a href="https://github.com/BNK989/AutoLang/tree/main/src/AutoLang.Linux"><code>src/AutoLang.Linux</code></a>.
+      To build the package yourself you need the .NET 8 SDK; <code>packaging/linux/build-deb.sh</code> wraps the
+      published binary.</p>
+
+    <h2 id="uninstall">Uninstall</h2>
+    <div class="cmd"><pre><code>autolang disable
+sudo apt remove autolang</code></pre><button type="button">Copy</button></div>
+    <p><code>autolang disable</code> takes AutoLang out of your input sources and leaves the others as they were. To
+      remove its settings and log too:</p>
+    <div class="cmd"><pre><code>rm -rf ~/.config/autolang ~/.local/state/autolang</code></pre><button type="button">Copy</button></div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>AutoLang · MIT licensed</span>
+    <span><a href="../">Home</a> · <a href="https://github.com/BNK989/AutoLang/issues">Report an issue</a> · <a href="https://github.com/BNK989/AutoLang">GitHub</a></span>
+  </div>
+</footer>
+<script>
+(function () {
+  // Copy buttons on the commands.
+  document.querySelectorAll('.cmd button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var text = b.parentNode.querySelector('code').textContent;
+      function done() { b.textContent = 'Copied'; setTimeout(function () { b.textContent = 'Copy'; }, 1500); }
+      if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, function () {});
+    });
+  });
+})();
+</script>
+</body>
+</html>

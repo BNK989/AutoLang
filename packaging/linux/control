@@ -1,0 +1,19 @@
+Package: autolang
+Version: @VERSION@
+Architecture: @ARCH@
+Maintainer: AutoLang <89899137+BNK989@users.noreply.github.com>
+Installed-Size: @SIZE@
+Depends: ibus, libxkbcommon0, libc6, libgcc-s1, libstdc++6, libicu78 | libicu77 | libicu76 | libicu75 | libicu74 | libicu72 | libicu71 | libicu70
+Recommends: ibus-gtk3, ibus-gtk4
+Section: utils
+Priority: optional
+Homepage: https://bnk989.github.io/AutoLang/
+Description: fixes text typed in the wrong keyboard layout
+ AutoLang is an IBus input method for people who type in two alphabets, such
+ as English and Hebrew. It types in all of your layouts itself: a word typed
+ in the wrong one ("akuo") is replaced by what you meant ("שלום") when you
+ finish it, and typing carries on in that language. Double-tap Shift to undo
+ a correction or convert what you just typed.
+ .
+ Everything runs locally: no network, no account, no telemetry. Typed text is
+ never stored or logged.

@@ -13,13 +13,31 @@ internal sealed class Typing
 {
     public IReadOnlyList<XkbLayout> Layouts { get; }
     public SessionController Controller { get; }
+    public Settings Settings { get; }
     public ushort Lang { get; set; }
 
-    public Typing(IReadOnlyList<XkbLayout> layouts)
+    public Typing(IReadOnlyList<XkbLayout> layouts, Settings settings)
     {
         Layouts = layouts;
+        Settings = settings;
         Lang = layouts[0].Table.LangId;
         Controller = new SessionController(new PhraseDecider([]), []);
+        Controller.AddExceptions(settings.ExceptionWords);
+        Controller.ExceptionsAdded += SaveExceptions;
+    }
+
+    public bool Paused
+    {
+        get { lock (Settings) return Settings.Paused; }
+        set { lock (Settings) { Settings.Paused = value; Settings.Save(); } Controller.Reset(ResetScope.All); }
+    }
+
+    /// <summary>An undone or erased-and-retyped word: kept for good, like on Windows and Mac. Called on the D-Bus thread:
+    /// on ExceptionsAdded (a retyped word) and after applying an Undo, which adds its words without raising that event.</summary>
+    public void SaveExceptions()
+    {
+        var words = Controller.Exceptions.ToList();
+        ThreadPool.QueueUserWorkItem(_ => { lock (Settings) { Settings.ExceptionWords = words; Settings.Save(); } });
     }
 
     public XkbLayout Layout(ushort lang) => Layouts.FirstOrDefault(l => l.Table.LangId == lang) ?? Layouts[0];
@@ -81,7 +99,9 @@ internal sealed class AutoLangEngine(DBusConnection connection, string path, Typ
     private readonly DoubleShift _doubleShift = new();
     private readonly System.Text.StringBuilder _pre = new();
     private uint _caps;
-    private bool _noCorrect;
+    private bool _skipField;
+    /// <summary>Password, PIN and terminal fields, or AutoLang paused: keys are typed in the current language, nothing is corrected.</summary>
+    private bool NoCorrect => _skipField || typing.Paused;
     private string _purpose = "free";
 
     private SessionController Controller => typing.Controller;
@@ -107,7 +127,7 @@ internal sealed class AutoLangEngine(DBusConnection connection, string path, Typ
         {
             case XK_BackSpace:
             {
-                var back = _noCorrect ? null : Controller.OnBackspace();
+                var back = NoCorrect ? null : Controller.OnBackspace();
                 if (back is { } lang) SetLang(lang, "correction erased");
                 if (_pre.Length == 0) return false;
                 _pre.Length--; // the erased char is ours: edit the preedit instead of the app's text
@@ -116,7 +136,7 @@ internal sealed class AutoLangEngine(DBusConnection connection, string path, Typ
             }
             case XK_Return or XK_KP_Enter:
                 // The corrected text is committed now; the Enter itself goes on to the app, after the commit.
-                if (!_noCorrect && Controller.OnEnter(typing.Lang) is { } enter) Apply(enter, pressEnter: false);
+                if (!NoCorrect && Controller.OnEnter(typing.Lang) is { } enter) Apply(enter, pressEnter: false);
                 CommitPreedit();
                 return false;
             case XK_Tab or XK_Escape or XK_Delete or (>= XK_Home and <= XK_End) or (>= XK_F1 and <= XK_F35):
@@ -129,7 +149,7 @@ internal sealed class AutoLangEngine(DBusConnection connection, string path, Typ
             : typing.Layout(typing.Lang).Translate((ushort)keycode, (state & IBus.ShiftMask) != 0, (state & IBus.LockMask) != 0);
         if (c is null) { CommitPreedit(); Controller.Reset(ResetScope.Run); return false; } // keypad, media keys, a dead key...
 
-        if (_noCorrect) { CommitPreedit(); CommitText(c.Value.ToString()); return true; }
+        if (NoCorrect) { CommitPreedit(); CommitText(c.Value.ToString()); return true; }
 
         int runBefore = Controller.RunLength;
         if (Controller.OnChar(c.Value, typing.Lang) is { } correction)
@@ -149,13 +169,11 @@ internal sealed class AutoLangEngine(DBusConnection connection, string path, Typ
     /// convert it switches the language (spike experiment: the Linux build has no other switch key).</summary>
     private void Hotkey()
     {
-        if (_noCorrect) return;
+        if (NoCorrect) return;
         bool convert = !Controller.CanUndo;
         var c = convert ? Controller.Force(typing.Lang) : Controller.Undo();
         if (c is not null) { Apply(c, pressEnter: false); return; }
-        var next = typing.Layouts.Select(l => l.Table.LangId).SkipWhile(l => l != typing.Lang).Skip(1)
-            .DefaultIfEmpty(typing.Layouts[0].Table.LangId).First();
-        SetLang(next, "double shift with nothing to convert");
+        SetLang(NextLang(), "double shift with nothing to convert");
     }
 
     private void Apply(Correction c, bool pressEnter)
@@ -197,6 +215,7 @@ internal sealed class AutoLangEngine(DBusConnection connection, string path, Typ
         Log.Info($"{c.Kind} via {how}: -{c.Backspaces} +{Log.Show(c.Text)} " +
                  $"{Languages.Symbol(c.FromLangId)}→{Languages.Symbol(c.TargetLangId)} margin {c.Margin:0.00} ({c.Reason}) in {sw.Elapsed.TotalMilliseconds:0.0} ms");
         SetLang(c.TargetLangId, null);
+        if (c.Kind == CorrectionKind.Undo) typing.SaveExceptions();
     }
 
     private void ShowPreedit() => UpdatePreeditText(_pre.ToString(), NoUnderline);
@@ -220,13 +239,48 @@ internal sealed class AutoLangEngine(DBusConnection connection, string path, Typ
         typing.Lang = lang;
         if (why is not null) Log.Info($"language → {Languages.Symbol(lang)} ({why})");
         UpdateProperty(ModeProperty());
+        UpdateProperty(SwitchProperty());
     }
+
+    private const string PauseKey = "autolang.pause", SwitchKey = "autolang.switch";
 
     /// <summary>GNOME's top-bar indicator shows the symbol of an engine property keyed "InputMode".</summary>
     private IBus.Property ModeProperty()
     {
         var lang = typing.Lang;
-        return new IBus.Property("InputMode", $"AutoLang: {Languages.DisplayName(lang)}", Languages.Symbol(lang), "AutoLang");
+        return new IBus.Property("InputMode", $"AutoLang: {Languages.DisplayName(lang)}",
+            typing.Paused ? $"{Languages.Symbol(lang)}·" : Languages.Symbol(lang), "AutoLang");
+    }
+
+    private ushort NextLang() => typing.Layouts.Select(l => l.Table.LangId).SkipWhile(l => l != typing.Lang).Skip(1)
+        .DefaultIfEmpty(typing.Layouts[0].Table.LangId).First();
+
+    private IBus.Property SwitchProperty() =>
+        new($"{SwitchKey}", $"Type in {Languages.DisplayName(NextLang())}", "", "Double-tap Shift with nothing typed does the same");
+
+    private IBus.Property PauseProperty() =>
+        new(PauseKey, "Pause corrections", "", "Keep typing in the current language without corrections",
+            Type: IBus.PropTypeToggle, State: typing.Paused ? 1u : 0u);
+
+    private IBus.Property[] AllProperties() => [ModeProperty(), SwitchProperty(), PauseProperty()];
+
+    /// <summary>The menu items in the top bar's input source menu.</summary>
+    protected override void PropertyActivate(string name, uint state)
+    {
+        if (name == PauseKey)
+        {
+            typing.Paused = !typing.Paused;
+            CommitPreedit();
+            Log.Info(typing.Paused ? "paused" : "resumed");
+            UpdateProperty(PauseProperty());
+            UpdateProperty(ModeProperty());
+        }
+        else if (name == SwitchKey)
+        {
+            CommitPreedit();
+            Controller.Reset(ResetScope.Run);
+            SetLang(NextLang(), "menu");
+        }
     }
 
     protected override void SetCapabilities(uint caps)
@@ -238,10 +292,10 @@ internal sealed class AutoLangEngine(DBusConnection connection, string path, Typ
     /// <summary>Password, PIN and terminal fields are typed in the current language but never corrected.</summary>
     protected override void SetContentType(uint purpose, uint hints)
     {
-        _noCorrect = purpose is IBus.PurposePassword or IBus.PurposePin or IBus.PurposeTerminal;
+        _skipField = purpose is IBus.PurposePassword or IBus.PurposePin or IBus.PurposeTerminal;
         _purpose = purpose switch { IBus.PurposePassword => "password", IBus.PurposePin => "pin", IBus.PurposeTerminal => "terminal", _ => purpose.ToString() };
         Controller.Reset(ResetScope.All);
-        Log.Info($"content purpose {_purpose}{(_noCorrect ? ": not corrected" : "")}");
+        Log.Info($"content purpose {_purpose}{(_skipField ? ": not corrected" : "")}");
     }
 
     /// <summary>Tests only: every focus starts in the first layout's language, so cases do not inherit each other's.</summary>
@@ -251,7 +305,7 @@ internal sealed class AutoLangEngine(DBusConnection connection, string path, Typ
     {
         Controller.Reset(ResetScope.All);
         if (FocusResetsLang) typing.Lang = typing.Layouts[0].Table.LangId;
-        RegisterProperties([ModeProperty()]);
+        RegisterProperties(AllProperties());
         RequireSurroundingText();
     }
 
@@ -259,10 +313,10 @@ internal sealed class AutoLangEngine(DBusConnection connection, string path, Typ
     {
         DropPreedit();
         Controller.Reset(ResetScope.All);
-        _noCorrect = false;
+        _skipField = false;
     }
 
     protected override void Reset() { DropPreedit(); Controller.Reset(ResetScope.All); }
-    protected override void Enable() => RegisterProperties([ModeProperty()]);
+    protected override void Enable() => RegisterProperties(AllProperties());
     protected override void Disable() => Controller.Reset(ResetScope.All);
 }

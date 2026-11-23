@@ -3,4 +3,5 @@ data/words/*.txt -text
 
 # Linux scripts run inside Linux (WSL reads them from this checkout): always LF.
 *.sh text eol=lf
-spike/LinuxIBus/linux/*.py text eol=lf
+tests/linux/*.py text eol=lf
+packaging/linux/** text eol=lf

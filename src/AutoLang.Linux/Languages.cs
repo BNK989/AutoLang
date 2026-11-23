@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using AutoLang.Engine;
@@ -6,44 +5,21 @@ using AutoLang.Engine;
 namespace AutoLang.Linux;
 
 /// <summary>
-/// Which layouts AutoLang types in, and their engine profiles. With AutoLang as the only GNOME input source, GNOME no
-/// longer lists the user's layouts, so the list is AutoLang's own: AUTOLANG_LAYOUTS ("us,il"), else the XKB sources in
-/// GNOME's settings (the state before AutoLang was added), else us + il.
+/// Layout ids, language ids and engine profiles. With AutoLang as a GNOME input source, GNOME no longer types in the
+/// user's layouts, so the list AutoLang types in is its own (<see cref="Settings"/>); GNOME's list only seeds it.
 /// </summary>
 internal static partial class Languages
 {
-    /// <summary>XKB layout → language tag. Spike-sized; the real build reads evdev.xml's languageList.</summary>
+    /// <summary>XKB layout → language tag, for the layouts AutoLang ships word lists for and their neighbours.</summary>
     private static readonly Dictionary<string, string> LayoutLanguage = new(StringComparer.Ordinal)
     {
         ["us"] = "en-US", ["gb"] = "en-GB", ["il"] = "he-IL", ["ru"] = "ru-RU", ["ua"] = "uk-UA", ["gr"] = "el-GR",
         ["ara"] = "ar-SA", ["by"] = "be-BY", ["bg"] = "bg-BG", ["de"] = "de-DE", ["fr"] = "fr-FR", ["es"] = "es-ES",
     };
 
-    public static IReadOnlyList<string> ConfiguredLayoutIds()
-    {
-        var env = Environment.GetEnvironmentVariable("AUTOLANG_LAYOUTS");
-        if (!string.IsNullOrWhiteSpace(env))
-            return env.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-        var fromGnome = GnomeXkbSources();
-        if (fromGnome.Count >= 2) return fromGnome;
-        return ["us", "il"];
-    }
-
     /// <summary>"[('xkb', 'us'), ('xkb', 'il'), ('ibus', 'autolang')]" → ["us", "il"]. Empty when gsettings is missing.</summary>
-    private static List<string> GnomeXkbSources()
-    {
-        try
-        {
-            var psi = new ProcessStartInfo("gsettings", "get org.gnome.desktop.input-sources sources")
-            { RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false };
-            using var p = Process.Start(psi);
-            if (p is null) return [];
-            var output = p.StandardOutput.ReadToEnd();
-            p.WaitForExit(2000);
-            return XkbSource().Matches(output).Select(m => m.Groups[1].Value).ToList();
-        }
-        catch (Exception) { return []; }
-    }
+    public static List<string> GnomeXkbSources() =>
+        XkbSource().Matches(Gnome.Get("sources") ?? "").Select(m => m.Groups[1].Value).ToList();
 
     [GeneratedRegex(@"\('xkb',\s*'([^']+)'\)")]
     private static partial Regex XkbSource();

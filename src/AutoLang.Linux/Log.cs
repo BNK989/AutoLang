@@ -1,11 +1,13 @@
 namespace AutoLang.Linux;
 
 /// <summary>
-/// Spike log: ~/.local/state/autolang/spike.log (XDG_STATE_HOME), and stderr. Typed text is never written unless
-/// AUTOLANG_LOG_TEXT=1, which is for test machines only.
+/// ~/.local/state/autolang/autolang.log (XDG_STATE_HOME), and stderr. Records timing, counts and decisions, never what
+/// was typed: text appears only with AUTOLANG_LOG_TEXT=1, which is for test machines. Over 2 MB at start-up the log
+/// moves to autolang.log.old, so it never grows without bound.
 /// </summary>
 internal static class Log
 {
+    private const long MaxBytes = 2 * 1024 * 1024;
     private static readonly object Gate = new();
     private static string? _path;
 
@@ -22,12 +24,16 @@ internal static class Log
         }
     }
 
+    public static string FilePath => Path.Combine(Dir, "autolang.log");
+
     public static void Init()
     {
         try
         {
             Directory.CreateDirectory(Dir);
-            _path = Path.Combine(Dir, "spike.log");
+            var info = new FileInfo(FilePath);
+            if (info.Exists && info.Length > MaxBytes) File.Move(FilePath, FilePath + ".old", overwrite: true);
+            _path = FilePath;
         }
         catch (Exception) { _path = null; }
     }
@@ -40,7 +46,7 @@ internal static class Log
 
     private static void Write(string level, string message)
     {
-        var line = $"{DateTime.Now:HH:mm:ss.fff} {level} {message}";
+        var line = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff} {level} {message}";
         lock (Gate)
         {
             Console.Error.WriteLine(line);

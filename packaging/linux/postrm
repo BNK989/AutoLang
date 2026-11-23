@@ -1,0 +1,9 @@
+#!/bin/sh
+# After removal the IBus cache must forget the engine. Users' settings (~/.config/autolang) and logs
+# (~/.local/state/autolang) are theirs and stay; "autolang disable" before removing takes AutoLang out of the GNOME
+# input sources.
+set -e
+if [ "$1" = remove ] || [ "$1" = purge ]; then
+    ibus write-cache --system >/dev/null 2>&1 || true
+fi
+exit 0

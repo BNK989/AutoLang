@@ -91,7 +91,9 @@ internal static class IBus
         w.WriteArrayEnd(attrs);
     }
 
-    public sealed record Property(string Key, string Label, string Symbol, string Tooltip);
+    public const uint PropTypeNormal = 0, PropTypeToggle = 1;
+
+    public sealed record Property(string Key, string Label, string Symbol, string Tooltip, uint Type = PropTypeNormal, uint State = 0);
 
     private const string PropertySignature = "(sa{sv}suvsvbbuvv)";
 
@@ -120,13 +122,13 @@ internal static class IBus
         w.WriteString("IBusProperty");
         w.WriteDictionaryEnd(w.WriteDictionaryStart());
         w.WriteString(p.Key);
-        w.WriteUInt32(0); // PROP_TYPE_NORMAL
+        w.WriteUInt32(p.Type);
         WriteTextVariant(ref w, p.Label);
         w.WriteString("");
         WriteTextVariant(ref w, p.Tooltip);
         w.WriteBool(true);
         w.WriteBool(true);
-        w.WriteUInt32(0);
+        w.WriteUInt32(p.State);
         WritePropListVariant(ref w, Array.Empty<Property>());
         WriteTextVariant(ref w, p.Symbol);
     }
