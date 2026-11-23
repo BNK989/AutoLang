@@ -4,7 +4,7 @@
 
 .DESCRIPTION
   Publishes the host self-contained for win-x64, stages it with the manifest and logos, builds resources.pri and packs
-  dist\AutoLang-<version>-x64.msix.
+  dist\AutoLang-<version>-x64.msix (sideload) or dist\AutoLang-<version>-x64-store.msix (-Store).
 
   Store build (Partner Center signs it; upload the .msix as is):
     .\packaging\build-msix.ps1 -Store
@@ -155,8 +155,10 @@ $cfg.Save($priConfig)
 Invoke-Tool $makepri @("new", "/pr", $priRoot, "/cf", $priConfig, "/mn", (Join-Path $layout "AppxManifest.xml"), "/of", (Join-Path $layout "resources.pri"), "/o")
 
 # 4. Pack (validates the manifest against the schema).
+# A Store build is a different app to Windows (other identity and publisher), so it gets its own file name: building
+# both for one version must not overwrite the signed sideload package that the GitHub release ships.
 New-Item -ItemType Directory -Force $dist | Out-Null
-$msix = Join-Path $dist "AutoLang-$Version-x64.msix"
+$msix = Join-Path $dist ("AutoLang-$Version-x64" + $(if ($Store) { "-store" } else { "" }) + ".msix")
 Invoke-Tool $makeappx @("pack", "/d", $layout, "/p", $msix, "/o")
 
 # 5. Sign for sideloading. Store uploads stay unsigned: Partner Center signs them.

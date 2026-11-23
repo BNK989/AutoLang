@@ -4,7 +4,7 @@ Two outputs, both built from this folder:
 
 | Script | Output | For |
 |---|---|---|
-| `build-msix.ps1` | `dist/AutoLang-<version>-x64.msix` | Microsoft Store (unsigned upload) or sideload tests (signed with a test cert) |
+| `build-msix.ps1` | `dist/AutoLang-<version>-x64.msix`, or `-x64-store.msix` with `-Store` | Microsoft Store (unsigned upload) or sideload tests (signed with a test cert) |
 | `build-portable.ps1` | `dist/AutoLang.exe` | Portable single-file build; unsigned, SmartScreen warns |
 
 Both need the .NET 8 SDK. `build-msix.ps1` also needs `makeappx` / `makepri` (and `signtool` when signing). It
@@ -54,7 +54,7 @@ The result is unsigned on purpose; the Store signs it with Microsoft's certifica
 
 ## 3. Submission
 
-**Packages:** upload `dist/AutoLang-<version>-x64.msix`. Device family: Desktop only.
+**Packages:** upload `dist/AutoLang-<version>-x64-store.msix`. Device family: Desktop only.
 
 **Properties:** category *Utilities & tools*. Privacy policy URL: required, because the app has `runFullTrust` and
 reads input. Use https://bnk989.github.io/AutoLang/privacy.html (the GitHub Pages copy of `PRIVACY.md`, built from
