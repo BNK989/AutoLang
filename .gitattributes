@@ -1,2 +1,6 @@
 # Word lists are third-party data used unmodified: keep them byte-for-byte.
 data/words/*.txt -text
+
+# Linux scripts run inside Linux (WSL reads them from this checkout): always LF.
+*.sh text eol=lf
+spike/LinuxIBus/linux/*.py text eol=lf

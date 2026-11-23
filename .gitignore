@@ -4,6 +4,7 @@ obj/
 dist/
 packaging/.build/
 packaging/.tools/
+spike/*/publish/
 *.user
 .vs/
 

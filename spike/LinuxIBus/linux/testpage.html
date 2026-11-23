@@ -1,0 +1,11 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>AL:</title>
+<!-- Spike test page: the textarea's text is mirrored into the window title (URL-encoded) so the test script can read it
+     with xdotool getwindowname. -->
+<textarea id="t" autofocus style="width:90vw;height:80vh;font-size:20px"></textarea>
+<script>
+  const t = document.getElementById('t');
+  t.addEventListener('input', () => { document.title = 'AL:' + encodeURIComponent(t.value); });
+  t.focus();
+</script>

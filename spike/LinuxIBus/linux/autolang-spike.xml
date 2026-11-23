@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- IBus component for the AutoLang Linux spike. ibus-daemon reads this from /usr/share/ibus/component,
+     starts <exec> when the engine is first selected, and expects the process to own <name> on its bus. -->
+<component>
+    <name>org.freedesktop.IBus.AutoLang</name>
+    <description>AutoLang: fixes text typed in the wrong keyboard layout</description>
+    <exec>/usr/local/lib/autolang-spike/run.sh --ibus</exec>
+    <version>0.6.0-spike</version>
+    <author>AutoLang</author>
+    <license>MIT</license>
+    <homepage>https://bnk989.github.io/AutoLang/</homepage>
+    <textdomain>autolang</textdomain>
+    <engines>
+        <engine>
+            <name>autolang</name>
+            <language>other</language>
+            <license>MIT</license>
+            <author>AutoLang</author>
+            <icon></icon>
+            <layout>us</layout>
+            <longname>AutoLang</longname>
+            <description>Types in your layouts and fixes words typed in the wrong one</description>
+            <rank>0</rank>
+            <symbol>AL</symbol>
+        </engine>
+    </engines>
+</component>
