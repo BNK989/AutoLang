@@ -53,12 +53,13 @@ Requires keyboards for at least two different alphabets (Settings → Time & lan
 ```
 
 **What's new in this version:** leave empty for the first submission. For later ones, a short list of changes.
-The latest, for 0.5.0:
+The latest, for 0.6.0:
 
 ```
-• Menus and windows now follow your Windows display language: English, Hebrew, Arabic, Persian, Russian, Ukrainian, Bulgarian, Greek, German, Spanish, French, Portuguese and Italian.
-• A welcome card on first run shows how to undo a fix and how to pause. Launch AutoLang again to bring it back.
-• Clicking the tray icon to pause or resume shows a small card by the tray instead of a notification.
+• Select text typed in the wrong layout and tap Shift twice to convert it. Tap Shift twice again right away to put it back.
+• Tapping Shift twice now also fixes the last word after you typed past it, for example "rkuubyh?" becomes "רלוונטי?".
+• Undo keeps working after you type a space or punctuation after a fix.
+• Fixed: holding Shift to type "?" or "!" right after a Shift tap could convert the word you had just typed.
 ```
 
 **Product features** (one per box):
